@@ -1,0 +1,1 @@
+document.querySelectorAll('.sdpi-wrapper>*:not(#footer)').forEach(el => el.style.display = 'none');

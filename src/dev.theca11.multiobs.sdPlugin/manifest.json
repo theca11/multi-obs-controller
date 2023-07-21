@@ -1,0 +1,175 @@
+{
+	"SDKVersion": 2,
+	"Author": "the_ca11",
+	"Name": "Multi OBS Controller",
+	"Description": "Control remotely multiple OBS Studio instances in a synchronous way",
+	"Icon": "assets/pluginIcon",
+	"CodePath": "plugin/app.html",
+	"PropertyInspectorPath": "propertyInspector/inspector.html",
+	"DefaultWindowSize": [500, 575],
+	"Version": "1.0.0",
+	"Software": {
+		"MinimumVersion": "6.0"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Category": "Multi OBS Controller",
+	"CategoryIcon": "assets/categoryIcon",
+	"Actions": [
+		{
+			"UUID": "dev.theca11.multiobs.togglestream",
+			"Icon": "assets/actions/togglestream/icon",
+			"Name": "Stream",
+			"Tooltip": "Start/stop streaming",
+			"States": [
+				{
+					"Image": "assets/actions/togglestream/key",
+					"Name": "Start"
+				},
+				{
+					"Image": "assets/actions/togglestream/key",
+					"Name": "Stop"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
+			"UUID": "dev.theca11.multiobs.togglerecord",
+			"Icon": "assets/actions/togglerecord/icon",
+			"Name": "Record",
+			"Tooltip": "Start/stop recording",
+			"States": [
+				{
+					"Image": "assets/actions/togglerecord/key",
+					"Name": "Start"
+				},
+				{
+					"Image": "assets/actions/togglerecord/key",
+					"Name": "Stop"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
+			"UUID": "dev.theca11.multiobs.setscene",
+			"Icon": "assets/actions/setscene/icon",
+			"Name": "Scene",
+			"Tooltip": "Set current scene",
+			"States": [
+				{
+					"Image": "assets/actions/setscene/key"
+				}
+			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.togglesource",
+			"Icon": "assets/actions/togglesource/icon",
+			"Name": "Source Visibility",
+			"Tooltip": "Show/hide source",
+			"States": [
+				{
+					"Image": "assets/actions/togglesource/key",
+					"Name": "Show"
+				},
+				{
+					"Image": "assets/actions/togglesource/key",
+					"Name": "Hide"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
+			"UUID": "dev.theca11.multiobs.setcollection",
+			"Icon": "assets/actions/setcollection/icon",
+			"Name": "Scene Collection",
+			"Tooltip": "Set current scene collection",
+			"States": [
+				{
+					"Image": "assets/actions/setcollection/key"
+				}
+			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.toggleinputmute",
+			"Icon": "assets/actions/toggleinputmute/icon",
+			"Name": "Audio Mute",
+			"Tooltip": "Mute/unmute audio source",
+			"States": [
+				{
+					"Image": "assets/actions/toggleinputmute/key",
+					"Name": "Mute"
+				},
+				{
+					"Image": "assets/actions/toggleinputmute/key",
+					"Name": "Unmute"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
+			"UUID": "dev.theca11.multiobs.triggerhotkey",
+			"Icon": "assets/actions/triggerhotkey/icon",
+			"Name": "Hotkey Sequence",
+			"Tooltip": "Trigger action associated with a hotkey sequence",
+			"States": [
+				{
+					"Image": "assets/actions/triggerhotkey/key"
+				}
+			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.refreshcapturedevice",
+			"Icon": "assets/actions/refreshcapturedevice/icon",
+			"Name": "Refresh Capture Device",
+			"Tooltip": "Disable & re-enable a video capture device",
+			"States": [
+				{
+					"Image": "assets/actions/refreshcapturedevice/key"
+				}
+			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.rawrequest",
+			"Icon": "assets/actions/rawrequest/icon",
+			"Name": "Raw WS Request",
+			"Tooltip": "[Advanced] Send a raw WS request",
+			"States": [
+				{
+					"Image": "assets/actions/rawrequest/key"
+				}
+			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.rawbatchrequest",
+			"Icon": "assets/actions/rawbatchrequest/icon",
+			"Name": "Raw WS Batch Request",
+			"Tooltip": "[Advanced] Send raw WS batch request",
+			"States": [
+				{
+					"Image": "assets/actions/rawbatchrequest/key"
+				}
+			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.status",
+			"Icon": "assets/actions/status/icon",
+			"Name": "OBS WS Servers Status",
+			"Tooltip": "Check plugin connection to OBS WS servers",
+			"States": [
+				{
+					"Image": "assets/actions/status/key"
+				}
+			],
+			"UserTitleEnabled": false,
+			"SupportedInMultiActions": false
+		}
+	]
+}

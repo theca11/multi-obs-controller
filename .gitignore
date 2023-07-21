@@ -1,0 +1,11 @@
+.DS_Store
+.idea/**
+.vscode/**
+.history
+__exclude
+.editorconfig
+DistributionTool.exe
+/dist
+previews.psd
+src/dev.theca11.multiobs.sdPlugin/previews/1-preview.png
+src/dev.theca11.multiobs.sdPlugin/previews/2-preview.png

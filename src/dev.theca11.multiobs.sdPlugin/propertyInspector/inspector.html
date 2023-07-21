@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover"
+		/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<title>Multi OBS Controller Property Inspector</title>
+		<link rel="stylesheet" href="../libs/css/sdpi.css" />
+		<style>
+			hr:not(.tab-separator) {
+				margin-block-start: 0.5em;
+    			margin-block-end: 0.5em;
+			}
+
+			.tab-separator {
+				margin-top: -2px;
+			}
+
+			.sdpi-item-value> :last-of-type, .sdpi-item-value:last-child {
+				margin-bottom: 0px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="sdpi-wrapper" style="visibility: hidden">
+			<form id="common-fields">
+				<div type="radio" class="sdpi-item" id="target" title="OBS to target" style="margin-top: 2px">
+					<div class="sdpi-item-label">Target</div>
+					<div class="sdpi-item-value">
+						<input id="obs0" type="radio" name="target" value="0" checked>
+						<label for="obs0" class="sdpi-item-label"><span></span>All</label>
+						<input id="obs1" type="radio" name="target" value="1">
+						<label for="obs1" class="sdpi-item-label"><span></span>OBS #1</label>
+						<input id="obs2" type="radio" name="target" value="2">
+						<label for="obs2" class="sdpi-item-label"><span></span>OBS #2</label>
+					</div>
+				</div>
+				<div type="checkbox" class="sdpi-item" id="indivParams" title="Use individual settings per OBS instance" style="margin-top: 0px">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<input id="indivParamsCheck" type="checkbox" name="indivParams" value="true">
+						<label for="indivParamsCheck" class="sdpi-item-label"><span></span>Use individual settings per OBS instance</label>
+					</div>
+				</div>
+			</form>
+			<hr class="first-separator" style="display: none; margin-bottom: 20px; margin-top: 2px" />
+			<div id="tabs-header" style="margin-top: -12px">
+				<div type="tabs" class="sdpi-item">
+					<div class="sdpi-item-label empty"></div>
+					<div class="tabs"></div>
+				</div>
+				<hr class="tab-separator" />
+			</div>
+			<div class="tabs-contents"></div>
+			<div id="footer">
+				<hr/> <hr/>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label empty"></div>
+					<a class="sdpi-item-value" id="open-config" href="#">General configuration</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="sdpi-info-label hidden" style="top: -1000" value=""></div>
+
+		<!-- Stream Deck Libs -->
+		<script src="../libs/js/constants.js"></script>
+		<script src="../libs/js/prototypes.js"></script>
+		<script src="../libs/js/timers.js"></script>
+		<script src="../libs/js/utils.js"></script>
+		<script src="../libs/js/events.js"></script>
+		<script src="../libs/js/api.js"></script>
+		<script src="../libs/js/property-inspector.js"></script>
+		<script src="../libs/js/dynamic-styles.js"></script>
+
+		<!-- Property Inspector Source -->
+		<script src="inspector.js" type="module"></script>
+	</body>
+</html>
