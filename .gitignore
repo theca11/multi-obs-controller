@@ -4,7 +4,6 @@
 .history
 __exclude
 .editorconfig
-DistributionTool.exe
 previews.psd
 src/dev.theca11.multiobs.sdPlugin/previews/1-preview.png
 src/dev.theca11.multiobs.sdPlugin/previews/2-preview.png
