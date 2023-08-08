@@ -1,0 +1,44 @@
+name: Create Draft Release
+run-name: Create Draft Release for ${{ github.ref_name }}
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+env:
+  plugin_uuid: dev.theca11.multiobs
+  release_id: Multi-OBS-Controller-Plugin-${{ github.ref_name }}
+
+jobs:
+  build_release:
+    name: Build & Create Draft Release
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: Install project dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Create distributable file (.streamDeckPlugin)
+        run: npm run release
+      - name: Rename distributable
+        run: Rename-Item -Path "dist\${{ env.plugin_uuid }}.streamDeckPlugin" -NewName "${{ env.release_id }}.streamDeckPlugin"
+      - name: Zip build folder
+        run: Compress-Archive -Path "build\${{ env.plugin_uuid }}.sdPlugin" -DestinationPath "dist\${{ env.release_id }}.zip"
+      - name: Create Github draft release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          files: |
+            dist/${{ env.release_id }}.zip
+            dist/${{ env.release_id }}.streamDeckPlugin
+          fail_on_unmatched_files: true
+          draft: true
