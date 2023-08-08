@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+	  "outDir": "./build",
+	  "lib": ["ES2022", "DOM", "DOM.Iterable"],
+	  "target": "ES2022",
+	  "module": "ES2022",
+	  "moduleResolution": "node",
+	  "strict": true,
+	  "esModuleInterop": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "allowJs": true
+	},
+	"exclude": [
+	  "node_modules",
+	  "build",
+	  "dist"
+	]
+  }

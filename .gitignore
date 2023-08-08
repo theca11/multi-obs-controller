@@ -8,3 +8,6 @@ DistributionTool.exe
 previews.psd
 src/dev.theca11.multiobs.sdPlugin/previews/1-preview.png
 src/dev.theca11.multiobs.sdPlugin/previews/2-preview.png
+node_modules/
+build/
+previews/
