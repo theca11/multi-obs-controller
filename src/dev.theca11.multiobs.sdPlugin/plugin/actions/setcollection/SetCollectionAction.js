@@ -3,7 +3,7 @@ import { getCollectionsLists } from '../../helpersOBS.js';
 
 export class SetCollectionAction extends OBSWebsocketAction {
 	constructor() {
-		super('dev.theca11.multiobs.setcollection', 'sceneCollectionName');
+		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName' });
 	}
 
 	getPayloadFromSettings(settings) {

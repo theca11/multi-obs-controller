@@ -1,9 +1,10 @@
 import { OBSWebsocketAction } from '../OBSWebsocketAction.js';
 import { getScenesLists, getSceneItemsList } from '../../helpersOBS.js';
+import { getSceneItemEnableStates, getSceneItemEnableState, getSceneItemId } from '../../status.js';
 
 export class ToggleSourceAction extends OBSWebsocketAction {
 	constructor() {
-		super('dev.theca11.multiobs.togglesource', 'sourceName');
+		super('dev.theca11.multiobs.togglesource', { titleParam: 'sourceName', statusEvent: 'SceneItemEnableStateChanged' });
 
 		this.onSendToPlugin(async ({payload, context, action}) => {
 			if (payload.event === 'GetSceneItemsList') {
@@ -56,39 +57,70 @@ export class ToggleSourceAction extends OBSWebsocketAction {
 		}
 	}
 
-	async sendWsRequests(target, payloadsArray) {
-		const requestType = payloadsArray[0].requests[1].requestType;
+	// to-do: fix this method now that payloadsArray can contain null values
+	/**
+	 * 
+	 * @param {array} payloadsArray 
+	 * @returns 
+	 */
+	async sendWsRequests(payloadsArray) {
+		const requestType = payloadsArray.find(payload => payload)?.requests[1].requestType;
+		// const requestType = payloadsArray[0].requests[1].requestType;
 		if (requestType === 'SetSceneItemEnabled')
-			return super.sendWsRequests(target, payloadsArray);
+			return super.sendWsRequests(payloadsArray);
 
-		const sceneNames = payloadsArray.map((p) => p.requests[0].requestData.sceneName);
-		const firstBatchResults = await super.sendWsRequests(target, payloadsArray);
-		const secondBatchPayloadsArray = [];
-		firstBatchResults.flat().map((r, idx) => {
+		const sceneNames = payloadsArray.map((p) => p ? p.requests[0].requestData.sceneName : null);
+		const firstBatchResults = await super.sendWsRequests(payloadsArray);
+		// const secondBatchPayloadsArray = [];
+		const secondBatchPayloadsArray = firstBatchResults.flat().map((r, idx) => {
+			if (!payloadsArray[idx]) {
+				return null;
+			}
 			const obsResponse = r.value;
 			if (obsResponse) {
 				const sceneItemId = obsResponse[0].responseData?.sceneItemId;
 				const sceneItemEnabled = obsResponse[1].responseData?.sceneItemEnabled;
-				secondBatchPayloadsArray.push({
+				return {
 					requestType: 'SetSceneItemEnabled',
 					requestData: {
 						sceneName: sceneNames[idx],
 						sceneItemId: sceneItemId,
 						sceneItemEnabled: !sceneItemEnabled,
 					},
-				});
+				};
 			}
 			else {
-				secondBatchPayloadsArray.push({});
+				return { requestType: 'InvalidRequest' };
 			}
-
 		});
-		return super.sendWsRequests(target, secondBatchPayloadsArray);
+		return super.sendWsRequests(secondBatchPayloadsArray);
 	}
 
 	async onPropertyInspectorReady({context, action}) {
 		const scenesLists = await getScenesLists();
 		const payload = { event: 'SceneListLoaded', scenesLists: scenesLists };
 		$SD.sendToPropertyInspector(context, payload, action);
+	}
+
+	async fetchState(socketSettings, socketIdx) {
+		return getSceneItemEnableState(socketIdx, socketSettings.sceneName, socketSettings.sourceName);
+	}
+
+	// async getStates(settings) {
+	// 	const settingsArray = this.getSettingsArray(settings);
+	// 	return getSceneItemEnableStates(settingsArray.map(s => s?.sceneName ?? null), settingsArray.map(s => s?.sourceName ?? null));
+	// }
+
+	async shouldUpdateImage(evtData, socketSettings, socketIdx) {
+		const { sceneName, sourceName } = socketSettings;
+		if (sceneName && sourceName && sceneName === evtData.sceneName) {
+			const sceneItemId = await getSceneItemId(socketIdx, sceneName, sourceName);
+			if (sceneItemId && sceneItemId === evtData.sceneItemId) return true;
+		}
+		return false;
+	}
+
+	async getNewState(evtData, socketSettings) {
+		return evtData.sceneItemEnabled;
 	}
 }

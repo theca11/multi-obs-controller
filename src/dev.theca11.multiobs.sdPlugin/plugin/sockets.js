@@ -22,6 +22,7 @@ class Socket extends OBSWebSocket {
 			if (this._isConnected) {
 				const logStr = `[DISCONNECTED] OBS Websocket server at ${this._ip}:${this._port}`; 
 				SDUtils.log(logStr);
+				this.emit('Disconnected');
 			}
 			this._isConnected = false;
 		});
@@ -62,4 +63,6 @@ class Socket extends OBSWebSocket {
 	}
 }
 
-export const sockets = [new Socket(), new Socket()];
+// to-do: find hardcoded "2" in the code and substitute with this const
+export const NUM_SOCKETS = 2;
+export const sockets = new Array(NUM_SOCKETS).fill().map(() => new Socket());

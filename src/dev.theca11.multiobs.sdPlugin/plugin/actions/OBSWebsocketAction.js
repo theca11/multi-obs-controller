@@ -1,51 +1,108 @@
 /// <reference path="../../libs/js/action.js" />
-import { sockets } from "../sockets.js";
-import { SDUtils } from '../utils.js';
-
-const DEFAULT_ACTION_SETTINGS = {
-	common: { target: 0, indivParams: false },
-	params1: {},
-	params2: {}
-};
+import { NUM_SOCKETS, sockets } from "../sockets.js";
+import { evtEmitter } from "../status.js";
+import { SDUtils, ImageUtils, CanvasUtils } from '../utils.js';
 
 /** Base class for all actions used to send OBS WS requests */
 export class OBSWebsocketAction extends Action {
 	_hideActionFeedback = false;
-	_titleParam = '';
+	_ctxSettingsCache = new Map();	// <context, settings> map (not included if in multiaction)
+	_ctxStatesCache = new Map();	// <context, statesArray> map (not included if in multiaction)
 
 	/**
 	 * @param {string} UUID Action UUID string, as defined in manifest.json
-	 * @param {string} titleParam Settings param to use as default key title
+	 * @param {object} params Additional action parameters
 	 */
-	constructor(UUID, titleParam = '') {
+	constructor(UUID, { titleParam, statusEvent } = {}) {
 		super(UUID);
-		this._titleParam = titleParam;
+
+		// Attach listener to status event, if provided, to update key image
+		if (statusEvent) {
+			evtEmitter.on(statusEvent, (evtSocketIdx, evtData) => {
+				this.updateImages(evtSocketIdx, evtData);
+			});
+		}
+
+		// Keep cache of actions
+		this.onWillDisappear(({context}) => {
+			this._ctxSettingsCache.delete(context);
+			this._ctxStatesCache.delete(context);
+		});
+		this.onWillAppear(async ({context, payload}) => {
+			const { settings, isInMultiAction } = payload;
+			if (isInMultiAction) return;
+
+			// Update key title
+			if (titleParam) this.updateTitle(context, payload.settings, titleParam);
+
+			// Update key image
+			this._ctxSettingsCache.set(context, settings);
+			try {
+				this._ctxStatesCache.set(context, await this.fetchStates(settings).catch(() => null))
+				const img = await this.getBaseKeyImage();
+				this.updateKeyImage(context, this.getTarget(settings), img);
+			}
+			catch(e) {
+				console.error(e)
+			}
+		});
+
+		this.onDidReceiveSettings(async ({context, payload}) => {
+			const { settings, isInMultiAction } = payload;
+			if (isInMultiAction) return;
+
+			// Update key title
+			if (titleParam) this.updateTitle(context, payload.settings, titleParam);
+
+			// Update key image
+			this._ctxSettingsCache.set(context, settings);
+			this._ctxStatesCache.set(context, await this.fetchStates(settings).catch(() => null))
+			try {
+				const img = await this.getBaseKeyImage();
+				this.updateKeyImage(context, this.getTarget(settings), img);
+			}
+			catch(e) {
+				console.error(e)
+			}
+		});
+
+		evtEmitter.on('SocketInitialized', async (socketIdx) => {
+			console.log('socket connected')
+			for (const [ctx, settings] of this._ctxSettingsCache) {
+				const settingsArray = this.getSettingsArray(settings);
+				const newState = await this.fetchState(settingsArray[socketIdx], socketIdx).catch(() => null);
+				console.log(newState)
+				this.updateStatesCache(ctx, socketIdx, newState);
+			}
+			this.updateImages();
+		});
+		evtEmitter.on('SocketDisconnected', (socketIdx) => {
+			console.log('Socket disconnected')
+			for (const [ctx, _states] of this._ctxStatesCache) {
+				this.updateStatesCache(ctx, socketIdx, null);
+			}
+			this.updateImages();
+		});
 
 		// Main logic when key is pressed
 		this.onKeyUp(async ({ context, payload }) => {
 			const { settings, userDesiredState } = payload;
-			const actionSettings = { ...DEFAULT_ACTION_SETTINGS, ...settings };
 
 			// 1. Get settings per instance, as expected later for OBS WS call, in an array
-			const instancesSettings = [];
-			const target = parseInt(actionSettings.common.target);
-			const { indivParams } = actionSettings.common; 
-			for (let i = 0; i < sockets.length; i++) {
-				let instanceSettings = { requestType: 'NoRequest' };
-				const paramsKey = `params${(target === 0 && !indivParams) ? 1 : i + 1}`;
-				if (paramsKey in actionSettings) {
-					try {
-						instanceSettings = this.getPayloadFromSettings(actionSettings[paramsKey], userDesiredState);
-					}
-					catch(e) {
-						SDUtils.log(`[ERROR] Error parsing action settings - request will be invalid`);
-					}
+			const settingsArray = this.getSettingsArray(settings);
+			const payloadsArray = settingsArray.map(settings => {
+				try {
+					if (!settings) return null;
+					return this.getPayloadFromSettings(settings, userDesiredState);
 				}
-				instancesSettings.push(instanceSettings);
-			}
+				catch {
+					SDUtils.log(`[ERROR] Error parsing action settings - request will be invalid`);
+					return { requestType: 'InvalidRequest' };
+				}
+			});
 
 			// 2. Send WS requests
-			const results = await this.sendWsRequests(target, instancesSettings);
+			const results = await this.sendWsRequests(payloadsArray);
 
 			// 3. Log potential errors and send key feedback
 			const actionId = this.UUID.replace('dev.theca11.multiobs.', '');
@@ -80,17 +137,6 @@ export class OBSWebsocketAction extends Action {
 		$SD.onDidReceiveGlobalSettings(({payload}) => {
 			this._hideActionFeedback = payload.settings.feedback === 'hide';
 		})
-
-		// Set key title on init and when settings are updated
-		if (titleParam) {
-			this.onWillAppear(({context, payload}) => {
-				this.updateTitle(context, payload.settings, titleParam);
-			})
-
-			this.onDidReceiveSettings(({context, payload}) => {
-				this.updateTitle(context, payload.settings, titleParam);
-			})
-		}
 	}
 
 	/**
@@ -106,15 +152,14 @@ export class OBSWebsocketAction extends Action {
 
 	/**
 	 * Sends OBS WS requests to OBS socket instances
-	 * @param {number} target The OBS socket to send the request to. 0 = all, 1 = OBS#1, 2 = OBS#2
 	 * @param {Array} payloadsArray An array containing a request payload for each OBS socket instance
 	 * @returns Array of results of the WS request, one per OBS instance
 	 */
-	async sendWsRequests(target, payloadsArray) {
+	async sendWsRequests(payloadsArray) {
 		const results = await Promise.allSettled(
 			sockets.map((socket, idx) => {
 				const payload = payloadsArray[idx];
-				if (target === 0 || target === idx + 1) {
+				if (payload) {
 					if (!socket.isConnected) return Promise.reject('Not connected to OBS WS server');
 					return payload.requestType
 						? socket.call(payload.requestType, payload.requestData)
@@ -145,5 +190,145 @@ export class OBSWebsocketAction extends Action {
 		else {
 			SDUtils.setKeyTitle(context, settings[`params${target}`][settingsParam]);
 		}
+	}
+
+	// --- Update status image ---
+	getBaseKeyImage() {
+		const actionName = this.UUID.split('.').at(-1);
+		const imgUrl = `../assets/actions/${actionName}/key.svg`;
+		return ImageUtils.loadImagePromise(imgUrl);
+	}
+
+	async updateImages(evtSocketIdx = null, evtData = null) {
+		try {
+			const img = await this.getBaseKeyImage();
+			if (evtSocketIdx !== null) {	// update state from event data
+				for (const [context, settings] of this._ctxSettingsCache) {
+					const socketSettings = this.getSettingsArray(settings)[evtSocketIdx];
+					if (socketSettings && await this.shouldUpdateImage(evtData, socketSettings, evtSocketIdx)) {
+						const newState = await this.getNewState(evtData, socketSettings);
+						let prevStates = this._ctxStatesCache.get(context) ?? new Array(NUM_SOCKETS).fill(null);
+						prevStates[evtSocketIdx] = newState;
+						this._ctxStatesCache.set(context, prevStates);
+					}
+				}
+			}
+			for (const [context, settings] of this._ctxSettingsCache) {
+				this.updateKeyImage(context, this.getTarget(settings), img)
+			}
+		}
+		catch(e) {
+			console.error(e);
+		}
+	}
+
+	async fetchStates(settings) {
+		const settingsArray = this.getSettingsArray(settings);
+		const statesResults = await Promise.allSettled(settingsArray.map((socketSettings, idx) => {
+			if (!socketSettings || !sockets[idx].isConnected) return Promise.reject();
+			return this.fetchState(socketSettings, idx);
+		}))
+		return statesResults.map(res => res.status === 'fulfilled' ? res.value : null);
+	}
+
+	async fetchState(socketSettings, socketIdx) {
+		return undefined;
+	}
+
+	async getNewState(evtData, socketSettings) {
+		return false;
+	}
+
+	async shouldUpdateImage(evtData, socketSettings, socketIdx) {
+		return true;
+	}
+
+	updateKeyImage(context, target, img) {
+		const states = this._ctxStatesCache.get(context);
+
+		const canvas =  document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		ctx.globalCompositeOperation = 'source-over';
+
+		canvas.width = 144;
+		canvas.height = 144;
+
+		// Draw image to canvas
+		ctx.globalAlpha = img.opacity ? img.opacity : 1;
+		ctx.drawImage(img, 0, 0);
+
+		// Draw target numbers
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = "#999999";
+		ctx.font = "bold 25px Arial";
+		ctx.textBaseline = 'top';
+		if (target === 0 || target === 1) {
+			ctx.textAlign = 'left';
+			ctx.fillText('1', 0 + 10, 10);
+		}
+		if (target === 0 || target === 2) {
+			ctx.textAlign = 'right';
+			ctx.fillText('2', 144 - 10, 10);
+		}
+
+
+		// Draw target status		
+		if (target !== 0) {
+			if (states[target-1] === null) {
+				CanvasUtils.overlayLineVPattern(ctx, 0, 1);
+			}
+			else {
+				CanvasUtils.overlayColor(ctx, states[target-1] ? '#3A9F2266' : '#33333366', 0, 1, states[target-1] ? 'destination-over' : 'source-oever');
+			}
+		}
+		else {
+			for (let i = 0; i < states.length; i++) {
+				if (states[i] === null) {
+					CanvasUtils.overlayLineVPattern(ctx, i / 2, (i + 1) / 2);
+				}
+				else {
+					CanvasUtils.overlayColor(ctx, states[i] ? '#3A9F2266' : '#33333366', i / 2, (i + 1) / 2, states[i] ? 'destination-over' : 'source-oever');
+				}
+				
+			}
+		}
+
+		// Get base64 img and set image
+		const b64 = canvas.toDataURL('image/png', 1);
+		$SD.setImage(context, b64);
+	}
+
+	// -- General helpers --
+	getCommonSettings(settings) {
+		settings = settings ?? {};
+		return { 
+			target: parseInt(settings.common?.target) || 0,
+			indivParams: !!settings.common?.indivParams
+		};
+	}
+
+	getTarget(settings) {
+		return this.getCommonSettings(settings).target;
+	}
+
+	getSettingsArray(settings) {
+		settings = settings ?? {};
+		const { target, indivParams } = this.getCommonSettings(settings);
+		let settingsArray = [];
+		for (let i = 0; i < sockets.length; i++) {
+			if (target === 0 || target === i + 1) {
+				settingsArray.push(settings[`params${(target === 0 && !indivParams) ? 1 : i + 1}`] ?? {});
+			}
+			else {
+				settingsArray.push(null);
+			}
+		}
+		return settingsArray;
+	}
+
+	updateStatesCache(context, socketIdx, newState) {
+		let states = this._ctxStatesCache.get(context) ?? new Array(NUM_SOCKETS).fill(undefined);
+		states[socketIdx] = newState;
+		this._ctxStatesCache.set(context, states);
 	}
 }

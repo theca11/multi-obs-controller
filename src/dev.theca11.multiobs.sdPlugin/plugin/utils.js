@@ -45,3 +45,54 @@ export class SDUtils {
 		$SD.logMessage(message);
 	}
 }
+
+export class ImageUtils {
+	/**
+	 * Load an image into an Image() element
+	 * @param {string} url Image url
+	 * @returns Promise that resolves on successful load, and rejects on load error
+	 */
+	static loadImagePromise(url) {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => resolve(img);
+			img.onerror = () => reject();
+			img.src = url;
+		});
+	}
+}
+
+export class CanvasUtils {
+	static overlayColor(ctx, color, xStart, xEnd, compOp = 'source-over', canvasWidth = 144, canvasHeight = 144) {
+		ctx.globalCompositeOperation = compOp;
+		ctx.fillStyle = color;
+		ctx.fillRect(xStart * canvasWidth, 0, xEnd * canvasWidth, canvasHeight);
+	}
+
+	static overlayLineHPattern(ctx, xStart, xEnd, color1 = '#33333366', color2 = '#66666666', numLines = 15, compOp = 'source-over', canvasWidth = 144, canvasHeight = 144) {
+		ctx.globalCompositeOperation = compOp;
+		const thickness = canvasHeight / numLines;
+		for (let i=0; i < numLines; i++){
+			ctx.beginPath();
+			ctx.strokeStyle = i % 2 ? color1 : color2;
+			ctx.lineWidth = thickness;  
+			ctx.moveTo(xStart * canvasWidth, (i + 1/2) * thickness);
+			ctx.lineTo(xEnd * canvasWidth, (i + 1/2) * thickness);
+			ctx.stroke();
+		}
+	}
+
+	static overlayLineVPattern(ctx, xStart, xEnd, color1 = '#33333366', color2 = '#66666666', numLines = 16, compOp = 'source-over', canvasWidth = 144, canvasHeight = 144) {
+		ctx.globalCompositeOperation = compOp;
+		const thickness = canvasWidth / numLines;
+		numLines = numLines * (xEnd - xStart);
+		for (let i=0; i < numLines; i++){
+			ctx.beginPath();
+			ctx.strokeStyle = i % 2 ? color1 : color2;
+			ctx.lineWidth = thickness;  
+			ctx.moveTo(xStart * canvasWidth + (i + 1/2) * thickness, 0);
+			ctx.lineTo(xStart * canvasWidth + (i + 1/2) * thickness, canvasHeight);
+			ctx.stroke();
+		}
+	}
+}

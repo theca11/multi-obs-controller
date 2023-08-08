@@ -2,7 +2,7 @@ import { OBSWebsocketAction } from '../OBSWebsocketAction.js';
 
 export class RefreshCaptureDeviceAction extends OBSWebsocketAction {
 	constructor() {
-		super('dev.theca11.multiobs.refreshcapturedevice', 'deviceName');
+		super('dev.theca11.multiobs.refreshcapturedevice', { titleParam: 'deviceName' });
 	}
 
 	getPayloadFromSettings(settings) { 
