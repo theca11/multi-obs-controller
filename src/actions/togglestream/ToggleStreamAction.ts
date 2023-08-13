@@ -1,5 +1,5 @@
-import { getStreamStates } from '../status';
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { getStreamState } from '../states';
 
 export class ToggleStreamAction extends OBSWebsocketAction {
 	constructor() {
@@ -17,7 +17,7 @@ export class ToggleStreamAction extends OBSWebsocketAction {
 	}
 
 	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
-		return getStreamStates()[socketIdx];
+		return getStreamState(socketIdx);
 	}
 
 	// getStates() {

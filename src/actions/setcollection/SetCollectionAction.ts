@@ -1,5 +1,5 @@
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
-import { getCollectionsLists } from '../helpersOBS';
+import { getCollectionsLists } from '../lists';
 
 export class SetCollectionAction extends OBSWebsocketAction {
 	constructor() {

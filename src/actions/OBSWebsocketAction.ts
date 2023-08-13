@@ -1,6 +1,6 @@
 import { OBSRequestTypes, RequestBatchOptions, RequestBatchRequest, ResponseMessage } from "obs-websocket-js";
 import { NUM_SOCKETS, sockets } from "../plugin/sockets";
-import { evtEmitter } from "./status";
+import { evtEmitter } from "./states";
 import { SDUtils, ImageUtils, CanvasUtils } from '../plugin/utils';
 import type { DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, WillAppearData, WillDisappearData } from './types'
 

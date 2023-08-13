@@ -1,5 +1,5 @@
-import { evtEmitter, getRecordStates } from '../status';
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { getRecordState } from '../states';
 
 export class ToggleRecordAction extends OBSWebsocketAction {
 	constructor() {
@@ -17,7 +17,7 @@ export class ToggleRecordAction extends OBSWebsocketAction {
 	}
 
 	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
-		return getRecordStates()[socketIdx];
+		return getRecordState(socketIdx);
 	}
 
 	// getStates() {

@@ -1,6 +1,6 @@
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
-import { getScenesLists } from '../helpersOBS';
-import { evtEmitter, getCurrentScenes } from '../status';
+import { getScenesLists } from '../lists';
+import { getCurrentScene } from '../states';
 
 export class SetSceneAction extends OBSWebsocketAction {
 	constructor() {
@@ -22,7 +22,7 @@ export class SetSceneAction extends OBSWebsocketAction {
 	}
 
 	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
-		const currentScene = getCurrentScenes()[socketIdx];
+		const currentScene = getCurrentScene(socketIdx);
 		return socketSettings.sceneName && socketSettings.sceneName === currentScene;
 	}
 

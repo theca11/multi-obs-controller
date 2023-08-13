@@ -1,9 +1,9 @@
-// import { EventEmitter } from "https://cdn.jsdelivr.net/npm/eventemitter3@5.0.1/dist/eventemitter3.esm.min.js";
 import { EventEmitter } from 'eventemitter3';
 import { Socket, sockets } from "../plugin/sockets";
 import { OBSResponseTypes } from 'obs-websocket-js';
 
 export const evtEmitter = new EventEmitter();
+
 let streamStates: (boolean | null | undefined)[] = [null, null];	// to-do: don't hardcore these sizes
 let recordStates: (boolean | null | undefined)[] = [null, null];
 let currentProgramScenes: (string | null | undefined)[] = [null, null];
@@ -44,25 +44,10 @@ sockets.forEach((socket, i) => {
 	})
 })
 
-export function getStreamStates() { return streamStates; }
-export function getRecordStates() { return recordStates; }
-export function getCurrentScenes() { return currentProgramScenes; }
 
-export async function getInputMuteStates(inputNames: string[]) {
-	const promiseResults = await Promise.allSettled(
-		sockets.map((socket, idx) => {
-			const inputName = inputNames[idx];
-			if (inputName) {
-				if (!socket.isConnected) return Promise.reject('Not connected to OBS WS server');
-				return socket.call('GetInputMute', { inputName })
-			}
-			else {
-				return Promise.reject();
-			}
-		})
-	);
-	return promiseResults.map(res => res.status === 'fulfilled' ? res.value.inputMuted : null);
-}
+export function getStreamState(socketIdx: number) { return streamStates[socketIdx]; }
+export function getRecordState(socketIdx: number) { return recordStates[socketIdx]; }
+export function getCurrentScene(socketIdx: number) { return currentProgramScenes[socketIdx]; }
 
 export async function getInputMuteState(socketIdx: number, inputName: string) {
 	if (inputName && sockets[socketIdx].isConnected) {
@@ -105,36 +90,6 @@ export async function getSceneItemEnableState(socketIdx: number, sceneName: stri
 	else {
 		return Promise.reject();
 	}
-}
-
-export async function getSceneItemEnableStates(sceneNames: string[], sourceNames: string[]) {
-	const promiseResults = await Promise.allSettled(
-		sockets.map((socket, idx) => {
-			const sceneName = sceneNames[idx];
-			const sourceName = sourceNames[idx];
-			if (sceneName && sourceName) {
-				if (!socket.isConnected) return Promise.reject('Not connected to OBS WS server');
-				return socket.callBatch([
-					{
-						requestType: 'GetSceneItemId',
-						requestData: { sceneName, sourceName },
-						// @ts-ignore
-						outputVariables: { sceneItemIdVariable: 'sceneItemId' }
-					},
-					{
-						requestType: 'GetSceneItemEnabled',
-						// @ts-ignore
-						requestData: { sceneName },
-						inputVariables: { sceneItemId: 'sceneItemIdVariable' },
-					}
-				])
-			}
-			else {
-				return Promise.reject();
-			}
-		})
-	);
-	return promiseResults.map(res => res.status === 'fulfilled' ? ((res.value.at(-1)?.responseData as OBSResponseTypes['GetSceneItemEnabled']).sceneItemEnabled ?? null) : null);
 }
 
 export async function getSceneItemId(socketIdx: number, sceneName: string, sourceName: string) {
