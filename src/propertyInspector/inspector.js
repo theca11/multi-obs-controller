@@ -15,7 +15,7 @@ $PI.onConnected(async (jsn) => {
 
 	// Insert tabs and action fields
 	const actionName = action.split('.').at(-1);
-	const { fields } = await import(`../plugin/actions/${actionName}/fields.js`)
+	const { fields } = await import(`../actions/${actionName}/fields.js`)
 	.catch(() =>{ console.log('No custom fields loaded'); return {}});
 	if (fields) {
 		const tabs = [];
@@ -52,7 +52,7 @@ $PI.onConnected(async (jsn) => {
 	document.querySelector('#indivParamsCheck').addEventListener('change', () => updateTargetTabs());
 
 	// Load custom action PI JS, if it exists
-	await import(`../plugin/actions/${actionName}/pi.js`).catch(() => console.log('No custom action JS loaded'));
+	await import(`../actions/${actionName}/pi.js`).catch(() => console.log('No custom action JS loaded'));
 
 	// Signal plugin that PI is ready after importing everything
 	$PI.sendToPlugin({event: 'ready'});

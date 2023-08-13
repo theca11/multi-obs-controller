@@ -1,4 +1,4 @@
-import { sockets } from './sockets';
+import { sockets } from '../plugin/sockets';
 
 export async function getScenesLists() {
 	const results = await Promise.allSettled(

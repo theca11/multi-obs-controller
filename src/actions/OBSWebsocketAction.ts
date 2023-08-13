@@ -1,8 +1,8 @@
 import { OBSRequestTypes, RequestBatchOptions, RequestBatchRequest, ResponseMessage } from "obs-websocket-js";
-import { NUM_SOCKETS, sockets } from "../sockets";
-import { evtEmitter } from "../status";
-import { SDUtils, ImageUtils, CanvasUtils } from '../utils';
-import type { DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, WillAppearData, WillDisappearData } from '../types'
+import { NUM_SOCKETS, sockets } from "../plugin/sockets";
+import { evtEmitter } from "./status";
+import { SDUtils, ImageUtils, CanvasUtils } from '../plugin/utils';
+import type { DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, WillAppearData, WillDisappearData } from './types'
 
 type ConstructorParams = {
 	titleParam: string,

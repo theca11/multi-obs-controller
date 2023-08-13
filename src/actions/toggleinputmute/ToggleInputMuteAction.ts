@@ -1,6 +1,6 @@
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
-import { getInputsLists } from '../../helpersOBS';
-import { getInputMuteState } from '../../status';
+import { getInputsLists } from '../helpersOBS';
+import { getInputMuteState } from '../status';
 
 export class ToggleInputMuteAction extends OBSWebsocketAction {
 	constructor() {

@@ -1,7 +1,7 @@
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
-import { getScenesLists, getSceneItemsList } from '../../helpersOBS';
-import { getSceneItemEnableStates, getSceneItemEnableState, getSceneItemId } from '../../status';
-import { BatchRequestPayload, RequestPayload, SendToPluginData } from '../../types.js';
+import { getScenesLists, getSceneItemsList } from '../helpersOBS';
+import { getSceneItemEnableStates, getSceneItemEnableState, getSceneItemId } from '../status';
+import { BatchRequestPayload, RequestPayload, SendToPluginData } from '../types.js';
 
 export class ToggleSourceAction extends OBSWebsocketAction {
 	constructor() {

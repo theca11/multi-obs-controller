@@ -1,5 +1,5 @@
-import { sockets } from "../../sockets";
-import { WillAppearData, WillDisappearData } from "../../types.js";
+import { sockets } from "../../plugin/sockets";
+import { WillAppearData, WillDisappearData } from "../types.js";
 
 /** Action showing plugin connection status to OBS WS servers */
 export class StatusAction extends Action {

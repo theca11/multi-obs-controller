@@ -1,6 +1,6 @@
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
-import { getScenesLists } from '../../helpersOBS';
-import { evtEmitter, getCurrentScenes } from '../../status';
+import { getScenesLists } from '../helpersOBS';
+import { evtEmitter, getCurrentScenes } from '../status';
 
 export class SetSceneAction extends OBSWebsocketAction {
 	constructor() {

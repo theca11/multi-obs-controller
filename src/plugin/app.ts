@@ -1,5 +1,5 @@
 import { sockets } from "./sockets";
-import * as pluginActions from "./actions/index";
+import * as pluginActions from "../actions/index";
 import { SDUtils } from "./utils";
 
 // Initialize all plugin actions

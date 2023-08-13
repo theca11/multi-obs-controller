@@ -1,28 +1,27 @@
-import { evtEmitter, getRecordStates } from '../../status';
+import { getStreamStates } from '../status';
 import { OBSWebsocketAction } from '../OBSWebsocketAction';
 
-export class ToggleRecordAction extends OBSWebsocketAction {
+export class ToggleStreamAction extends OBSWebsocketAction {
 	constructor() {
-		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged' });
+		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged' });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
 		if (desiredState === 0) {
-			return { requestType: 'StartRecord' };
+			return { requestType: 'StartStream' };
 		} else if (desiredState === 1) {
-			return { requestType: 'StopRecord' };
+			return { requestType: 'StopStream' };
 		} else {
-			return { requestType: 'ToggleRecord' };
+			return { requestType: 'ToggleStream' };
 		}
 	}
 
 	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
-		return getRecordStates()[socketIdx];
+		return getStreamStates()[socketIdx];
 	}
 
 	// getStates() {
-	// 	console.log('record getstates')
-	// 	return getRecordStates();
+	// 	return getStreamStates();
 	// }
 
 	async shouldUpdateImage(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {

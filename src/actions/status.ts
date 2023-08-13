@@ -1,6 +1,6 @@
 // import { EventEmitter } from "https://cdn.jsdelivr.net/npm/eventemitter3@5.0.1/dist/eventemitter3.esm.min.js";
 import { EventEmitter } from 'eventemitter3';
-import { Socket, sockets } from "./sockets";
+import { Socket, sockets } from "../plugin/sockets";
 import { OBSResponseTypes } from 'obs-websocket-js';
 
 export const evtEmitter = new EventEmitter();
