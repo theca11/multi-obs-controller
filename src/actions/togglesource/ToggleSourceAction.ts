@@ -1,9 +1,9 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getScenesLists, getSceneItemsList } from '../lists';
 import { getSceneItemEnableState, getSceneItemId } from '../states';
 import { BatchRequestPayload, RequestPayload, SendToPluginData } from '../types.js';
 
-export class ToggleSourceAction extends OBSWebsocketAction {
+export class ToggleSourceAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglesource', { titleParam: 'sourceName', statusEvent: 'SceneItemEnableStateChanged' });
 
@@ -98,7 +98,7 @@ export class ToggleSourceAction extends OBSWebsocketAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null> {
 		return getSceneItemEnableState(socketIdx, socketSettings.sceneName, socketSettings.sourceName);
 	}
 
@@ -107,7 +107,7 @@ export class ToggleSourceAction extends OBSWebsocketAction {
 	// 	return getSceneItemEnableStates(settingsArray.map(s => s?.sceneName ?? null), settingsArray.map(s => s?.sourceName ?? null));
 	// }
 
-	async shouldUpdateImage(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		const { sceneName, sourceName } = socketSettings;
 		if (sceneName && sourceName && sceneName === evtData.sceneName) {
 			const sceneItemId = await getSceneItemId(socketIdx, sceneName, sourceName);
@@ -116,7 +116,7 @@ export class ToggleSourceAction extends OBSWebsocketAction {
 		return false;
 	}
 
-	async getNewState(evtData: any, socketSettings: any): Promise<boolean> {
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
 		return evtData.sceneItemEnabled;
 	}
 }

@@ -1,7 +1,7 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
 import { getCollectionsLists } from '../lists';
 
-export class SetCollectionAction extends OBSWebsocketAction {
+export class SetCollectionAction extends AbstractBaseWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName' });
 	}

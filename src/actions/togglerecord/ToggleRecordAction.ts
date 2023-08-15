@@ -1,7 +1,7 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getRecordState } from '../states';
 
-export class ToggleRecordAction extends OBSWebsocketAction {
+export class ToggleRecordAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged' });
 	}
@@ -16,20 +16,15 @@ export class ToggleRecordAction extends OBSWebsocketAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null> {
 		return getRecordState(socketIdx);
 	}
 
-	// getStates() {
-	// 	console.log('record getstates')
-	// 	return getRecordStates();
-	// }
-
-	async shouldUpdateImage(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		return true;
 	}
 
-	async getNewState(evtData: any, socketSettings: any): Promise<boolean> {
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
 		return evtData.outputActive;
 	}
 }

@@ -1,6 +1,6 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
 
-export class TriggerHotkeyAction extends OBSWebsocketAction {
+export class TriggerHotkeyAction extends AbstractBaseWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.triggerhotkey');
 	}

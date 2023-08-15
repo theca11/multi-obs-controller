@@ -1,6 +1,6 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
 
-export class RefreshCaptureDeviceAction extends OBSWebsocketAction {
+export class RefreshCaptureDeviceAction extends AbstractBaseWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.refreshcapturedevice', { titleParam: 'deviceName' });
 	}

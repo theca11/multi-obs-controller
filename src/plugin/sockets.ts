@@ -1,7 +1,7 @@
 import OBSWebSocket from "obs-websocket-js";
 import { SDUtils } from "./utils";
 
-export class Socket extends OBSWebSocket {
+class Socket extends OBSWebSocket {
 	_ip;
 	_port;
 	_password;

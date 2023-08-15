@@ -1,8 +1,8 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getScenesLists } from '../lists';
 import { getCurrentScene } from '../states';
 
-export class SetSceneAction extends OBSWebsocketAction {
+export class SetSceneAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.setscene', { titleParam: 'sceneName', statusEvent: 'CurrentProgramSceneChanged' });
 	}
@@ -21,7 +21,7 @@ export class SetSceneAction extends OBSWebsocketAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean> {
 		const currentScene = getCurrentScene(socketIdx);
 		return socketSettings.sceneName && socketSettings.sceneName === currentScene;
 	}
@@ -38,13 +38,13 @@ export class SetSceneAction extends OBSWebsocketAction {
 	// 	return states;
 	// }
 
-	async shouldUpdateImage(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		const { sceneName } = socketSettings;
 		if (sceneName) return true;
 		return false;
 	}
 
-	async getNewState(evtData: any, socketSettings: any): Promise<boolean> {
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
 		return evtData.sceneName === socketSettings.sceneName;
 	}
 }

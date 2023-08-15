@@ -1,6 +1,6 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
 
-export class RawBatchRequestAction extends OBSWebsocketAction {
+export class RawBatchRequestAction extends AbstractBaseWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.rawbatchrequest');
 	}

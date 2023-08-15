@@ -1,7 +1,7 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getStreamState } from '../states';
 
-export class ToggleStreamAction extends OBSWebsocketAction {
+export class ToggleStreamAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged' });
 	}
@@ -16,7 +16,7 @@ export class ToggleStreamAction extends OBSWebsocketAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null> {
 		return getStreamState(socketIdx);
 	}
 
@@ -24,11 +24,11 @@ export class ToggleStreamAction extends OBSWebsocketAction {
 	// 	return getStreamStates();
 	// }
 
-	async shouldUpdateImage(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		return true;
 	}
 
-	async getNewState(evtData: any, socketSettings: any): Promise<boolean> {
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
 		return evtData.outputActive;
 	}
 }

@@ -1,8 +1,8 @@
-import { OBSWebsocketAction } from '../OBSWebsocketAction';
+import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getInputsLists } from '../lists';
 import { getInputMuteState } from '../states';
 
-export class ToggleInputMuteAction extends OBSWebsocketAction {
+export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
 	}
@@ -33,8 +33,9 @@ export class ToggleInputMuteAction extends OBSWebsocketAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null | undefined> {
-		return !getInputMuteState(socketIdx, socketSettings.inputName);
+	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean> {
+		const muteState = await getInputMuteState(socketIdx, socketSettings.inputName);
+		return !muteState;
 	}
 
 	// async getStates(settings) {
@@ -42,13 +43,13 @@ export class ToggleInputMuteAction extends OBSWebsocketAction {
 	// 	return getInputMuteState(settingsArray.map(s => s?.inputName ?? null));
 	// }
 
-	async shouldUpdateImage(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		const { inputName } = socketSettings ;
 		if (inputName && inputName === evtData.inputName) return true;
 		return false;
 	}
 
-	async getNewState(evtData: any, socketSettings: any): Promise<boolean> {
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
 		return !evtData.inputMuted;
 	}
 }

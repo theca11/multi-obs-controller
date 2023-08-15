@@ -60,10 +60,21 @@ export type GlobalSettings = Partial<{
 export type RequestPayload = SingleRequestPayload<any> | BatchRequestPayload | null;
 export type SingleRequestPayload<Type extends keyof OBSRequestTypes> = {
 	requestType: Type,
-	requestData: OBSRequestTypes[Type]
+	requestData?: OBSRequestTypes[Type]
 }
 export type BatchRequestPayload = {
 	requests: RequestBatchRequest[],
 	options?: RequestBatchOptions
 }
+
+
+export type ConstructorParams = {
+	titleParam?: string,
+	statusEvent?: string,
+}
+
+export type PartiallyRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
+export type State = boolean | null | undefined
+
 // ---
