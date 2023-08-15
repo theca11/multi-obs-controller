@@ -1,7 +1,8 @@
+import { StateEnum } from '../AbstractBaseWsAction';
 import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getScenesLists, getSceneItemsList } from '../lists';
 import { getSceneItemEnableState, getSceneItemId } from '../states';
-import { BatchRequestPayload, RequestPayload, SendToPluginData } from '../types.js';
+import { BatchRequestPayload, RequestPayload, SendToPluginData } from '../types';
 
 export class ToggleSourceAction extends AbstractStatefulWsAction {
 	constructor() {
@@ -98,8 +99,9 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null> {
-		return getSceneItemEnableState(socketIdx, socketSettings.sceneName, socketSettings.sourceName);
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+		const enabled = await getSceneItemEnableState(socketIdx, socketSettings.sceneName, socketSettings.sourceName);
+		return enabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	// async getStates(settings) {
@@ -116,7 +118,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		return false;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
-		return evtData.sceneItemEnabled;
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+		return evtData.sceneItemEnabled ? StateEnum.Active : StateEnum.Inactive;;
 	}
 }

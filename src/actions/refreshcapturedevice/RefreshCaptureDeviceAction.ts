@@ -1,6 +1,6 @@
-import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
+import { AbstractStatelessWsAction } from '../AbstractStatelessWsAction';
 
-export class RefreshCaptureDeviceAction extends AbstractBaseWsAction {
+export class RefreshCaptureDeviceAction extends AbstractStatelessWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.refreshcapturedevice', { titleParam: 'deviceName' });
 	}

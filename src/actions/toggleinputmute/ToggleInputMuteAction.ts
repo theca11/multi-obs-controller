@@ -1,10 +1,11 @@
+import { StateEnum } from '../AbstractBaseWsAction';
 import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getInputsLists } from '../lists';
 import { getInputMuteState } from '../states';
 
 export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
+		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged', statesColors: { on: '#60d66266', off: '#ff000066'} });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
@@ -33,9 +34,9 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
 		const muteState = await getInputMuteState(socketIdx, socketSettings.inputName);
-		return !muteState;
+		return !muteState ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	// async getStates(settings) {
@@ -49,7 +50,7 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 		return false;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
-		return !evtData.inputMuted;
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+		return !evtData.inputMuted ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

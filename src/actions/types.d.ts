@@ -71,6 +71,10 @@ export type BatchRequestPayload = {
 export type ConstructorParams = {
 	titleParam?: string,
 	statusEvent?: string,
+	statesColors?: {
+		on?: string,
+		off?: string
+	}
 }
 
 export type PartiallyRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;

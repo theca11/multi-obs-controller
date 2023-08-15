@@ -2,18 +2,27 @@ import { ResponseMessage } from "obs-websocket-js";
 import { sockets } from "../plugin/sockets";
 import { evtEmitter } from "./states";
 import { SDUtils, ImageUtils, CanvasUtils } from '../plugin/utils';
-import type { BatchRequestPayload, ConstructorParams, DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, SingleRequestPayload, State, WillAppearData, WillDisappearData } from './types'
+import { BatchRequestPayload, ConstructorParams, DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, SingleRequestPayload, State, WillAppearData, WillDisappearData } from './types'
+
+export enum StateEnum {
+	Active,
+	Inactive,
+	Unavailable,
+	None
+}
 
 /** Base class for all actions used to send OBS WS requests */
 export abstract class AbstractBaseWsAction extends Action {
 	_hideActionFeedback = false;
+	_showSuccess = true;
 	_ctxSettingsCache = new Map<string, Record<string, any>>();	// <context, settings> map (not included if in multiaction)
-	_ctxStatesCache = new Map<string, State[]>();	// <context, statesArray> map (not included if in multiaction)
-
+	_ctxStatesCache = new Map<string, StateEnum[]>();	// <context, statesArray> map (not included if in multiaction)
+	_statesColors = { on: '#6fb5e366', off: '#33333366' };
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID);
-		const { titleParam } = params ?? {};
+		const { titleParam, statesColors } = params ?? {};
+		this._statesColors = {...this._statesColors, ...statesColors};
 
 		// Keep cache of actions
 		this.onWillDisappear(({context}: WillDisappearData<PersistentSettings>) => {
@@ -62,7 +71,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			console.log('socket connected')
 			for (const [ctx, settings] of this._ctxSettingsCache) {
 				const settingsArray = this.getSettingsArray(settings);
-				const newState = await this.fetchSocketState(settingsArray[socketIdx], socketIdx).catch(() => null);
+				const newState = await this.fetchSocketState(settingsArray[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
 				console.log(newState)
 				this.setState(ctx, socketIdx, newState);
 			}
@@ -71,7 +80,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		evtEmitter.on('SocketDisconnected', (socketIdx) => {
 			console.log('Socket disconnected')
 			for (const [ctx, _states] of this._ctxStatesCache) {
-				this.setState(ctx, socketIdx, null);
+				this.setState(ctx, socketIdx, StateEnum.Unavailable);
 			}
 			this.updateImages();
 		});
@@ -113,7 +122,7 @@ export abstract class AbstractBaseWsAction extends Action {
 					return;
 				}
 
-				if (!this._hideActionFeedback) $SD.showOk(context);
+				if (!this._hideActionFeedback && this._showSuccess) $SD.showOk(context);
 			}
 		})
 
@@ -213,20 +222,20 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * @param settings Action persistent settings
 	 * @returns 
 	 */
-	async fetchStates(settings: PersistentSettings): Promise<State[]> {
+	async fetchStates(settings: PersistentSettings): Promise<StateEnum[]> {
 		const settingsArray = this.getSettingsArray(settings);
 		const statesResults = await Promise.allSettled(settingsArray.map((socketSettings, idx) => {
 			return this.fetchSocketState(socketSettings, idx);
 		}))
-		return statesResults.map(res => res.status === 'fulfilled' ? res.value : null);
+		return statesResults.map(res => res.status === 'fulfilled' ? res.value : StateEnum.Unavailable);
 	}
 
 	/**
 	 * Utility wrapper around fetchState. Don't override
 	 */
-	async fetchSocketState(socketSettings: any, socketIdx: number): Promise<State> {
-		if (!socketSettings || !sockets[socketIdx].isConnected) return Promise.reject();
-		return this.fetchState ? this.fetchState(socketSettings, socketIdx) : undefined;
+	async fetchSocketState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+		if (!socketSettings || !sockets[socketIdx].isConnected) return StateEnum.Unavailable;
+		return this.fetchState(socketSettings, socketIdx);
 	}
 
 	/**
@@ -237,7 +246,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * @param socketIdx Index of the OBS instance to fetch settings from
 	 * @returns true/false or null for undetermined state 
 	 */
-	async fetchState?(socketSettings: Record<string, any>, socketIdx: number): Promise<boolean | null>;
+	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum>;
 
 
 	updateKeyImage(context: string, target: number, img: HTMLImageElement) {
@@ -272,20 +281,20 @@ export abstract class AbstractBaseWsAction extends Action {
 		// Draw target state
 		if (states) {
 			if (target !== 0) {
-				if (states[target-1] === null) {
+				if (states[target-1] === StateEnum.Unavailable) {
 					CanvasUtils.overlayLineVPattern(ctx, 0, 1);
 				}
 				else {
-					CanvasUtils.overlayColor(ctx, states[target-1] ? '#3A9F2266' : '#33333366', 0, 1, states[target-1] ? 'destination-over' : 'source-over');
+					CanvasUtils.overlayColor(ctx, states[target-1] === StateEnum.Active ? this._statesColors.on : this._statesColors.off, 0, 1, states[target-1] === StateEnum.Active ? 'destination-over' : 'source-over');
 				}
 			}
 			else {
 				for (let i = 0; i < states.length; i++) {
-					if (states[i] === null) {
+					if (states[i] === StateEnum.Unavailable) {
 						CanvasUtils.overlayLineVPattern(ctx, i / 2, (i + 1) / 2);
 					}
 					else {
-						CanvasUtils.overlayColor(ctx, states[i] ? '#3A9F2266' : '#33333366', i / 2, (i + 1) / 2, states[i] ? 'destination-over' : 'source-over');
+						CanvasUtils.overlayColor(ctx, states[i] === StateEnum.Active ? this._statesColors.on : this._statesColors.off, i / 2, (i + 1) / 2, states[i] === StateEnum.Active ? 'destination-over' : 'source-over');
 					}
 				}
 			}
@@ -324,9 +333,9 @@ export abstract class AbstractBaseWsAction extends Action {
 		return settingsArray;
 	}
 
-	setState(context: string, socketIdx: number, state: State) {
+	setState(context: string, socketIdx: number, state: StateEnum) {
 		if (!this._ctxStatesCache.has(context)) return;
-		let states = this._ctxStatesCache.get(context) as State[];
+		let states = this._ctxStatesCache.get(context) as StateEnum[];
 		states[socketIdx] = state;
 		this._ctxStatesCache.set(context, states);
 	}

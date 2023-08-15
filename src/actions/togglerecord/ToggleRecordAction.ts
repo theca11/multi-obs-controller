@@ -1,9 +1,10 @@
+import { StateEnum } from '../AbstractBaseWsAction';
 import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getRecordState } from '../states';
 
 export class ToggleRecordAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged' });
+		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#ff000066' } });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
@@ -16,15 +17,15 @@ export class ToggleRecordAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null> {
-		return getRecordState(socketIdx);
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+		return getRecordState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		return true;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
-		return evtData.outputActive;
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+		return evtData.outputActive ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

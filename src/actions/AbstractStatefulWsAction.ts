@@ -1,4 +1,4 @@
-import { AbstractBaseWsAction } from "./AbstractBaseWsAction";
+import { AbstractBaseWsAction, StateEnum } from "./AbstractBaseWsAction";
 import { evtEmitter } from "./states";
 import { ConstructorParams, PartiallyRequired, State } from "./types";
 
@@ -6,6 +6,7 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 
 	constructor(UUID: string, params: PartiallyRequired<ConstructorParams, 'statusEvent'>) {
 		super(UUID, params);
+		this._showSuccess = false;	// success is already shown via state updates
 
 		// Attach listener to status event to update key image
 		const { statusEvent } = params;
@@ -15,7 +16,7 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 					const socketSettings = this.getSettingsArray(settings)[evtSocketIdx];
 					if (socketSettings && this._ctxStatesCache.has(context) && await this.shouldUpdateState(evtData, socketSettings, evtSocketIdx)) {
 						const newState = await this.getStateFromEvent(evtData, socketSettings);
-						let prevStates = this._ctxStatesCache.get(context) as State[];
+						let prevStates = this._ctxStatesCache.get(context) as StateEnum[];
 						prevStates[evtSocketIdx] = newState;
 						this._ctxStatesCache.set(context, prevStates);
 					}
@@ -25,11 +26,12 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 				}
 			}
 			// to-do: create a dirtyContexts array and pass it to updateImage, to avoid updating contexts whose states haven't changed
+			// or directly use updateKeyImage in the loop?
 			this.updateImages();
 		});
 	}
 
-	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<boolean | null>;
+	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum>;
 
 	/**
 	 * Whether a received event should trigger an state update an action
@@ -45,5 +47,5 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 	 * @param socketSettings Action settings for the corresponding socket
 	 * @returns New true/false state
 	 */
-	abstract getStateFromEvent(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<boolean>;
+	abstract getStateFromEvent(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<StateEnum>;
 }

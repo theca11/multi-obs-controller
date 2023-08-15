@@ -1,7 +1,8 @@
 import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
+import { AbstractStatelessWsAction } from '../AbstractStatelessWsAction';
 import { getCollectionsLists } from '../lists';
 
-export class SetCollectionAction extends AbstractBaseWsAction {
+export class SetCollectionAction extends AbstractStatelessWsAction {	// to-do: fix this, it's stateful
 	constructor() {
 		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName' });
 	}

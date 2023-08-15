@@ -1,3 +1,4 @@
+import { StateEnum } from '../AbstractBaseWsAction';
 import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getScenesLists } from '../lists';
 import { getCurrentScene } from '../states';
@@ -21,9 +22,9 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
 		const currentScene = getCurrentScene(socketIdx);
-		return socketSettings.sceneName && socketSettings.sceneName === currentScene;
+		return socketSettings.sceneName && socketSettings.sceneName === currentScene ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	// async getStates(settings) {
@@ -44,7 +45,7 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		return false;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
-		return evtData.sceneName === socketSettings.sceneName;
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+		return evtData.sceneName === socketSettings.sceneName ? StateEnum.Active : StateEnum.Inactive;;
 	}
 }

@@ -1,9 +1,10 @@
+import { StateEnum } from '../AbstractBaseWsAction';
 import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getStreamState } from '../states';
 
 export class ToggleStreamAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged' });
+		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { on: '#60d66266' } });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
@@ -16,8 +17,8 @@ export class ToggleStreamAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<boolean | null> {
-		return getStreamState(socketIdx);
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+		return getStreamState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	// getStates() {
@@ -28,7 +29,7 @@ export class ToggleStreamAction extends AbstractStatefulWsAction {
 		return true;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<boolean> {
-		return evtData.outputActive;
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+		return evtData.outputActive ? StateEnum.Active : StateEnum.Inactive;
 	}
 }
