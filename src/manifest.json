@@ -157,19 +157,6 @@
 					"Image": "assets/actions/rawbatchrequest/key"
 				}
 			]
-		},
-		{
-			"UUID": "dev.theca11.multiobs.status",
-			"Icon": "assets/actions/status/icon",
-			"Name": "OBS WS Servers Status",
-			"Tooltip": "Check plugin connection to OBS WS servers",
-			"States": [
-				{
-					"Image": "assets/actions/status/key"
-				}
-			],
-			"UserTitleEnabled": false,
-			"SupportedInMultiActions": false
 		}
 	]
 }
