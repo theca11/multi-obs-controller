@@ -2,22 +2,27 @@ import { ResponseMessage } from "obs-websocket-js";
 import { sockets } from "../plugin/sockets";
 import { evtEmitter } from "./states";
 import { SDUtils, ImageUtils, CanvasUtils } from '../plugin/utils';
-import { BatchRequestPayload, ConstructorParams, DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, SingleRequestPayload, State, WillAppearData, WillDisappearData } from './types'
+import { BatchRequestPayload, ConstructorParams, DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyDownData, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, SingleRequestPayload, State, WillAppearData, WillDisappearData } from './types'
 
 export enum StateEnum {
-	Active,
+	None,		// Stateless action
+	Active,		
 	Inactive,
-	Unavailable,
-	None
+	Unavailable // OBS not connected or invalid action config
 }
+
+let globalSettings: GlobalSettings = {};
+$SD.onDidReceiveGlobalSettings(({payload}: DidReceiveGlobalSettingsData<GlobalSettings>) => {
+	globalSettings = payload.settings;
+})
 
 /** Base class for all actions used to send OBS WS requests */
 export abstract class AbstractBaseWsAction extends Action {
-	_hideActionFeedback = false;
 	_showSuccess = true;
 	_ctxSettingsCache = new Map<string, Record<string, any>>();	// <context, settings> map (not included if in multiaction)
 	_ctxStatesCache = new Map<string, StateEnum[]>();	// <context, statesArray> map (not included if in multiaction)
 	_statesColors = { on: '#6fb5e366', off: '#33333366' };
+	_pressesCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID);
@@ -72,7 +77,6 @@ export abstract class AbstractBaseWsAction extends Action {
 			for (const [ctx, settings] of this._ctxSettingsCache) {
 				const settingsArray = this.getSettingsArray(settings);
 				const newState = await this.fetchSocketState(settingsArray[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
-				console.log(newState)
 				this.setState(ctx, socketIdx, newState);
 			}
 			this.updateImages();
@@ -85,46 +89,21 @@ export abstract class AbstractBaseWsAction extends Action {
 			this.updateImages();
 		});
 
-		// Main logic when key is pressed
-		this.onKeyUp(async ({ context, payload }: KeyUpData<PersistentSettings>) => {
+		// -- Main logic when key is pressed --
+		this.onKeyDown(({ context, payload }: KeyDownData<PersistentSettings>) => {
+			if (this._pressesCache.has(context)) return;
 			const { settings, userDesiredState } = payload;
+			const timeout = setTimeout(() => {
+				this._execute(context, settings, userDesiredState);
+			}, settings.advanced?.longPress ? Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500 : 0);
+			this._pressesCache.set(context, timeout);
+		});
 
-			// 1. Get settings per instance, as expected later for OBS WS call, in an array
-			const settingsArray = this.getSettingsArray(settings);
-			const payloadsArray = settingsArray.map(settings => {
-				try {
-					if (!settings) return null;
-					return this.getPayloadFromSettings(settings, userDesiredState);
-				}
-				catch {
-					SDUtils.log(`[ERROR] Error parsing action settings - request will be invalid`);
-					return { requestType: 'InvalidRequest' };
-				}
-			});
-
-			// 2. Send WS requests
-			const results = await this.sendWsRequests(payloadsArray);
-
-			// 3. Log potential errors and send key feedback
-			const actionId = this.UUID.replace('dev.theca11.multiobs.', '');
-			const rejectedResult = results.find(result => result.status === 'rejected');	// target socket not connected or regular request failed
-			if (rejectedResult) {
-				SDUtils.log(`[ERROR][OBS_${results.indexOf(rejectedResult)+1}][${actionId}] ${(rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected'}`);
-				if (!this._hideActionFeedback) $SD.showAlert(context);
-			}
-			else {	// if a batch request, response is an array and everything must have requestStatus.result === true
-				const socketsReponses = results.map(result => (result as PromiseFulfilledResult<any>).value);
-				const firstRejectedResponse = socketsReponses.find(socketResponse => Array.isArray(socketResponse) && socketResponse.some(resp => !resp.requestStatus.result));
-				if (firstRejectedResponse) {
-					const reason = firstRejectedResponse.find((resp: ResponseMessage) => !resp.requestStatus.result).requestStatus.comment;
-					SDUtils.log(`[ERROR][OBS_${socketsReponses.indexOf(firstRejectedResponse)+1}][${actionId}] ${reason}`);
-					if (!this._hideActionFeedback) $SD.showAlert(context);
-					return;
-				}
-
-				if (!this._hideActionFeedback && this._showSuccess) $SD.showOk(context);
-			}
+		this.onKeyUp(({ context }: KeyUpData<PersistentSettings>) => {
+			clearTimeout(this._pressesCache.get(context));
+			this._pressesCache.delete(context);
 		})
+		// --
 
 		// When PI is loaded and ready, extra optional logic per action
 		this.onSendToPlugin(async ({context, action, payload}: SendToPluginData<{event: string}>) => {
@@ -133,15 +112,56 @@ export abstract class AbstractBaseWsAction extends Action {
 				.catch(() => SDUtils.log('[ERROR] Error executing custom onPropertyInspectorReady()'));
 			}
 		})
-
-		// Update hideActionFeeback variable from global settings
-		$SD.onDidReceiveGlobalSettings(({payload}: DidReceiveGlobalSettingsData<GlobalSettings>) => {
-			this._hideActionFeedback = payload.settings.feedback === 'hide';
-		})
 	}
 
 	/**
-	 * Gets a proper OBS WS request payload from the actions settings saved for a particular OBS instance
+	 * Execute the main logic of the action
+	 * @param context Action context string
+	 * @param settings Action settings saved for the action
+	 * @param userDesiredState Desired state, if in multiaction and set by the user
+	 */
+	async _execute(context: string, settings: PersistentSettings, userDesiredState?: number ) {
+
+		// 1. Get settings per instance, as expected later for OBS WS call, in an array
+		const settingsArray = this.getSettingsArray(settings);
+		const payloadsArray = settingsArray.map(settings => {
+			try {
+				if (!settings) return null;
+				return this.getPayloadFromSettings(settings, userDesiredState);
+			}
+			catch {
+				SDUtils.log(`[ERROR] Error parsing action settings - request will be invalid`);
+				return { requestType: 'InvalidRequest' };
+			}
+		});
+
+		// 2. Send WS requests
+		const results = await this.sendWsRequests(payloadsArray);
+
+		// 3. Log potential errors and send key feedback
+		const hideActionFeedback = globalSettings.feedback === 'hide';
+		const actionId = this.UUID.replace('dev.theca11.multiobs.', '');
+		const rejectedResult = results.find(result => result.status === 'rejected');	// target socket not connected or regular request failed
+		if (rejectedResult) {
+			SDUtils.log(`[ERROR][OBS_${results.indexOf(rejectedResult)+1}][${actionId}] ${(rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected'}`);
+			if (!hideActionFeedback) $SD.showAlert(context);
+		}
+		else {	// if a batch request, response is an array and everything must have requestStatus.result === true
+			const socketsReponses = results.map(result => (result as PromiseFulfilledResult<any>).value);
+			const firstRejectedResponse = socketsReponses.find(socketResponse => Array.isArray(socketResponse) && socketResponse.some(resp => !resp.requestStatus.result));
+			if (firstRejectedResponse) {
+				const reason = firstRejectedResponse.find((resp: ResponseMessage) => !resp.requestStatus.result).requestStatus.comment;
+				SDUtils.log(`[ERROR][OBS_${socketsReponses.indexOf(firstRejectedResponse)+1}][${actionId}] ${reason}`);
+				if (!hideActionFeedback) $SD.showAlert(context);
+				return;
+			}
+
+			if (!hideActionFeedback && this._showSuccess) $SD.showOk(context);
+		}
+	}
+
+	/**
+	 * Get a proper OBS WS request payload from the actions settings saved for a particular OBS instance
 	 * @param settings Actions settings associated with a particular OBS instance
 	 * @param desiredState If in multiaction, the desired state by the user
 	 * @returns Object or array of objects properly formatted as OBS WS request payload
@@ -149,7 +169,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	abstract getPayloadFromSettings(settings: any, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
 
 	/**
-	 * Sends OBS WS requests to OBS socket instances
+	 * Send OBS WS requests to OBS socket instances
 	 * @param {Array} payloadsArray An array containing a request payload for each OBS socket instance
 	 * @returns Array of results of the WS request, one per OBS instance
 	 */
@@ -177,7 +197,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	async onPropertyInspectorReady?({context, action}: {context: string, action: string}): Promise<void>
 
 	/**
-	 * Updates key title with the corresponding settings param string, depending on configured target
+	 * Update key title with the corresponding settings param string, depending on configured target
 	 */
 	updateTitle(context: string, settings: PersistentSettings, settingsParam: string) {
 		if (!settings.common) return;

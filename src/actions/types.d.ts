@@ -22,6 +22,7 @@ export type DidReceiveGlobalSettingsData<T> = {
 	event: string,
 	payload: { settings: T }
 }
+export type KeyDownData<T> = TriggerEventData<T>;
 export type KeyUpData<T> = TriggerEventData<T>;
 export type WillAppearData<T> = BaseEventData<T>;
 export type WillDisappearData<T> = BaseEventData<T>;
@@ -45,6 +46,10 @@ export type PersistentSettings = Partial<{
 		target?: string,
 		indivParams?: 'true'
 	},
+	advanced: {
+		longPress?: 'true',
+		longPressMs: string
+	}
 	[paramsNum: string]: Record<string, any>
 }>
 export type GlobalSettings = Partial<{
@@ -54,7 +59,8 @@ export type GlobalSettings = Partial<{
 	ip2: string,
 	port2: string,
 	pwd2: string,
-	feedback: 'hide'
+	feedback: 'hide',
+	longPressMs: string
 }>
 
 export type RequestPayload = SingleRequestPayload<any> | BatchRequestPayload | null;

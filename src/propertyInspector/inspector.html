@@ -23,6 +23,32 @@
 			.sdpi-item-value> :last-of-type, .sdpi-item-value:last-child {
 				margin-bottom: 0px;
 			}
+
+			.lines {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.lines > * {
+				background: #2D2D2D;
+				margin: 0 6px;
+			}
+
+			.lines:before, .lines:after {
+				background: #454545;
+				height: 1px;
+				flex: 1;
+				content: '';
+			}
+
+			details summary > span:before {
+				content: '⯈ ';
+			}
+
+			details[open] summary > span:before {
+				content: '⯆ ';
+			}
 		</style>
 	</head>
 
@@ -57,11 +83,27 @@
 				<hr class="tab-separator" />
 			</div>
 			<div class="tabs-contents"></div>
-			<div id="footer">
-				<hr/> <hr/>
-				<div class="sdpi-item">
-					<div class="sdpi-item-label empty"></div>
-					<a class="sdpi-item-value" id="open-config" href="#">General configuration</a>
+			<div id="footer" style="margin-top: 4px;">
+				<!-- <hr/> -->
+				<details style="margin-left: 16px; margin-right: 16px; padding: 0px;">
+					<summary class="lines"><span style="margin: 0 4px;">Advanced Options</span></summary>
+					<form id="advanced-fields" style="padding: 6px 0;">
+						<div type="checkbox" class="sdpi-item" id="longPress" title="Requires a long key press" style="margin-top: 0px">
+							<div class="sdpi-item-label" style="width: 80px;">Long press</div>
+							<div class="sdpi-item-value">
+								<input id="longPressCheck" type="checkbox" name="longPress" value="true">
+								<label for="longPressCheck" class="sdpi-item-label"><span></span></label>
+							</div>
+							<label for="longPressMs" class="sdpi-item-label" style="width: auto;">Length (ms)</label>
+							<input class="sdpi-item-value" style="min-width: auto; width: 92px; margin-right: 30px; padding-top: 0px;" type="number" id="longPressMs" name="longPressMs">
+						</div>
+					</form>
+				</details>
+				<div class="lines" style="margin-left: 16px; margin-right: 16px;">
+					<div style="display: flex; align-items: flex-end;">
+						<img src="../assets/cog.svg" style="width: 14px; margin-right: 4px;"/>
+						<a id="open-config" href="#" style="text-decoration: none;">General Configuration</a>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -6,7 +6,7 @@
 	"Icon": "assets/pluginIcon",
 	"CodePath": "plugin/app.html",
 	"PropertyInspectorPath": "propertyInspector/inspector.html",
-	"DefaultWindowSize": [500, 575],
+	"DefaultWindowSize": [500, 600],
 	"Version": "0.1.0",
 	"Software": {
 		"MinimumVersion": "6.0"

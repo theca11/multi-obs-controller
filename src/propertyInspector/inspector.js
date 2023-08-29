@@ -44,6 +44,7 @@ $PI.onConnected(async (jsn) => {
 
 	// Load all forms with action settings
 	forms.set('common', '#common-fields');
+	forms.set('advanced', '#advanced-fields')
 	initForms(settings);
 
 	// Add target and shared params logic
@@ -64,6 +65,7 @@ $PI.onConnected(async (jsn) => {
 // Update global settings variable on change
 $PI.onDidReceiveGlobalSettings(({payload}) => {
 	globalSettings = payload.settings;
+	document.querySelector('#longPressMs').placeholder = globalSettings.longPressMs;
 })
 
 // Open external configuration window
@@ -116,6 +118,7 @@ window.getGlobalSettings = () => {
 window.sendGlobalSettingsToInspector = (settings) => {
 	$PI.setGlobalSettings(settings);
 	globalSettings = settings;
+	document.querySelector('#longPressMs').placeholder = globalSettings.longPressMs;
 };
 
 
