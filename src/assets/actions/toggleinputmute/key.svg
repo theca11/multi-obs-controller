@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="-5 -5 154 154">
-  <g id="btn_media_mute" fill="none" fill-rule="evenodd" transform="translate(44 38)">
-    <path id="Combined-Shape" fill="#EFEFEF" d="M40,18.6862915 L12.436731,46.2495605 L12,46 L12,22 L40,6 L40,18.6862915 Z M40,41.3137085 L40,62 L26.8359963,54.4777122 L40,41.3137085 Z M-4.54747351e-13,28 L7.99964608,24 L7.99964608,44 L-4.54747351e-13,40 L-4.54747351e-13,28 Z"/>
-    <rect id="Rectangle-4" width="8" height="88" x="32" y="-10" fill="#EFEFEF" transform="rotate(45 36 34)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+  <g id="btn_media_unmute" fill="none" fill-rule="evenodd">
+    <path fill="#EFEFEF" d="M48,60 L76,44 L76,100 L48,84 L48,60 Z M36,66 L43.9996461,62 L43.9996461,82 L36,78 L36,66 Z M89.9996461,44 L92.9996461,42 L107.999646,72.1075269 L92.9996461,102 L89.9996461,100 L103.999646,72.1075269 L89.9996461,44 Z M84.4996461,58 L87.4996461,56 L95.4996461,72 L87.4996461,88 L84.4996461,86 L91.4996461,72 L84.4996461,58 Z"/>
   </g>
 </svg>
