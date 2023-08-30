@@ -27,18 +27,6 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		return socketSettings.sceneName && socketSettings.sceneName === currentScene ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	// async getStates(settings) {
-	// 	let states = [null, null];
-	// 	const currentScenes = getCurrentScenes();
-	// 	const settingsArray = this.getSettingsArray(settings);
-	// 	for (let i = 0; i < currentScenes.length; i++) {
-	// 		if (currentScenes[i]) {
-	// 			states[i] = currentScenes[i] === settingsArray[i]?.sceneName;
-	// 		}
-	// 	}
-	// 	return states;
-	// }
-
 	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
 		const { sceneName } = socketSettings;
 		if (sceneName) return true;

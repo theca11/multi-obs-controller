@@ -23,10 +23,6 @@ export class ToggleStreamAction extends AbstractStatefulWsAction {
 		return getStreamState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	// getStates() {
-	// 	return getStreamStates();
-	// }
-
 	async shouldUpdateState(): Promise<boolean> {
 		return true;
 	}

@@ -104,11 +104,6 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		return enabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	// async getStates(settings) {
-	// 	const settingsArray = this.getSettingsArray(settings);
-	// 	return getSceneItemEnableStates(settingsArray.map(s => s?.sceneName ?? null), settingsArray.map(s => s?.sourceName ?? null));
-	// }
-
 	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
 		const { sceneName, sourceName } = socketSettings;
 		if (sceneName && sourceName && sceneName === evtData.sceneName) {

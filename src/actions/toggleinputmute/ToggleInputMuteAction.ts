@@ -40,11 +40,6 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 		return !muteState ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	// async getStates(settings) {
-	// 	const settingsArray = this.getSettingsArray(settings);
-	// 	return getInputMuteState(settingsArray.map(s => s?.inputName ?? null));
-	// }
-
 	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
 		const { inputName } = socketSettings ;
 		if (inputName && inputName === evtData.inputName) return true;
