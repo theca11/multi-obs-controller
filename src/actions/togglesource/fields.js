@@ -1,4 +1,4 @@
-export const fields = 
+export const fields =
 `
 <div class="sdpi-item scenes">
 	<div class="sdpi-item-label">Scene</div>
@@ -10,4 +10,4 @@ export const fields =
 	<input class="sdpi-item-value" type="text" name="sourceName" list="sourceList" required>
 	<datalist id="sourceList"></datalist>
 </div>
-`
+`;

@@ -1,4 +1,4 @@
-export const fields = 
+export const fields =
 `
 <div class="sdpi-item">
 	<div class="sdpi-item-label">Request Type</div>
@@ -28,4 +28,4 @@ export const fields =
 	Request Data: {"sceneName": "my scene"}
 	</p>
 </details>
-`
+`;

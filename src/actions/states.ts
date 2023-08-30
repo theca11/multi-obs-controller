@@ -1,6 +1,6 @@
 import { EventEmitter } from 'eventemitter3';
 import { OBSResponseTypes } from 'obs-websocket-js';
-import { sockets } from "../plugin/sockets";
+import { sockets } from '../plugin/sockets';
 
 export const evtEmitter = new EventEmitter();
 
@@ -9,9 +9,9 @@ type BooleanState = State<boolean>
 type StringState = State<string>
 
 // General states
-let streamStates: BooleanState[] = getDefaultStatesArray();
-let recordStates: BooleanState[] = getDefaultStatesArray();
-let currentProgramScenes: StringState[] = getDefaultStatesArray();
+const streamStates: BooleanState[] = getDefaultStatesArray();
+const recordStates: BooleanState[] = getDefaultStatesArray();
+const currentProgramScenes: StringState[] = getDefaultStatesArray();
 
 function getDefaultStatesArray() {
 	return new Array(sockets.length).fill(null);
@@ -26,7 +26,7 @@ async function fetchGeneralStates(socketIdx: number) {
 	const results = await sockets[socketIdx].callBatch([
 		{ requestType: 'GetStreamStatus' },
 		{ requestType: 'GetRecordStatus' },
-		{ requestType: 'GetCurrentProgramScene' }
+		{ requestType: 'GetCurrentProgramScene' },
 	]);
 	const responses = results.map(result => result.requestStatus.result === true ? result.responseData : {});
 	streamStates[socketIdx] = (responses[0] as OBSResponseTypes['GetStreamStatus'])?.outputActive ?? null;
@@ -39,34 +39,34 @@ sockets.forEach((socket, i) => {
 	socket.on('Identified', async () => {
 		await fetchGeneralStates(i);
 		evtEmitter.emit('SocketInitialized', i);
-	})
-	// @ts-expect-error
+	});
+	// @ts-expect-error Disconnected event is custom, not part of the OBS WS protocol
 	socket.on('Disconnected', () => {
 		// to-do: update global states to null here, just in case
 		streamStates[i] = null;
 		recordStates[i] = null;
 		currentProgramScenes[i] = null;
 		evtEmitter.emit('SocketDisconnected', i);
-	})
+	});
 	socket.on('StreamStateChanged', ({ outputActive }) => {
 		streamStates[i] = outputActive;
 		evtEmitter.emit('StreamStateChanged', i, { outputActive });
-	})
+	});
 	socket.on('RecordStateChanged', ({ outputActive }) => {
 		recordStates[i] = outputActive;
 		evtEmitter.emit('RecordStateChanged', i, { outputActive });
-	})
+	});
 	socket.on('CurrentProgramSceneChanged', ({ sceneName }) => {
 		currentProgramScenes[i] = sceneName;
 		evtEmitter.emit('CurrentProgramSceneChanged', i, { sceneName });
-	})
+	});
 	socket.on('SceneItemEnableStateChanged', ({ sceneName, sceneItemId, sceneItemEnabled }) => {
 		evtEmitter.emit('SceneItemEnableStateChanged', i, { sceneName, sceneItemId, sceneItemEnabled });
-	})
+	});
 	socket.on('InputMuteStateChanged', ({ inputName, inputMuted }) => {
 		evtEmitter.emit('InputMuteStateChanged', i, { inputName, inputMuted });
-	})
-})
+	});
+});
 
 
 // Getters
@@ -86,15 +86,15 @@ export async function getSceneItemEnableState(socketIdx: number, sceneName: stri
 		{
 			requestType: 'GetSceneItemId',
 			requestData: { sceneName, sourceName },
-			// @ts-ignore
-			outputVariables: { sceneItemIdVariable: 'sceneItemId' }
+			// @ts-expect-error ouputVariables is not typed in obswebsocketjs (https://github.com/obs-websocket-community-projects/obs-websocket-js/issues/313)
+			outputVariables: { sceneItemIdVariable: 'sceneItemId' },
 		},
 		{
 			requestType: 'GetSceneItemEnabled',
-			// @ts-ignore
+			// @ts-expect-error ouputVariables is not typed in obswebsocketjs (https://github.com/obs-websocket-community-projects/obs-websocket-js/issues/313)
 			requestData: { sceneName },
 			inputVariables: { sceneItemId: 'sceneItemIdVariable' },
-		}
+		},
 	]);
 	return (batchResults.at(-1)?.responseData as OBSResponseTypes['GetSceneItemEnabled']).sceneItemEnabled ?? Promise.reject();
 }

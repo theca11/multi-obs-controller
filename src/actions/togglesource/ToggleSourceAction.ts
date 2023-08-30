@@ -2,23 +2,23 @@ import { StateEnum } from '../AbstractBaseWsAction';
 import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getScenesLists, getSceneItemsList } from '../lists';
 import { getSceneItemEnableState, getSceneItemId } from '../states';
-import { BatchRequestPayload, RequestPayload, SendToPluginData } from '../types';
+import { BatchRequestPayload, SendToPluginData } from '../types';
 
 export class ToggleSourceAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglesource', { titleParam: 'sourceName', statusEvent: 'SceneItemEnableStateChanged' });
 
-		this.onSendToPlugin(async ({payload, context, action}: SendToPluginData<{event: string, socketIdx: number, sceneName: string}>) => {
+		this.onSendToPlugin(async ({ payload, context, action }: SendToPluginData<{event: string, socketIdx: number, sceneName: string}>) => {
 			if (payload.event === 'GetSceneItemsList') {
 				const sceneItems = await getSceneItemsList(payload.socketIdx, payload.sceneName);
-				const piPayload = { 
+				const piPayload = {
 					event: 'SourceListLoaded',
 					idx: payload.socketIdx,
-					sourceList: sceneItems.map(o => o.sourceName)
+					sourceList: sceneItems.map(o => o.sourceName),
 				};
 				$SD.sendToPropertyInspector(context, piPayload, action);
 			}
-		})
+		});
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
@@ -39,9 +39,10 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 						},
 						inputVariables: { sceneItemId: 'sceneItemIdVariable' },
 					},
-				]
+				],
 			};
-		} else {
+		}
+		else {
 			return {
 				requests: [
 					{
@@ -54,7 +55,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 						requestData: { sceneName: sceneName },
 						inputVariables: { sceneItemId: 'sceneItemIdVariable' },
 					},
-				]
+				],
 			};
 		}
 	}
@@ -63,8 +64,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 	async sendWsRequests(payloadsArray: BatchRequestPayload[]): Promise<PromiseSettledResult<any>[]> {
 		const requestType = payloadsArray.find(payload => payload)?.requests[1].requestType;
 		// const requestType = payloadsArray[0].requests[1].requestType;
-		if (requestType === 'SetSceneItemEnabled')
-			return super.sendWsRequests(payloadsArray);
+		if (requestType === 'SetSceneItemEnabled') {return super.sendWsRequests(payloadsArray);}
 
 		const sceneNames = payloadsArray.map((p) => p ? p.requests[0].requestData.sceneName : null);
 		const firstBatchResults = await super.sendWsRequests(payloadsArray);
@@ -118,7 +118,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		return false;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
-		return evtData.sceneItemEnabled ? StateEnum.Active : StateEnum.Inactive;;
+	async getStateFromEvent(evtData: any): Promise<StateEnum> {
+		return evtData.sceneItemEnabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

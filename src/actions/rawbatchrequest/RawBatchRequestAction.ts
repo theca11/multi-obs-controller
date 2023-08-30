@@ -13,12 +13,12 @@ export class RawBatchRequestAction extends AbstractStatelessWsAction {
 				requests: requests,
 				options: {
 					executionType: Number(executionType ?? 0),
-					haltOnFailure: Boolean(haltOnFailure ?? false)
-				}
+					haltOnFailure: Boolean(haltOnFailure ?? false),
+				},
 			};
 		}
 		catch {
-			return {requests: [{ requestType: 'NoRequest' }]};	// invalid request to trigger OBS error
+			return { requests: [{ requestType: 'NoRequest' }] };	// invalid request to trigger OBS error
 		}
 	}
 }

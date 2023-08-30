@@ -10,9 +10,11 @@ export class ToggleRecordAction extends AbstractStatefulWsAction {
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
 		if (desiredState === 0) {
 			return { requestType: 'StartRecord' };
-		} else if (desiredState === 1) {
+		}
+		else if (desiredState === 1) {
 			return { requestType: 'StopRecord' };
-		} else {
+		}
+		else {
 			return { requestType: 'ToggleRecord' };
 		}
 	}
@@ -21,11 +23,11 @@ export class ToggleRecordAction extends AbstractStatefulWsAction {
 		return getRecordState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(): Promise<boolean> {
 		return true;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+	async getStateFromEvent(evtData: any): Promise<StateEnum> {
 		return evtData.outputActive ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

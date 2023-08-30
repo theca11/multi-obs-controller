@@ -16,7 +16,7 @@ export class FormUtils {
 		}
 
 		const formData = new FormData(form);
-		let formValue = {};
+		const formValue = {};
 
 		formData.forEach((value, key) => {
 			if (!Reflect.has(formValue, key)) {
@@ -53,30 +53,28 @@ export class FormUtils {
 		}
 
 		Array.from(elements)
-			.filter((element) => element?.name)
-			.forEach((element) => {
-				const { name, type } = element;
-				const value = name in jsn ? jsn[name] : null;
-				const isCheckOrRadio = type === 'checkbox' || type === 'radio';
+		.filter((element) => element?.name)
+		.forEach((element) => {
+			const { name, type } = element;
+			const value = name in jsn ? jsn[name] : null;
+			const isCheckOrRadio = type === 'checkbox' || type === 'radio';
 
-				if (value === null) return;
+			if (value === null) return;
 
-				if (isCheckOrRadio) {
-					const isSingle = value === element.value;
-					if (isSingle || (Array.isArray(value) && value.includes(element.value))) {
-						element.checked = true;
-					}
-				} else {
-					if (Array.isArray(value)) {
-						element.value = value.length > 0 ? value[0] : '';
-						value.shift();
-						jsn = {...jsn, [name]: value};
-					}
-					else {
-						element.value = value ?? '';
-					}
+			if (isCheckOrRadio) {
+				const isSingle = value === element.value;
+				if (isSingle || (Array.isArray(value) && value.includes(element.value))) {
+					element.checked = true;
 				}
 			}
-		);
+			else if (Array.isArray(value)) {
+				element.value = value.length > 0 ? value[0] : '';
+				value.shift();
+				jsn = { ...jsn, [name]: value };
+			}
+			else {
+				element.value = value ?? '';
+			}
+		});
 	}
 }

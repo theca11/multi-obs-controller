@@ -4,12 +4,12 @@ $PI.onSendToPropertyInspector('dev.theca11.multiobs.setcollection', ({ payload }
 	if (event === 'CollectionListLoaded') {
 		document.querySelectorAll('datalist').forEach((el, idx) => {
 			const options = [...collectionsLists[idx]].reverse().map(collection => {
-				let option = document.createElement('option');
+				const option = document.createElement('option');
 				option.value = collection;
 				option.textContent = collection;
 				return option;
-			})
-			el.replaceChildren(...options); 
-		}); 
+			});
+			el.replaceChildren(...options);
+		});
 	}
 });

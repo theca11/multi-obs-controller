@@ -1,5 +1,5 @@
-import OBSWebSocket from "obs-websocket-js";
-import { SDUtils } from "./utils";
+import OBSWebSocket from 'obs-websocket-js';
+import { SDUtils } from './utils';
 
 class Socket extends OBSWebSocket {
 	_ip;
@@ -21,9 +21,9 @@ class Socket extends OBSWebSocket {
 
 		this.on('ConnectionClosed', () => {
 			if (this._isConnected) {
-				const logStr = `[DISCONNECTED] OBS Websocket server at ${this._ip}:${this._port}`; 
+				const logStr = `[DISCONNECTED] OBS Websocket server at ${this._ip}:${this._port}`;
 				SDUtils.log(logStr);
-				// @ts-expect-error
+				// @ts-expect-error Disconnected event is custom, not part of the OBS WS protocol
 				this.emit('Disconnected');	// custom event for internal purposes
 			}
 			this._isConnected = false;
@@ -45,9 +45,9 @@ class Socket extends OBSWebSocket {
 
 	/**
 	 * Update ip/port/pwd settings, and reconnect if needed
-	 * @param {string} ip 
-	 * @param {string} port 
-	 * @param {string?} password 
+	 * @param {string} ip
+	 * @param {string} port
+	 * @param {string?} password
 	 */
 	updateSettings(ip: string, port: string | number, password?: string) {
 		if (this._ip !== ip || this._port !== port || this._password !== password) {

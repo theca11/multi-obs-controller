@@ -48,22 +48,19 @@ export type PersistentSettings = Partial<{
 	},
 	advanced: {
 		longPress?: 'true',
-		longPressMs: string
+		longPressMs?: string
 	}
-	[paramsNum: string]: Record<string, any>
+	[key: `params${number}`]: Record<string, unknown>
 }>
 export type GlobalSettings = Partial<{
-	ip1: string,
-	port1: string,
-	pwd1: string,
-	ip2: string,
-	port2: string,
-	pwd2: string,
+	[key: `ip${number}`]: string,
+	[key: `port${number}`]: string,
+	[key: `pwd${number}`]: string
+	longPressMs: string,
 	feedback: 'hide',
-	longPressMs: string
 }>
 
-export type RequestPayload = SingleRequestPayload<any> | BatchRequestPayload | null;
+export type RequestPayload = SingleRequestPayload<T> | BatchRequestPayload | null;
 export type SingleRequestPayload<Type extends keyof OBSRequestTypes> = {
 	requestType: Type,
 	requestData?: OBSRequestTypes[Type]
@@ -84,7 +81,5 @@ export type ConstructorParams = {
 }
 
 export type PartiallyRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
-
-export type State = boolean | null | undefined
 
 // ---

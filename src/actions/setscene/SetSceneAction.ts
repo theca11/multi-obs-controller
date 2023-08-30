@@ -16,7 +16,7 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		};
 	}
 
-	async onPropertyInspectorReady({context, action}: {context: string, action: string}) {
+	async onPropertyInspectorReady({ context, action }: {context: string, action: string}) {
 		const scenesLists = await getScenesLists();
 		const payload = { event: 'SceneListLoaded', scenesLists: scenesLists };
 		$SD.sendToPropertyInspector(context, payload, action);
@@ -39,13 +39,13 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 	// 	return states;
 	// }
 
-	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
 		const { sceneName } = socketSettings;
 		if (sceneName) return true;
 		return false;
 	}
 
 	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
-		return evtData.sceneName === socketSettings.sceneName ? StateEnum.Active : StateEnum.Inactive;;
+		return evtData.sceneName === socketSettings.sceneName ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

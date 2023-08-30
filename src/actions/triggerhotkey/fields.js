@@ -1,4 +1,4 @@
-export const fields = 
+export const fields =
 `
 <div class="sdpi-item sequence-item">
 	<div class="sdpi-item-label">Key Sequence</div>
@@ -19,4 +19,4 @@ export const fields =
 	</p>
 	<p>Other keys are not supported or are only partially supported and may not work.</p>
 </details>
-`
+`;

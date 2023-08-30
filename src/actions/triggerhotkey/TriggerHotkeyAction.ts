@@ -5,7 +5,7 @@ export class TriggerHotkeyAction extends AbstractStatelessWsAction {
 		super('dev.theca11.multiobs.triggerhotkey');
 	}
 
-	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
+	getPayloadFromSettings(settings: any) {
 		const { seq } = settings;
 		return {
 			requestType: 'TriggerHotkeyByKeySequence',
@@ -41,11 +41,12 @@ function parseSequenceString(sequence: string): KeyCombination {
 			case 'Meta':
 				data.keyModifiers.command = true;
 				break;
-			default:
+			default: {
 				const obsKey = jsKeyToObsKey(token);
 				if (obsKey) {
 					data.keyId = obsKey;
 				}
+			}
 		}
 	}
 
@@ -60,11 +61,14 @@ function parseSequenceString(sequence: string): KeyCombination {
 function jsKeyToObsKey(code: string): string {
 	if (code.substring(0, 6) == 'Numpad' && code.length == 7) {
 		return 'OBS_KEY_NUM' + code.substring(6);
-	} else if (code.substring(0, 3) == 'Key') {
+	}
+	else if (code.substring(0, 3) == 'Key') {
 		return 'OBS_KEY_' + code.substring(3);
-	} else if (code.substring(0, 5) == 'Digit') {
+	}
+	else if (code.substring(0, 5) == 'Digit') {
 		return 'OBS_KEY_' + code.substring(5);
-	} else if (code[0] == 'F' && code.length < 4) {
+	}
+	else if (code[0] == 'F' && code.length < 4) {
 		return 'OBS_KEY_' + code;
 	}
 
@@ -107,6 +111,6 @@ function jsKeyToObsKey(code: string): string {
 	};
 
 	// to-do: try to remove this ignore
-	// @ts-ignore
+	// @ts-expect-error Code can't be used to index - needs better typings
 	return specialKeys[code] ?? '';
 }

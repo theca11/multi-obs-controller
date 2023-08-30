@@ -1,28 +1,30 @@
-/// <reference path="../libs/js/property-inspector.js" />
-/// <reference path="../libs/js/utils.js" />
-import { FormUtils } from "./utils.js";
+// / <reference path="../libs/js/property-inspector.js" />
+// / <reference path="../libs/js/utils.js" />
+import { FormUtils } from './utils.js';
 
-let forms = new Map();	// common form and per OBS instance forms
+const forms = new Map();	// common form and per OBS instance forms
 let globalSettings = {};
 
 // Initialization when PI connects
 $PI.onConnected(async (jsn) => {
-    const { actionInfo } = jsn;
-    const { payload, action } = actionInfo;
-    const { settings } = payload;
+	const { actionInfo } = jsn;
+	const { payload, action } = actionInfo;
+	const { settings } = payload;
 
 	$PI.getGlobalSettings();
 
 	// Insert tabs and action fields
 	const actionName = action.split('.').at(-1);
 	const { fields } = await import(`../actions/${actionName}/fields.js`)
-	.catch(() =>{ console.log('No custom fields loaded'); return {}});
+	.catch(() =>{ console.log('No custom fields loaded'); return {};});
 	if (fields) {
 		const tabs = [];
 		const tabsContents = [];
-		for (let i=1; i<=2; i++) {	// 2 OBS instances
+		for (let i = 1; i <= 2; i++) {	// 2 OBS instances
 			tabs.push(`
-				<div class="tab${i == 0 ? " selected" : ""}" data-target="#tab${i}" title="OBS instance ${i}">OBS${i}</div>
+				<div class="tab${i == 0 ? ' selected' : ''}" data-target="#tab${i}" title="OBS instance ${i}">
+					OBS${i}
+				</div>
 			`);
 			tabsContents.push(`
 				<div id="tab${i}" class="tab-container">
@@ -31,10 +33,10 @@ $PI.onConnected(async (jsn) => {
 					</form>
 				</div>
 			`);
-			forms.set(`params${i}`,`#action-fields-${i}`);
+			forms.set(`params${i}`, `#action-fields-${i}`);
 		}
-		document.querySelector('.tabs').innerHTML=tabs.join('');
-		document.querySelector('.tabs-contents').innerHTML=tabsContents.join('');
+		document.querySelector('.tabs').innerHTML = tabs.join('');
+		document.querySelector('.tabs-contents').innerHTML = tabsContents.join('');
 		activateTabs();
 		document.querySelector('.first-separator').style.display = 'block';
 	}
@@ -44,33 +46,35 @@ $PI.onConnected(async (jsn) => {
 
 	// Load all forms with action settings
 	forms.set('common', '#common-fields');
-	forms.set('advanced', '#advanced-fields')
+	forms.set('advanced', '#advanced-fields');
 	initForms(settings);
 
 	// Add target and shared params logic
 	onTargetChange();
-	Array.from(document.querySelectorAll('#target input')).forEach(i => i.addEventListener('change', () => onTargetChange()));
+	Array.from(document.querySelectorAll('#target input')).forEach(i =>
+		i.addEventListener('change', () => onTargetChange()),
+	);
 	document.querySelector('#indivParamsCheck').addEventListener('change', () => updateTargetTabs());
 
 	// Load custom action PI JS, if it exists
 	await import(`../actions/${actionName}/pi.js`).catch(() => console.log('No custom action JS loaded'));
 
 	// Signal plugin that PI is ready after importing everything
-	$PI.sendToPlugin({event: 'ready'});
+	$PI.sendToPlugin({ event: 'ready' });
 
 	// Show PI contents
 	document.querySelector('.sdpi-wrapper').style.visibility = 'visible';
 });
 
 // Update global settings variable on change
-$PI.onDidReceiveGlobalSettings(({payload}) => {
+$PI.onDidReceiveGlobalSettings(({ payload }) => {
 	globalSettings = payload.settings;
 	document.querySelector('#longPressMs').placeholder = globalSettings.longPressMs;
-})
+});
 
 // Open external configuration window
 document.querySelector('#open-config').addEventListener('click', () => {
-    window.open('./configuration.html');
+	window.open('./configuration.html');
 });
 
 /**
@@ -78,23 +82,23 @@ document.querySelector('#open-config').addEventListener('click', () => {
  * @param {object} settings Action settings
  */
 function initForms(settings) {
-	forms.forEach((formSelector, key) => {
-		const form = document.querySelector(formSelector)
-		FormUtils.setFormValue(settings[key], form);
+	forms.forEach((formSelector, settingsKey) => {
+		const formEl = document.querySelector(formSelector);
+		FormUtils.setFormValue(settings[settingsKey], formEl);
 
 		// Add listener to save on input change
-		form.addEventListener(
+		formEl.addEventListener(
 			'input',
 			Utils.debounce(150, () => {
-				let updatedSettings = {}
+				let updatedSettings = {};
 				forms.forEach((form, key) => {
-					const formValue = FormUtils.getFormValue(form)
-					updatedSettings = {...updatedSettings, [key]: formValue}
-				})
+					const formValue = FormUtils.getFormValue(form);
+					updatedSettings = { ...updatedSettings, [key]: formValue };
+				});
 				$PI.setSettings(updatedSettings);
-			})
+			}),
 		);
-	})
+	});
 }
 
 /**
@@ -113,7 +117,7 @@ function indexHtmlFields(fields, index) {
  */
 window.getGlobalSettings = () => {
 	return globalSettings;
-}
+};
 
 window.sendGlobalSettingsToInspector = (settings) => {
 	$PI.setGlobalSettings(settings);
@@ -124,39 +128,40 @@ window.sendGlobalSettingsToInspector = (settings) => {
 
 // --- Tabs logic ---
 function activateTabs(activeTab) {
-    const allTabs = Array.from(document.querySelectorAll('.tab'));
-    let activeTabEl = null;
-    allTabs.forEach((el, i) => {
-        el.onclick = () => clickTab(el);
-        if(el.dataset?.target === activeTab) {
-            activeTabEl = el;
-        }
-    });
-    if(activeTabEl) {
-        clickTab(activeTabEl);
-    } else if(allTabs.length) {
-        clickTab(allTabs[0]);
-    }
+	const allTabs = Array.from(document.querySelectorAll('.tab'));
+	let activeTabEl = null;
+	allTabs.forEach((el) => {
+		el.onclick = () => clickTab(el);
+		if(el.dataset?.target === activeTab) {
+			activeTabEl = el;
+		}
+	});
+	if(activeTabEl) {
+		clickTab(activeTabEl);
+	}
+	else if(allTabs.length) {
+		clickTab(allTabs[0]);
+	}
 }
 
 function clickTab(clickedTab) {
-    const allTabs = Array.from(document.querySelectorAll('.tab'));
-    allTabs.forEach((el, i) => el.classList.remove('selected'));
-    clickedTab.classList.add('selected');
-    allTabs.forEach((el, i) => {
-        if(el.dataset.target) {
-            const t = document.querySelector(el.dataset.target);
-            if(t) {
-                t.style.display = el == clickedTab ? 'block' : 'none';
-            }
-        }
-    });
+	const allTabs = Array.from(document.querySelectorAll('.tab'));
+	allTabs.forEach((el) => el.classList.remove('selected'));
+	clickedTab.classList.add('selected');
+	allTabs.forEach((el) => {
+		if(el.dataset.target) {
+			const t = document.querySelector(el.dataset.target);
+			if(t) {
+				t.style.display = el == clickedTab ? 'block' : 'none';
+			}
+		}
+	});
 }
 
 function updateTargetTabs() {
 	const indivParamsCheckbox = document.querySelector('#indivParamsCheck');
 	if (!indivParamsCheckbox.checked) {
-		clickTab(document.querySelector('.tab')) // click first tab
+		clickTab(document.querySelector('.tab')); // click first tab
 		document.querySelector('#tabs-header').style.display = 'none';
 
 	}
@@ -174,7 +179,7 @@ function onTargetChange() {
 			updateTargetTabs();
 		}
 		else {
-			clickTab(tabs[target-1]);
+			clickTab(tabs[target - 1]);
 			document.querySelector('#indivParams').style.display = 'none';
 			document.querySelector('#tabs-header').style.display = 'none';
 		}

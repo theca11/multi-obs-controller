@@ -1,6 +1,6 @@
-import { AbstractBaseWsAction, StateEnum } from "./AbstractBaseWsAction";
-import { evtEmitter } from "./states";
-import { ConstructorParams, PartiallyRequired, State } from "./types";
+import { AbstractBaseWsAction, StateEnum } from './AbstractBaseWsAction';
+import { evtEmitter } from './states';
+import { ConstructorParams, PartiallyRequired } from './types';
 
 export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 
@@ -16,13 +16,13 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 					const socketSettings = this.getSettingsArray(settings)[evtSocketIdx];
 					if (socketSettings && this._ctxStatesCache.has(context) && await this.shouldUpdateState(evtData, socketSettings, evtSocketIdx)) {
 						const newState = await this.getStateFromEvent(evtData, socketSettings);
-						let prevStates = this._ctxStatesCache.get(context) as StateEnum[];
+						const prevStates = this._ctxStatesCache.get(context) as StateEnum[];
 						prevStates[evtSocketIdx] = newState;
 						this._ctxStatesCache.set(context, prevStates);
 					}
 				}
 				catch (e) {
-					console.error(`Error getting state from event: ${e}`)
+					console.error(`Error getting state from event: ${e}`);
 				}
 			}
 			// to-do: create a dirtyContexts array and pass it to updateImage, to avoid updating contexts whose states haven't changed
@@ -40,7 +40,7 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 	 * @param socketIdx Socket index
 	 */
 	abstract shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean>;
-	
+
 	/**
 	 * Get state associated with the action from the event that notifies a state update
 	 * @param evtData Event data

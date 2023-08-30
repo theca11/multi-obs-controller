@@ -5,7 +5,7 @@ export class RefreshCaptureDeviceAction extends AbstractStatelessWsAction {
 		super('dev.theca11.multiobs.refreshcapturedevice', { titleParam: 'deviceName' });
 	}
 
-	getPayloadFromSettings(settings: any) { 
+	getPayloadFromSettings(settings: any) {
 		const { deviceName, sleepMs } = settings;
 		return {
 			requests: [
@@ -20,8 +20,8 @@ export class RefreshCaptureDeviceAction extends AbstractStatelessWsAction {
 				},
 			],
 			options: {
-				haltOnFailure: true
-			}
+				haltOnFailure: true,
+			},
 		};
 	}
 }

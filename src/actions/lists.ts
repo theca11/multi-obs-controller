@@ -6,8 +6,8 @@ import { sockets } from '../plugin/sockets';
  */
 export async function getCollectionsLists() {
 	const results = await Promise.allSettled(
-		sockets.map(socket => socket.isConnected ? socket.call('GetSceneCollectionList') : Promise.reject())
-	)
+		sockets.map(socket => socket.isConnected ? socket.call('GetSceneCollectionList') : Promise.reject()),
+	);
 	return results.map(result => result.status === 'fulfilled' ? result.value.sceneCollections : []);
 }
 
@@ -17,8 +17,8 @@ export async function getCollectionsLists() {
  */
 export async function getScenesLists() {
 	const results = await Promise.allSettled(
-		sockets.map(socket => socket.isConnected ? socket.call('GetSceneList') : Promise.reject())
-	)
+		sockets.map(socket => socket.isConnected ? socket.call('GetSceneList') : Promise.reject()),
+	);
 	return results.map(result => result.status === 'fulfilled' ? result.value.scenes : []);
 }
 
@@ -40,11 +40,12 @@ export async function getSceneItemsList(socketIdx: number, sceneName: string) {
 
 /**
  * Get a list of all inputs in all OBS instances
- * @returns One array of inputs per OBS instance. Each input JsonObject contains inputName, inputKind and unversionedInputKind
+ * @returns One array of inputs per OBS instance.
+ * Each input JsonObject contains inputName, inputKind and unversionedInputKind
  */
 export async function getInputsLists() {
 	const results = await Promise.allSettled(
-		sockets.map(socket => socket.isConnected ? socket.call('GetInputList') : Promise.reject())
-	)
+		sockets.map(socket => socket.isConnected ? socket.call('GetInputList') : Promise.reject()),
+	);
 	return results.map(result => result.status === 'fulfilled' ? result.value.inputs : []);
 }

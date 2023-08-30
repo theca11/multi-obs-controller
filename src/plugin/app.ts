@@ -1,6 +1,7 @@
-import { sockets } from "./sockets";
-import * as pluginActions from "../actions/index";
-import { SDUtils } from "./utils";
+import { sockets } from './sockets';
+import * as pluginActions from '../actions/index';
+import { SDUtils } from './utils';
+import { DidReceiveGlobalSettingsData, GlobalSettings } from '../actions/types.js';
 
 // Initialize all plugin actions
 for (const PluginAction of Object.values(pluginActions)) {
@@ -14,15 +15,15 @@ $SD.onConnected(() => {
 
 	// Check OBS WS connections every 10s
 	setInterval(() => {
-		sockets.forEach(async socket => socket.tryConnect())
-	}, 10 * 1000)
+		sockets.forEach(async socket => socket.tryConnect());
+	}, 10 * 1000);
 });
 
 // Global settings received
-$SD.onDidReceiveGlobalSettings(({payload}: any) => {
+$SD.onDidReceiveGlobalSettings(({ payload }: DidReceiveGlobalSettingsData<GlobalSettings>) => {
 	const { settings } = payload;
 	sockets.forEach((socket, idx) => {
 		const i = idx + 1;
-		socket.updateSettings(settings[`ip${i}`], settings[`port${i}`], settings[`pwd${i}`])
-	})
-})
+		socket.updateSettings(settings[`ip${i}`] ?? '', settings[`port${i}`] ?? '', settings[`pwd${i}`]);
+	});
+});

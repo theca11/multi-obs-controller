@@ -5,7 +5,7 @@ import { getInputMuteState } from '../states';
 
 export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged', statesColors: { on: '#60d66266', off: '#ff000066'} });
+		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged', statesColors: { on: '#60d66266', off: '#ff000066' } });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
@@ -18,7 +18,8 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 					inputMuted: desiredState === 0 ? true : false,
 				},
 			};
-		} else {
+		}
+		else {
 			return { requestType: 'ToggleInputMute', requestData: { inputName: inputName } };
 		}
 	}
@@ -28,8 +29,8 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 		const payload = {
 			event: 'InputListLoaded',
 			inputsLists: inputsLists.map(list =>
-				list.filter(i => ['dshow_input', 'wasapi_input_capture', 'wasapi_output_capture'].includes((i as unknown as any).unversionedInputKind)) // to-do: check this typing
-			)
+				list.filter(i => ['dshow_input', 'wasapi_input_capture', 'wasapi_output_capture'].includes((i as unknown as any).unversionedInputKind)), // to-do: check this typing
+			),
 		};
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
@@ -44,13 +45,13 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	// 	return getInputMuteState(settingsArray.map(s => s?.inputName ?? null));
 	// }
 
-	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
 		const { inputName } = socketSettings ;
 		if (inputName && inputName === evtData.inputName) return true;
 		return false;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+	async getStateFromEvent(evtData: any): Promise<StateEnum> {
 		return !evtData.inputMuted ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

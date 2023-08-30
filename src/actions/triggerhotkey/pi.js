@@ -1,13 +1,13 @@
 // Key variables
 const key = {
 	str: null,
-	code: null
+	code: null,
 };
 const modifiers = {
 	'Control': false,
 	'Shift': false,
 	'Alt': false,
-	'Meta': false
+	'Meta': false,
 };
 const keyboardLayoutMap = await navigator.keyboard.getLayoutMap().catch(() => null);
 
@@ -15,20 +15,20 @@ const keyboardLayoutMap = await navigator.keyboard.getLayoutMap().catch(() => nu
 document.querySelectorAll('.sequence-item .sdpi-item-value').forEach(input => {
 	const sequence = input.parentElement.querySelector('input[name="seq"]').value;
 	let shownSequence = '';
-	const key = sequence.split(' + ').pop();
-	if (['Alt', 'AltGraph', 'Control', 'Shift', 'Meta'].includes(key)) {
+	const sequenceKey = sequence.split(' + ').pop();
+	if (['Alt', 'AltGraph', 'Control', 'Shift', 'Meta'].includes(sequenceKey)) {
 		shownSequence = sequence; // no key included apart from modifiers, sequence is the same
 	}
 	else {
-		const keyStr = getKeyLayoutString(key);
-		shownSequence = sequence.replace(key, keyStr);	// replace key code value with key string
+		const keyStr = getKeyLayoutString(sequenceKey);
+		shownSequence = sequence.replace(sequenceKey, keyStr);	// replace key code value with key string
 	}
 	input.value = shownSequence;
 
 	input.addEventListener('click', onClickHandler);
 	input.addEventListener('keydown', onKeyDownHandler);
 	input.addEventListener('keyup', onKeyUpHandler);
-})
+});
 
 function onClickHandler(event) {
 	event.target.value = '';
@@ -44,14 +44,12 @@ function onKeyDownHandler(event) {
 		key.str = getKeyLayoutString(event.code);
 		key.code = event.code;
 	}
+	else if (event.key === 'AltGraph') {
+		modifiers['Alt'] = true;
+		modifiers['Control'] = true;
+	}
 	else {
-		if (event.key === 'AltGraph') {
-			modifiers['Alt'] = true;
-			modifiers['Control'] = true;
-		}
-		else {
-			modifiers[event.key] = true;
-		}
+		modifiers[event.key] = true;
 	}
 	event.target.value = generateSequenceString();
 }
@@ -61,7 +59,7 @@ function onKeyUpHandler(event) {
 	event.stopPropagation();
 	event.target.blur();
 	event.target.parentElement.querySelector('input[name="seq"]').value = generateSequenceString(true);
-	event.target.dispatchEvent(new Event('input', {bubbles: true, cancelable: true}))
+	event.target.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
 	resetKeys();
 }
 
@@ -71,7 +69,7 @@ function onKeyUpHandler(event) {
 function resetKeys() {
 	key.str = null;
 	key.code = null;
-	for (let m of Object.keys(modifiers)) {
+	for (const m of Object.keys(modifiers)) {
 		modifiers[m] = false;
 	}
 }

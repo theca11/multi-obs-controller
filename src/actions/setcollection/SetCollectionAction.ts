@@ -1,4 +1,3 @@
-import { AbstractBaseWsAction } from '../AbstractBaseWsAction';
 import { AbstractStatelessWsAction } from '../AbstractStatelessWsAction';
 import { getCollectionsLists } from '../lists';
 
@@ -15,7 +14,7 @@ export class SetCollectionAction extends AbstractStatelessWsAction {	// to-do: f
 		};
 	}
 
-	async onPropertyInspectorReady({context, action}: {context: string, action: string}) {
+	async onPropertyInspectorReady({ context, action }: {context: string, action: string}) {
 		const collectionsLists = await getCollectionsLists();
 		const payload = { event: 'CollectionListLoaded', collectionsLists: collectionsLists };
 		$SD.sendToPropertyInspector(context, payload, action);
