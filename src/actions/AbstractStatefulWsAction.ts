@@ -18,7 +18,7 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 						const newState = await this.getStateFromEvent(evtData, socketSettings);
 						const prevStates = this._ctxStatesCache.get(context) as StateEnum[];
 						prevStates[evtSocketIdx] = newState;
-						this._ctxStatesCache.set(context, prevStates);
+						this._updateStates(context, prevStates);
 					}
 				}
 				catch (e) {
@@ -31,7 +31,7 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 		});
 	}
 
-	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum>;
+	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive>;
 
 	/**
 	 * Whether a received event should trigger an state update an action

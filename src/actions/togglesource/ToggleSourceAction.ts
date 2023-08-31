@@ -99,7 +99,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
 		const enabled = await getSceneItemEnableState(socketIdx, socketSettings.sceneName, socketSettings.sourceName);
 		return enabled ? StateEnum.Active : StateEnum.Inactive;
 	}

@@ -22,7 +22,7 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
 		const currentScene = getCurrentScene(socketIdx);
 		return socketSettings.sceneName && socketSettings.sceneName === currentScene ? StateEnum.Active : StateEnum.Inactive;
 	}

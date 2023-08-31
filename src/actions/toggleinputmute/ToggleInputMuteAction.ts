@@ -35,7 +35,7 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
 		const muteState = await getInputMuteState(socketIdx, socketSettings.inputName);
 		return !muteState ? StateEnum.Active : StateEnum.Inactive;
 	}

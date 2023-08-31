@@ -44,7 +44,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			// Update key image
 			this._ctxSettingsCache.set(context, settings);
 			try {
-				this._ctxStatesCache.set(context, await this.fetchStates(settings));
+				this._updateStates(context, await this.fetchStates(settings));
 				const img = await this.getDefaultKeyImage();
 				this.updateKeyImage(context, this.getTarget(settings), img);
 			}
@@ -63,7 +63,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			// Update key image
 			this._ctxSettingsCache.set(context, settings);
 			try {
-				this._ctxStatesCache.set(context, await this.fetchStates(settings));
+				this._updateStates(context, await this.fetchStates(settings));
 				const img = await this.getDefaultKeyImage();
 				this.updateKeyImage(context, this.getTarget(settings), img);
 			}
@@ -77,14 +77,14 @@ export abstract class AbstractBaseWsAction extends Action {
 			for (const [ctx, settings] of this._ctxSettingsCache) {
 				const settingsArray = this.getSettingsArray(settings);
 				const newState = await this.fetchSocketState(settingsArray[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
-				this.setState(ctx, socketIdx, newState);
+				this._updateSocketState(ctx, socketIdx, newState);
 			}
 			this.updateImages();
 		});
 		evtEmitter.on('SocketDisconnected', (socketIdx) => {
 			console.log('Socket disconnected');
 			for (const [ctx] of this._ctxStatesCache) {
-				this.setState(ctx, socketIdx, StateEnum.Unavailable);
+				this._updateSocketState(ctx, socketIdx, StateEnum.Unavailable);
 			}
 			this.updateImages();
 		});
@@ -262,12 +262,11 @@ export abstract class AbstractBaseWsAction extends Action {
 	/**
 	 * Fetch the current OBS state associated with the action (e.g. if scene is visible).
 	 * Rejects on fetching error.
-	 * No implementation if action has no associated states
 	 * @param socketSettings Action settings for the target OBS
 	 * @param socketIdx Index of the OBS instance to fetch settings from
-	 * @returns true/false or null for undetermined state
+	 * @returns None/Active/Inactive
 	 */
-	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum>;
+	abstract fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable>>;
 
 
 	updateKeyImage(context: string, target: number, img: HTMLImageElement) {
@@ -354,10 +353,34 @@ export abstract class AbstractBaseWsAction extends Action {
 		return settingsArray;
 	}
 
-	setState(context: string, socketIdx: number, state: StateEnum) {
-		if (!this._ctxStatesCache.has(context)) return;
-		const states = this._ctxStatesCache.get(context) as StateEnum[];
-		states[socketIdx] = state;
+	/**
+	 * Update the states of a context to the provided values
+	 * Set both the internal cache and the SD state
+	 * @param context Action context
+	 * @param states New states
+	 */
+	_updateStates(context: string, states: StateEnum[]) {
+		// Update states cache
 		this._ctxStatesCache.set(context, states);
+
+		// Update SD state - active (0) only if all target states are active
+		const ctxSettings = this._ctxSettingsCache.get(context);
+		if (!ctxSettings) return;
+		const target = this.getTarget(ctxSettings);
+		const sdState = states.filter((_, i) => target === 0 || target - 1 === i).every(state => state === StateEnum.Active) ? 0 : 1;
+		$SD.setState(context, sdState);
+	}
+
+	/**
+	 * Update a particular socket state to the provided value
+	 * @param context Action context
+	 * @param socketIdx Socket index to update
+	 * @param state New state for the socket
+	 */
+	_updateSocketState(context: string, socketIdx: number, state: StateEnum) {
+		const states = this._ctxStatesCache.get(context);
+		if (!states) return;
+		states[socketIdx] = state;
+		this._updateStates(context, states);
 	}
 }

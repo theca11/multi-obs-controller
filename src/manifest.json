@@ -66,8 +66,12 @@
 			"States": [
 				{
 					"Image": "assets/actions/setscene/key"
+				},
+				{
+					"Image": "assets/actions/setscene/key"
 				}
-			]
+			],
+			"DisableAutomaticStates": true
 		},
 		{
 			"UUID": "dev.theca11.multiobs.togglesource",
@@ -94,8 +98,12 @@
 			"States": [
 				{
 					"Image": "assets/actions/setcollection/key"
+				},
+				{
+					"Image": "assets/actions/setcollection/key"
 				}
-			]
+			],
+			"DisableAutomaticStates": true
 		},
 		{
 			"UUID": "dev.theca11.multiobs.toggleinputmute",

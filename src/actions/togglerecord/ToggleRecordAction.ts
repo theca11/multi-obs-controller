@@ -19,7 +19,7 @@ export class ToggleRecordAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
 		return getRecordState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
 	}
 

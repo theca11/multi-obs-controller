@@ -19,7 +19,7 @@ export class ToggleStreamAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum> {
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
 		return getStreamState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
 	}
 
