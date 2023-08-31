@@ -21,7 +21,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	_showSuccess = true;
 	_ctxSettingsCache = new Map<string, PersistentSettings>();	// <context, settings> map (not included if in multiaction)
 	_ctxStatesCache = new Map<string, StateEnum[]>();	// <context, statesArray> map (not included if in multiaction)
-	_statesColors = { on: '#6fb5e366', off: '#33333366' };
+	_statesColors = { on: '#517a96', off: '#2b3e4b' };
 	_pressesCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
@@ -285,7 +285,7 @@ export abstract class AbstractBaseWsAction extends Action {
 
 		// Draw target numbers
 		ctx.globalCompositeOperation = 'source-over';
-		ctx.fillStyle = '#999999';
+		ctx.fillStyle = '#efefef';
 		ctx.font = 'bold 25px Arial';
 		ctx.textBaseline = 'top';
 		if (target === 0 || target === 1) {
@@ -302,19 +302,25 @@ export abstract class AbstractBaseWsAction extends Action {
 		if (states) {
 			if (target !== 0) {
 				if (states[target - 1] === StateEnum.Unavailable) {
-					CanvasUtils.overlayLineVPattern(ctx, 0, 1);
+					CanvasUtils.drawLineVPatternRect(ctx, 0, 1);
 				}
 				else {
-					CanvasUtils.overlayColor(ctx, states[target - 1] === StateEnum.Active ? this._statesColors.on : this._statesColors.off, 0, 1, states[target - 1] === StateEnum.Active ? 'destination-over' : 'source-over');
+					if (states[target - 1] === StateEnum.Inactive) {
+						CanvasUtils.drawColorRect(ctx, '#a0a0a0', 0, 1, 'source-atop');
+					}
+					CanvasUtils.drawColorRect(ctx, states[target - 1] === StateEnum.Inactive ? this._statesColors.off : this._statesColors.on, 0, 1, 'destination-over');
 				}
 			}
 			else {
 				for (let i = 0; i < states.length; i++) {
 					if (states[i] === StateEnum.Unavailable) {
-						CanvasUtils.overlayLineVPattern(ctx, i / 2, (i + 1) / 2);
+						CanvasUtils.drawLineVPatternRect(ctx, i / 2, (i + 1) / 2);
 					}
 					else {
-						CanvasUtils.overlayColor(ctx, states[i] === StateEnum.Active ? this._statesColors.on : this._statesColors.off, i / 2, (i + 1) / 2, states[i] === StateEnum.Active ? 'destination-over' : 'source-over');
+						if (states[i] === StateEnum.Inactive) {
+							CanvasUtils.drawColorRect(ctx, '#a0a0a0', i / 2, (i + 1) / 2, 'source-atop');
+						}
+						CanvasUtils.drawColorRect(ctx, states[i] === StateEnum.Inactive ? this._statesColors.off : this._statesColors.on, i / 2, (i + 1) / 2, 'destination-over');
 					}
 				}
 			}

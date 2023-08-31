@@ -31,11 +31,11 @@
 			"Tooltip": "Start/stop streaming",
 			"States": [
 				{
-					"Image": "assets/actions/togglestream/key",
+					"Image": "assets/actions/togglestream/key_on",
 					"Name": "Start"
 				},
 				{
-					"Image": "assets/actions/togglestream/key",
+					"Image": "assets/actions/togglestream/key_off",
 					"Name": "Stop"
 				}
 			],
@@ -48,11 +48,11 @@
 			"Tooltip": "Start/stop recording",
 			"States": [
 				{
-					"Image": "assets/actions/togglerecord/key",
+					"Image": "assets/actions/togglerecord/key_on",
 					"Name": "Start"
 				},
 				{
-					"Image": "assets/actions/togglerecord/key",
+					"Image": "assets/actions/togglerecord/key_off",
 					"Name": "Stop"
 				}
 			],
@@ -65,10 +65,10 @@
 			"Tooltip": "Set current scene",
 			"States": [
 				{
-					"Image": "assets/actions/setscene/key"
+					"Image": "assets/actions/setscene/key_on"
 				},
 				{
-					"Image": "assets/actions/setscene/key"
+					"Image": "assets/actions/setscene/key_off"
 				}
 			],
 			"DisableAutomaticStates": true
@@ -80,11 +80,11 @@
 			"Tooltip": "Show/hide source",
 			"States": [
 				{
-					"Image": "assets/actions/togglesource/key",
+					"Image": "assets/actions/togglesource/key_on",
 					"Name": "Show"
 				},
 				{
-					"Image": "assets/actions/togglesource/key",
+					"Image": "assets/actions/togglesource/key_off",
 					"Name": "Hide"
 				}
 			],
@@ -97,10 +97,10 @@
 			"Tooltip": "Set current scene collection",
 			"States": [
 				{
-					"Image": "assets/actions/setcollection/key"
+					"Image": "assets/actions/setcollection/key_on"
 				},
 				{
-					"Image": "assets/actions/setcollection/key"
+					"Image": "assets/actions/setcollection/key_off"
 				}
 			],
 			"DisableAutomaticStates": true
@@ -112,11 +112,11 @@
 			"Tooltip": "Mute/unmute audio source",
 			"States": [
 				{
-					"Image": "assets/actions/toggleinputmute/key",
+					"Image": "assets/actions/toggleinputmute/key_on",
 					"Name": "Mute"
 				},
 				{
-					"Image": "assets/actions/toggleinputmute/key",
+					"Image": "assets/actions/toggleinputmute/key_off",
 					"Name": "Unmute"
 				}
 			],
@@ -129,7 +129,7 @@
 			"Tooltip": "Trigger action associated with a hotkey sequence",
 			"States": [
 				{
-					"Image": "assets/actions/triggerhotkey/key"
+					"Image": "assets/actions/triggerhotkey/key_on"
 				}
 			]
 		},
@@ -140,7 +140,7 @@
 			"Tooltip": "Disable & re-enable a video capture device",
 			"States": [
 				{
-					"Image": "assets/actions/refreshcapturedevice/key"
+					"Image": "assets/actions/refreshcapturedevice/key_on"
 				}
 			]
 		},

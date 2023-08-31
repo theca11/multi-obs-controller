@@ -5,7 +5,7 @@ import { getInputMuteState } from '../states';
 
 export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged', statesColors: { on: '#60d66266', off: '#ff000066' } });
+		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {

@@ -63,7 +63,7 @@ export class ImageUtils {
 }
 
 export class CanvasUtils {
-	static overlayColor(
+	static drawColorRect(
 		ctx: CanvasRenderingContext2D,
 		color: string,
 		xStart: number, xEnd: number,
@@ -75,7 +75,7 @@ export class CanvasUtils {
 		ctx.fillRect(xStart * canvasWidth, 0, xEnd * canvasWidth, canvasHeight);
 	}
 
-	static overlayLineHPattern(
+	static drawLineHPatternRect(
 		ctx: CanvasRenderingContext2D,
 		xStart: number, xEnd: number,
 		color1 = '#33333366', color2 = '#66666666',
@@ -95,7 +95,7 @@ export class CanvasUtils {
 		}
 	}
 
-	static overlayLineVPattern(ctx: CanvasRenderingContext2D,
+	static drawLineVPatternRect(ctx: CanvasRenderingContext2D,
 		xStart: number, xEnd: number,
 		color1 = '#33333366', color2 = '#66666666',
 		numLines = 16,

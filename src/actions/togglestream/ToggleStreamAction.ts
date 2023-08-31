@@ -4,7 +4,7 @@ import { getStreamState } from '../states';
 
 export class ToggleStreamAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { on: '#60d66266' } });
+		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { on: '#5a9b4a' } });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {

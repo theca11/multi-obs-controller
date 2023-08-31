@@ -4,7 +4,7 @@ import { getRecordState } from '../states';
 
 export class ToggleRecordAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#ff000066' } });
+		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#cc3636' } });
 	}
 
 	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
