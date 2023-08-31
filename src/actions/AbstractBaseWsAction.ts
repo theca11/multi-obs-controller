@@ -112,6 +112,10 @@ export abstract class AbstractBaseWsAction extends Action {
 				.catch(() => SDUtils.log('[ERROR] Error executing custom onPropertyInspectorReady()'));
 			}
 		});
+
+		$SD.onDidReceiveGlobalSettings(() => {
+			this.updateImages();
+		});
 	}
 
 	/**
@@ -284,19 +288,20 @@ export abstract class AbstractBaseWsAction extends Action {
 		ctx.drawImage(img, 0, 0);
 
 		// Draw target numbers
-		ctx.globalCompositeOperation = 'source-over';
-		ctx.fillStyle = '#efefef';
-		ctx.font = 'bold 25px Arial';
-		ctx.textBaseline = 'top';
-		if (target === 0 || target === 1) {
-			ctx.textAlign = 'left';
-			ctx.fillText('1', 0 + 10, 10);
+		if (globalSettings.targetNumbers !== 'hide') {
+			ctx.globalCompositeOperation = 'source-over';
+			ctx.fillStyle = '#efefef';
+			ctx.font = 'bold 25px Arial';
+			ctx.textBaseline = 'top';
+			if (target === 0 || target === 1) {
+				ctx.textAlign = 'left';
+				ctx.fillText('1', 0 + 10, 10);
+			}
+			if (target === 0 || target === 2) {
+				ctx.textAlign = 'right';
+				ctx.fillText('2', 144 - 10, 10);
+			}
 		}
-		if (target === 0 || target === 2) {
-			ctx.textAlign = 'right';
-			ctx.fillText('2', 144 - 10, 10);
-		}
-
 
 		// Draw target state
 		if (states) {

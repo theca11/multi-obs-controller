@@ -58,6 +58,7 @@ export type GlobalSettings = Partial<{
 	[key: `pwd${number}`]: string
 	longPressMs: string,
 	feedback: 'hide',
+	targetNumbers: 'hide'
 }>
 
 export type RequestPayload = SingleRequestPayload<T> | BatchRequestPayload | null;
