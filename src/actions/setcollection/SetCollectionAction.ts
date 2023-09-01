@@ -1,9 +1,11 @@
-import { AbstractStatelessWsAction } from '../AbstractStatelessWsAction';
+import { StateEnum } from '../AbstractBaseWsAction';
+import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getCollectionsLists } from '../lists';
+import { getCurrentSceneCollection } from '../states';
 
-export class SetCollectionAction extends AbstractStatelessWsAction {	// to-do: fix this, it's stateful
+export class SetCollectionAction extends AbstractStatefulWsAction {
 	constructor() {
-		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName' });
+		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName', statusEvent: 'CurrentSceneCollectionChanged' });
 	}
 
 	getPayloadFromSettings(settings: any) {
@@ -18,5 +20,20 @@ export class SetCollectionAction extends AbstractStatelessWsAction {	// to-do: f
 		const collectionsLists = await getCollectionsLists();
 		const payload = { event: 'CollectionListLoaded', collectionsLists: collectionsLists };
 		$SD.sendToPropertyInspector(context, payload, action);
+	}
+
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
+		const currentSceneCollection = getCurrentSceneCollection(socketIdx);
+		return socketSettings.sceneCollectionName && socketSettings.sceneCollectionName === currentSceneCollection ? StateEnum.Active : StateEnum.Inactive;
+	}
+
+	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
+		const { sceneCollectionName } = socketSettings;
+		if (sceneCollectionName) return true;
+		return false;
+	}
+
+	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+		return evtData.sceneCollectionName === socketSettings.sceneCollectionName ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

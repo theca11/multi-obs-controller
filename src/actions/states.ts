@@ -8,6 +8,7 @@ export const evtEmitter = new EventEmitter();
 const streamStates: (boolean | null)[] = getDefaultStatesArray();
 const recordStates: (boolean | null)[] = getDefaultStatesArray();
 const currentProgramScenes: (string | null)[] = getDefaultStatesArray();
+const currentSceneCollections: (string | null)[] = getDefaultStatesArray();
 
 function getDefaultStatesArray() {
 	return new Array(sockets.length).fill(null);
@@ -23,11 +24,13 @@ async function fetchGeneralStates(socketIdx: number) {
 		{ requestType: 'GetStreamStatus' },
 		{ requestType: 'GetRecordStatus' },
 		{ requestType: 'GetCurrentProgramScene' },
+		{ requestType: 'GetSceneCollectionList' },
 	]);
 	const responses = results.map(result => result.requestStatus.result === true ? result.responseData : {});
 	streamStates[socketIdx] = (responses[0] as OBSResponseTypes['GetStreamStatus'])?.outputActive ?? null;
 	recordStates[socketIdx] = (responses[1] as OBSResponseTypes['GetRecordStatus'])?.outputActive ?? null;
 	currentProgramScenes[socketIdx] = (responses[2] as OBSResponseTypes['GetCurrentProgramScene'])?.currentProgramSceneName ?? null;
+	currentSceneCollections[socketIdx] = (responses[3] as OBSResponseTypes['GetSceneCollectionList'])?.currentSceneCollectionName ?? null;
 }
 
 // Attach event listeners
@@ -41,6 +44,7 @@ sockets.forEach((socket, i) => {
 		streamStates[i] = null;
 		recordStates[i] = null;
 		currentProgramScenes[i] = null;
+		currentSceneCollections[i] = null;
 		evtEmitter.emit('SocketDisconnected', i);
 	});
 	socket.on('StreamStateChanged', ({ outputActive }) => {
@@ -55,6 +59,10 @@ sockets.forEach((socket, i) => {
 		currentProgramScenes[i] = sceneName;
 		evtEmitter.emit('CurrentProgramSceneChanged', i, { sceneName });
 	});
+	socket.on('CurrentSceneCollectionChanged', ({ sceneCollectionName }) => {
+		currentSceneCollections[i] = sceneCollectionName;
+		evtEmitter.emit('CurrentSceneCollectionChanged', i, { sceneCollectionName });
+	});
 	socket.on('SceneItemEnableStateChanged', ({ sceneName, sceneItemId, sceneItemEnabled }) => {
 		evtEmitter.emit('SceneItemEnableStateChanged', i, { sceneName, sceneItemId, sceneItemEnabled });
 	});
@@ -68,6 +76,7 @@ sockets.forEach((socket, i) => {
 export function getStreamState(socketIdx: number) { return streamStates[socketIdx]; }
 export function getRecordState(socketIdx: number) { return recordStates[socketIdx]; }
 export function getCurrentScene(socketIdx: number) { return currentProgramScenes[socketIdx]; }
+export function getCurrentSceneCollection(socketIdx: number) { return currentSceneCollections[socketIdx]; }
 
 export async function getInputMuteState(socketIdx: number, inputName: string) {
 	if (!inputName) return Promise.reject();
