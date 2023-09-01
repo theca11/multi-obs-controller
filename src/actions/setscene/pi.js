@@ -3,7 +3,7 @@ $PI.onSendToPropertyInspector('dev.theca11.multiobs.setscene', ({ payload }) => 
 
 	if (event === 'SceneListLoaded') {
 		document.querySelectorAll('datalist').forEach((el, idx) => {
-			const options = [...scenesLists[idx]].reverse().map(scene => {
+			const options = [...scenesLists[idx]].reverse().map((scene) => {
 				const option = document.createElement('option');
 				option.value = scene.sceneName;
 				option.textContent = scene.sceneName;

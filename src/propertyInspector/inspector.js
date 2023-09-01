@@ -2,7 +2,8 @@
 // / <reference path="../libs/js/utils.js" />
 import { FormUtils } from './utils.js';
 
-const forms = new Map();	// common form and per OBS instance forms
+const NUM_INSTANCES = 2;
+const forms = new Map(); // common form and per OBS instance forms
 let globalSettings = {};
 
 // Initialization when PI connects
@@ -16,11 +17,11 @@ $PI.onConnected(async (jsn) => {
 	// Insert tabs and action fields
 	const actionName = action.split('.').at(-1);
 	const { fields } = await import(`../actions/${actionName}/fields.js`)
-	.catch(() =>{ console.log('No custom fields loaded'); return {};});
+	.catch(() => { console.log('No custom fields loaded'); return {}; });
 	if (fields) {
 		const tabs = [];
 		const tabsContents = [];
-		for (let i = 1; i <= 2; i++) {	// 2 OBS instances
+		for (let i = 1; i <= NUM_INSTANCES; i++) {
 			tabs.push(`
 				<div class="tab${i == 0 ? ' selected' : ''}" data-target="#tab${i}" title="OBS instance ${i}">
 					OBS${i}
@@ -41,7 +42,7 @@ $PI.onConnected(async (jsn) => {
 		document.querySelector('.first-separator').style.display = 'block';
 	}
 	else {
-		document.querySelector('#indivParams').style.display = 'none';	// hide indiv params box if not fields
+		document.querySelector('#indivParams').style.display = 'none'; // hide indiv params box if not fields
 	}
 
 	// Load all forms with action settings
@@ -56,7 +57,7 @@ $PI.onConnected(async (jsn) => {
 	}
 
 	onTargetChange();
-	Array.from(document.querySelectorAll('#target input')).forEach(i =>
+	Array.from(document.querySelectorAll('#target input')).forEach((i) =>
 		i.addEventListener('change', () => onTargetChange()),
 	);
 	document.querySelector('#indivParamsCheck').addEventListener('change', () => updateTargetTabs());
@@ -119,7 +120,6 @@ function indexHtmlFields(fields, index) {
 	return fields.replace(/(id="|for="|list=")(\S+?)(")/g, `$1$2-${index}$3`);
 }
 
-
 /**
  * Window level functions to use in the external configuration window
  */
@@ -133,21 +133,20 @@ window.sendGlobalSettingsToInspector = (settings) => {
 	document.querySelector('#longPressMs').placeholder = globalSettings.longPressMs;
 };
 
-
 // --- Tabs logic ---
 function activateTabs(activeTab) {
 	const allTabs = Array.from(document.querySelectorAll('.tab'));
 	let activeTabEl = null;
 	allTabs.forEach((el) => {
 		el.onclick = () => clickTab(el);
-		if(el.dataset?.target === activeTab) {
+		if (el.dataset?.target === activeTab) {
 			activeTabEl = el;
 		}
 	});
-	if(activeTabEl) {
+	if (activeTabEl) {
 		clickTab(activeTabEl);
 	}
-	else if(allTabs.length) {
+	else if (allTabs.length) {
 		clickTab(allTabs[0]);
 	}
 }
@@ -157,9 +156,9 @@ function clickTab(clickedTab) {
 	allTabs.forEach((el) => el.classList.remove('selected'));
 	clickedTab.classList.add('selected');
 	allTabs.forEach((el) => {
-		if(el.dataset.target) {
+		if (el.dataset.target) {
 			const t = document.querySelector(el.dataset.target);
-			if(t) {
+			if (t) {
 				t.style.display = el == clickedTab ? 'block' : 'none';
 			}
 		}
@@ -171,7 +170,6 @@ function updateTargetTabs() {
 	if (!indivParamsCheckbox.checked) {
 		clickTab(document.querySelector('.tab')); // click first tab
 		document.querySelector('#tabs-header').style.display = 'none';
-
 	}
 	else {
 		document.querySelector('#tabs-header').style.display = 'block';

@@ -1,5 +1,4 @@
-export const fields =
-`
+export const fields = `
 <div class="sdpi-item sequence-item">
 	<div class="sdpi-item-label">Key Sequence</div>
 	<input class="sdpi-item-value" type="text" placeholder="Click here to add hotkey sequence" readonly>

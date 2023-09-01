@@ -1,5 +1,4 @@
-export const fields =
-`
+export const fields = `
 <div class="sdpi-item" id="select_single">
     <div class="sdpi-item-label">Execution Type</div>
     <select class="sdpi-item-value select" name="executionType">

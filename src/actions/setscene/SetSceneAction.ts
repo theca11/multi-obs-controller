@@ -16,7 +16,7 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		};
 	}
 
-	async onPropertyInspectorReady({ context, action }: {context: string, action: string}) {
+	async onPropertyInspectorReady({ context, action }: { context: string, action: string }) {
 		const scenesLists = await getScenesLists();
 		const payload = { event: 'SceneListLoaded', scenesLists: scenesLists };
 		$SD.sendToPropertyInspector(context, payload, action);

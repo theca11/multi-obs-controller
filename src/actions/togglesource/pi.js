@@ -3,7 +3,7 @@ $PI.onSendToPropertyInspector('dev.theca11.multiobs.togglesource', ({ payload })
 
 	if (event === 'SceneListLoaded') {
 		document.querySelectorAll('.scenes > datalist').forEach((el, idx) => {
-			const options = [...scenesLists[idx]].reverse().map(scene => {
+			const options = [...scenesLists[idx]].reverse().map((scene) => {
 				const option = document.createElement('option');
 				option.value = scene.sceneName;
 				option.textContent = scene.sceneName;
@@ -15,7 +15,7 @@ $PI.onSendToPropertyInspector('dev.theca11.multiobs.togglesource', ({ payload })
 	else if (event === 'SourceListLoaded') {
 		document.querySelectorAll('.sources > datalist').forEach((el, idx) => {
 			if (idx === payload.idx) {
-				const options = [...sourceList].reverse().map(sourceName => {
+				const options = [...sourceList].reverse().map((sourceName) => {
 					const option = document.createElement('option');
 					option.value = sourceName;
 					option.textContent = sourceName;
@@ -36,7 +36,8 @@ document.querySelectorAll('input[name="sceneName"').forEach((el, idx) => {
 	});
 
 	// Attach listener
-	el.addEventListener('input',
+	el.addEventListener(
+		'input',
 		Utils.debounce(150, () => {
 			$PI.sendToPlugin({
 				event: 'GetSceneItemsList',

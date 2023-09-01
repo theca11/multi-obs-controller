@@ -16,7 +16,7 @@ export class TriggerHotkeyAction extends AbstractStatelessWsAction {
 
 type KeyCombination = {
 	keyId?: string,
-	keyModifiers: {control?: boolean, shift?: boolean, alt?: boolean, command?: boolean}
+	keyModifiers: { control?: boolean, shift?: boolean, alt?: boolean, command?: boolean }
 }
 
 /**

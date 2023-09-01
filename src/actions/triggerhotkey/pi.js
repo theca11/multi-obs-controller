@@ -4,15 +4,15 @@ const key = {
 	code: null,
 };
 const modifiers = {
-	'Control': false,
-	'Shift': false,
-	'Alt': false,
-	'Meta': false,
+	Control: false,
+	Shift: false,
+	Alt: false,
+	Meta: false,
 };
 const keyboardLayoutMap = await navigator.keyboard.getLayoutMap().catch(() => null);
 
 // Init shown sequence input field and add event listeners to it
-document.querySelectorAll('.sequence-item .sdpi-item-value').forEach(input => {
+document.querySelectorAll('.sequence-item .sdpi-item-value').forEach((input) => {
 	const sequence = input.parentElement.querySelector('input[name="seq"]').value;
 	let shownSequence = '';
 	const sequenceKey = sequence.split(' + ').pop();
@@ -21,7 +21,7 @@ document.querySelectorAll('.sequence-item .sdpi-item-value').forEach(input => {
 	}
 	else {
 		const keyStr = getKeyLayoutString(sequenceKey);
-		shownSequence = sequence.replace(sequenceKey, keyStr);	// replace key code value with key string
+		shownSequence = sequence.replace(sequenceKey, keyStr); // replace key code value with key string
 	}
 	input.value = shownSequence;
 
@@ -84,7 +84,7 @@ function getKeyLayoutString(keyCode) {
 	if (!keyString || keyString === 'Dead') return keyCode;
 	if (keyCode.startsWith('Numpad')) return keyCode;
 	if (keyString === ' ') return 'Spacebar';
-	return keyString.charAt(0).toUpperCase() + keyString.slice(1);	// Capitalized key string
+	return keyString.charAt(0).toUpperCase() + keyString.slice(1); // Capitalized key string
 }
 
 /**

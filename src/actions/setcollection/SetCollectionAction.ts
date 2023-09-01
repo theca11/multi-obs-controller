@@ -16,7 +16,7 @@ export class SetCollectionAction extends AbstractStatefulWsAction {
 		};
 	}
 
-	async onPropertyInspectorReady({ context, action }: {context: string, action: string}) {
+	async onPropertyInspectorReady({ context, action }: { context: string, action: string }) {
 		const collectionsLists = await getCollectionsLists();
 		const payload = { event: 'CollectionListLoaded', collectionsLists: collectionsLists };
 		$SD.sendToPropertyInspector(context, payload, action);

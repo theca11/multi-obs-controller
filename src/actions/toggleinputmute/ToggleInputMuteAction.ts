@@ -43,7 +43,7 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	}
 
 	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
-		const { inputName } = socketSettings ;
+		const { inputName } = socketSettings;
 		if (inputName && inputName === evtData.inputName) return true;
 		return false;
 	}

@@ -1,5 +1,4 @@
-export const fields =
-`
+export const fields = `
 <div class="sdpi-item scenes">
 	<div class="sdpi-item-label">Scene</div>
 	<input class="sdpi-item-value" type="text" name="sceneName" list="sceneList" required>
