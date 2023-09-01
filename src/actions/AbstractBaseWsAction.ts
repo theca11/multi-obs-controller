@@ -340,7 +340,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	getCommonSettings(settings: PersistentSettings) {
 		settings = settings ?? {};
 		return {
-			target: parseInt(settings.common?.target || '0'),
+			target: parseInt(settings.common?.target || globalSettings.defaultTarget || '0'),
 			indivParams: !!settings.common?.indivParams,
 		};
 	}

@@ -50,6 +50,11 @@ $PI.onConnected(async (jsn) => {
 	initForms(settings);
 
 	// Add target and shared params logic
+	if (!document.querySelector('input[name="target"]:checked')) {
+		document.querySelector(`input[name="target"][value="${globalSettings.defaultTarget || 0}"]`).checked = true;
+		document.querySelector('#common-fields').dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+	}
+
 	onTargetChange();
 	Array.from(document.querySelectorAll('#target input')).forEach(i =>
 		i.addEventListener('change', () => onTargetChange()),

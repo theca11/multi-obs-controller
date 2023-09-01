@@ -15,7 +15,7 @@
 			}
 
 			.sdpi-item-label {
-				width: 70px;
+				width: 85px;
 			}
 
 			.sdpi-heading {
@@ -102,6 +102,17 @@
 						</div>
 					</div>
 					<div class="sdpi-heading">Additional plugin settings</div>
+					<div type="radio" class="sdpi-item" id="defaultTarget" title="OBS to target" style="margin-top: 2px">
+						<div class="sdpi-item-label">Default Target</div>
+						<div class="sdpi-item-value" style="margin-bottom: 0px;">
+							<input id="obs0" type="radio" name="defaultTarget" value="0" checked>
+							<label for="obs0" class="sdpi-item-label"><span></span>All</label>
+							<input id="obs1" type="radio" name="defaultTarget" value="1">
+							<label for="obs1" class="sdpi-item-label"><span></span>OBS #1</label>
+							<input id="obs2" type="radio" name="defaultTarget" value="2">
+							<label for="obs2" class="sdpi-item-label"><span></span>OBS #2</label>
+						</div>
+					</div>
 					<div class="sdpi-item" style="align-items: center;" title="Long press length in milliseconds">
 						<div class="sdpi-item-label">Long press length (ms)</div>
 						<input class="sdpi-item-value" type="number" name="longPressMs" value="500" required>

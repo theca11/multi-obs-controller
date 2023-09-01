@@ -56,6 +56,7 @@ export type GlobalSettings = Partial<{
 	[key: `ip${number}`]: string,
 	[key: `port${number}`]: string,
 	[key: `pwd${number}`]: string
+	defaultTarget: string,
 	longPressMs: string,
 	feedback: 'hide',
 	targetNumbers: 'hide'
