@@ -10,7 +10,7 @@ for (const PluginAction of Object.values(pluginActions)) {
 
 // SD starts
 $SD.onConnected(() => {
-	SDUtils.log('[INFO] Stream Deck connected');
+	SDUtils.log('Stream Deck connected');
 	$SD.getGlobalSettings();
 
 	// Check OBS WS connections every 10s

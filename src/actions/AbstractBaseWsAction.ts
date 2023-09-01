@@ -73,7 +73,6 @@ export abstract class AbstractBaseWsAction extends Action {
 		});
 
 		evtEmitter.on('SocketInitialized', async (socketIdx) => {
-			console.log('socket connected');
 			for (const [ctx, settings] of this._ctxSettingsCache) {
 				const settingsArray = this.getSettingsArray(settings);
 				const newState = await this.fetchSocketState(settingsArray[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
@@ -82,7 +81,6 @@ export abstract class AbstractBaseWsAction extends Action {
 			this.updateImages();
 		});
 		evtEmitter.on('SocketDisconnected', (socketIdx) => {
-			console.log('Socket disconnected');
 			for (const [ctx] of this._ctxStatesCache) {
 				this._updateSocketState(ctx, socketIdx, StateEnum.Unavailable);
 			}
@@ -109,7 +107,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		this.onSendToPlugin(async ({ context, action, payload }: SendToPluginData<{ event: string }>) => {
 			if (payload.event === 'ready' && this.onPropertyInspectorReady) {
 				await this.onPropertyInspectorReady({ context, action })
-				.catch(() => SDUtils.log('[ERROR] Error executing custom onPropertyInspectorReady()'));
+				.catch(() => SDUtils.logError('Error executing custom onPropertyInspectorReady()'));
 			}
 		});
 
@@ -134,7 +132,7 @@ export abstract class AbstractBaseWsAction extends Action {
 				return this.getPayloadFromSettings(settings, userDesiredState);
 			}
 			catch {
-				SDUtils.log('[ERROR] Error parsing action settings - request will be invalid');
+				SDUtils.logError('Error parsing action settings - request will be invalid');
 				return { requestType: 'InvalidRequest' };
 			}
 		});
@@ -147,7 +145,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		const actionId = this.UUID.replace('dev.theca11.multiobs.', '');
 		const rejectedResult = results.find(result => result.status === 'rejected');	// target socket not connected or regular request failed
 		if (rejectedResult) {
-			SDUtils.log(`[ERROR][OBS_${results.indexOf(rejectedResult) + 1}][${actionId}] ${(rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected'}`);
+			SDUtils.logError(`[OBS_${results.indexOf(rejectedResult) + 1}][${actionId}] ${(rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected'}`);
 			if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
 		}
 		else {	// if a batch request, response is an array and everything must have requestStatus.result === true
@@ -156,7 +154,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			if (firstRejectedResponse) {
 				const reqStatus = (firstRejectedResponse as ResponseMessage[]).find((resp) => !resp.requestStatus.result)?.requestStatus;
 				const reason = reqStatus ? (reqStatus as { comment: string }).comment : 'Unknown reason';
-				SDUtils.log(`[ERROR][OBS_${socketsReponses.indexOf(firstRejectedResponse) + 1}][${actionId}] ${reason}`);
+				SDUtils.logError(`[OBS_${socketsReponses.indexOf(firstRejectedResponse) + 1}][${actionId}] ${reason}`);
 				if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
 				return;
 			}

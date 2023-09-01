@@ -20,8 +20,8 @@ export class SDUtils {
 			const line = [];
 			let length = 0;
 			let total_len = 0;
-			while(total_len < maxWidth && part < parts.length) {
-				if(length > 0 && total_len + space_width + parts[part].length > maxWidth) {
+			while (total_len < maxWidth && part < parts.length) {
+				if (length > 0 && total_len + space_width + parts[part].length > maxWidth) {
 					break;
 				}
 				line.push(parts[part]);
@@ -36,13 +36,30 @@ export class SDUtils {
 		$SD.setTitle(context, title, target);
 	}
 
+	// Aux object to define console log levels
+	static consoleLog = {
+		'error': (msg: string) => console.error(msg),
+		'warn': (msg: string) => console.warn(msg),
+		'info': (msg: string) => console.info(msg),
+		'log': (msg: string) => console.log(msg),
+	};
+
 	/**
 	 * Log message to both console and SD log file
 	 * @param message Message to log
 	 */
-	static log(message: string) {
-		console.log(message);
+	static log(message: string, logLevel: 'error' | 'warn' | 'info' | 'log' = 'info') {
+		message = `[${logLevel.toUpperCase()}]${message.startsWith('[') ? '' : ' '}` + message;
+		SDUtils.consoleLog[logLevel](message);
 		$SD.logMessage(message);
+	}
+
+	/**
+	 * Log error message to both console and SD log file
+	 * @param message Error message to log
+	 */
+	static logError(message: string) {
+		SDUtils.log(message, 'error');
 	}
 }
 
