@@ -8,7 +8,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglesource', { titleParam: 'sourceName', statusEvent: 'SceneItemEnableStateChanged' });
 
-		this.onSendToPlugin(async ({ payload, context, action }: SendToPluginData<{event: string, socketIdx: number, sceneName: string}>) => {
+		this.onSendToPlugin(async ({ payload, context, action }: SendToPluginData<{ event: string, socketIdx: number, sceneName: string }>) => {
 			if (payload.event === 'GetSceneItemsList') {
 				const sceneItems = await getSceneItemsList(payload.socketIdx, payload.sceneName);
 				const piPayload = {
@@ -60,15 +60,12 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	// to-do: fix this method now that payloadsArray can contain null values
-	async sendWsRequests(payloadsArray: BatchRequestPayload[]): Promise<PromiseSettledResult<any>[]> {
+	async sendWsRequests(payloadsArray: (BatchRequestPayload | null)[]): Promise<PromiseSettledResult<any>[]> {
 		const requestType = payloadsArray.find(payload => payload)?.requests[1].requestType;
-		// const requestType = payloadsArray[0].requests[1].requestType;
-		if (requestType === 'SetSceneItemEnabled') {return super.sendWsRequests(payloadsArray);}
+		if (requestType === 'SetSceneItemEnabled') { return super.sendWsRequests(payloadsArray); }
 
 		const sceneNames = payloadsArray.map((p) => p ? p.requests[0].requestData.sceneName : null);
 		const firstBatchResults = await super.sendWsRequests(payloadsArray);
-		// const secondBatchPayloadsArray = [];
 		const secondBatchPayloadsArray = firstBatchResults.flat().map((r, idx) => {
 			if (!payloadsArray[idx]) {
 				return null;
