@@ -205,8 +205,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * Update key title with the corresponding settings param string, depending on configured target
 	 */
 	updateTitle(context: string, settings: PersistentSettings, settingsParam: string) {
-		if (!settings.common) return;
-		const target = Number(settings.common.target);	// to-do: use the convenient method here
+		const target = this.getTarget(settings);
 		if (target === 0) {
 			SDUtils.setKeyTitle(context, settings.params1?.[settingsParam] as string || settings.params2?.[settingsParam] as string || '');
 		}
