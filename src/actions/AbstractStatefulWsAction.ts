@@ -11,6 +11,7 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 		// Attach listener to status event to update key image
 		const { statusEvent } = params;
 		evtEmitter.on(statusEvent, async (evtSocketIdx, evtData) => {
+			const img = await this.getDefaultKeyImage();
 			for (const [context, settings] of this._ctxSettingsCache) {
 				try {
 					const socketSettings = this.getSettingsArray(settings)[evtSocketIdx];
@@ -19,15 +20,13 @@ export abstract class AbstractStatefulWsAction extends AbstractBaseWsAction {
 						const prevStates = this._ctxStatesCache.get(context) as StateEnum[];
 						prevStates[evtSocketIdx] = newState;
 						this._updateStates(context, prevStates);
+						this.updateKeyImage(context, this.getTarget(settings), img);
 					}
 				}
 				catch (e) {
 					console.error(`Error getting state from event: ${e}`);
 				}
 			}
-			// to-do: create a dirtyContexts array and pass it to updateImage, to avoid updating contexts whose states haven't changed
-			// or directly use updateKeyImage in the loop?
-			this.updateImages();
 		});
 	}
 
