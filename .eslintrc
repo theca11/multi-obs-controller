@@ -23,7 +23,7 @@
 		"dot-location": ["error", "property"],
 		"handle-callback-err": "off",
 		"indent": ["error", "tab", { "MemberExpression": 0, "SwitchCase": 1 }],
-		"max-len": ["warn", 100],
+		// "max-len": ["warn", 100],
 		"max-nested-callbacks": ["error", { "max": 4 }],
 		"max-statements-per-line": ["error", { "max": 2 }],
 		"no-console": "off",
