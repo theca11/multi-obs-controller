@@ -98,6 +98,9 @@ function initForms(settings) {
 				let updatedSettings = {};
 				forms.forEach((form, key) => {
 					const formValue = FormUtils.getFormValue(form);
+					if (Object.keys(formValue).length === 0 && formValue.constructor === Object) { // empty object
+						return;
+					}
 					updatedSettings = { ...updatedSettings, [key]: formValue };
 				});
 				$PI.setSettings(updatedSettings);

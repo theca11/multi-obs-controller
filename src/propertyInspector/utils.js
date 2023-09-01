@@ -20,7 +20,7 @@ export class FormUtils {
 
 		formData.forEach((value, key) => {
 			if (!Reflect.has(formValue, key)) {
-				formValue[key] = value;
+				if (value !== '') formValue[key] = value;
 				return;
 			}
 			if (!Array.isArray(formValue[key])) {
