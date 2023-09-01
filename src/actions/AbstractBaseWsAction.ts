@@ -148,7 +148,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		const rejectedResult = results.find(result => result.status === 'rejected');	// target socket not connected or regular request failed
 		if (rejectedResult) {
 			SDUtils.log(`[ERROR][OBS_${results.indexOf(rejectedResult) + 1}][${actionId}] ${(rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected'}`);
-			if (!hideActionFeedback) $SD.showAlert(context);
+			if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
 		}
 		else {	// if a batch request, response is an array and everything must have requestStatus.result === true
 			const socketsReponses = results.map(result => (result as PromiseFulfilledResult<unknown>).value);
@@ -157,11 +157,11 @@ export abstract class AbstractBaseWsAction extends Action {
 				const reqStatus = (firstRejectedResponse as ResponseMessage[]).find((resp) => !resp.requestStatus.result)?.requestStatus;
 				const reason = reqStatus ? (reqStatus as { comment: string }).comment : 'Unknown reason';
 				SDUtils.log(`[ERROR][OBS_${socketsReponses.indexOf(firstRejectedResponse) + 1}][${actionId}] ${reason}`);
-				if (!hideActionFeedback) $SD.showAlert(context);
+				if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
 				return;
 			}
 
-			if (!hideActionFeedback && this._showSuccess) $SD.showOk(context);
+			if (!hideActionFeedback && this._showSuccess) setTimeout(() => $SD.showOk(context), 150);
 		}
 	}
 
