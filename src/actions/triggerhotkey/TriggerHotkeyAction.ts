@@ -110,7 +110,5 @@ function jsKeyToObsKey(code: string): string {
 		PageDown: 'OBS_KEY_PAGEDOWN',
 	};
 
-	// to-do: try to remove this ignore
-	// @ts-expect-error Code can't be used to index - needs better typings
-	return specialKeys[code] ?? '';
+	return specialKeys[code as keyof typeof specialKeys] ?? '';
 }
