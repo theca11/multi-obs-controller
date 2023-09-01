@@ -48,7 +48,7 @@ export abstract class AbstractBaseWsAction extends Action {
 				const img = await this.getDefaultKeyImage();
 				this.updateKeyImage(context, this.getTarget(settings), img);
 			}
-			catch(e) {
+			catch (e) {
 				console.error(e);
 			}
 		});
@@ -67,7 +67,7 @@ export abstract class AbstractBaseWsAction extends Action {
 				const img = await this.getDefaultKeyImage();
 				this.updateKeyImage(context, this.getTarget(settings), img);
 			}
-			catch(e) {
+			catch (e) {
 				console.error(e);
 			}
 		});
@@ -106,7 +106,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		// --
 
 		// When PI is loaded and ready, extra optional logic per action
-		this.onSendToPlugin(async ({ context, action, payload }: SendToPluginData<{event: string}>) => {
+		this.onSendToPlugin(async ({ context, action, payload }: SendToPluginData<{ event: string }>) => {
 			if (payload.event === 'ready' && this.onPropertyInspectorReady) {
 				await this.onPropertyInspectorReady({ context, action })
 				.catch(() => SDUtils.log('[ERROR] Error executing custom onPropertyInspectorReady()'));
@@ -199,7 +199,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	/**
 	 * Triggers when PI has imported everything and is ready to be shown to the user
 	 */
-	async onPropertyInspectorReady?({ context, action }: {context: string, action: string}): Promise<void>
+	async onPropertyInspectorReady?({ context, action }: { context: string, action: string }): Promise<void>
 
 	/**
 	 * Update key title with the corresponding settings param string, depending on configured target
@@ -235,7 +235,7 @@ export abstract class AbstractBaseWsAction extends Action {
 				this.updateKeyImage(context, this.getTarget(settings), img);
 			}
 		}
-		catch(e) {
+		catch (e) {
 			console.error(`Error updating key images: ${e}`);
 		}
 	}

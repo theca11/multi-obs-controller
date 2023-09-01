@@ -4,14 +4,10 @@ import { sockets } from '../plugin/sockets';
 
 export const evtEmitter = new EventEmitter();
 
-type State<T> = T | null
-type BooleanState = State<boolean>
-type StringState = State<string>
-
 // General states
-const streamStates: BooleanState[] = getDefaultStatesArray();
-const recordStates: BooleanState[] = getDefaultStatesArray();
-const currentProgramScenes: StringState[] = getDefaultStatesArray();
+const streamStates: (boolean | null)[] = getDefaultStatesArray();
+const recordStates: (boolean | null)[] = getDefaultStatesArray();
+const currentProgramScenes: (string | null)[] = getDefaultStatesArray();
 
 function getDefaultStatesArray() {
 	return new Array(sockets.length).fill(null);
@@ -42,7 +38,6 @@ sockets.forEach((socket, i) => {
 	});
 	// @ts-expect-error Disconnected event is custom, not part of the OBS WS protocol
 	socket.on('Disconnected', () => {
-		// to-do: update global states to null here, just in case
 		streamStates[i] = null;
 		recordStates[i] = null;
 		currentProgramScenes[i] = null;

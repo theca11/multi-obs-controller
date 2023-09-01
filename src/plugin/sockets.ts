@@ -65,6 +65,5 @@ class Socket extends OBSWebSocket {
 	}
 }
 
-// to-do: find hardcoded "2" in the code and substitute with this const
 export const NUM_SOCKETS = 2;
 export const sockets = new Array(NUM_SOCKETS).fill(null).map(() => new Socket());
