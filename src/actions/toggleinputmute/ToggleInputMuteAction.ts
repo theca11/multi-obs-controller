@@ -3,6 +3,8 @@ import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
 import { getInputsLists } from '../lists';
 import { getInputMuteState } from '../states';
 
+type Input = { inputName: string, inputKind: string, unversionedInputKind: string };
+
 export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	constructor() {
 		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
@@ -25,11 +27,11 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 	}
 
 	async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
-		const inputsLists = await getInputsLists();
+		const inputsLists = await getInputsLists() as Input[][];
 		const payload = {
 			event: 'InputListLoaded',
-			inputsLists: inputsLists.map(list =>
-				list.filter(i => ['dshow_input', 'wasapi_input_capture', 'wasapi_output_capture'].includes((i as unknown as any).unversionedInputKind)), // to-do: check this typing
+			inputsLists: inputsLists.map((list) =>
+				list.filter((i) => ['dshow_input', 'wasapi_input_capture', 'wasapi_output_capture'].includes(i.unversionedInputKind)),
 			),
 		};
 		$SD.sendToPropertyInspector(context, payload, action);
