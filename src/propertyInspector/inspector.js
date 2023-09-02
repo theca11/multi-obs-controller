@@ -62,6 +62,14 @@ $PI.onConnected(async (jsn) => {
 	);
 	document.querySelector('#indivParamsCheck').addEventListener('change', () => updateTargetTabs());
 
+	// Hide long press options if inside multiaction (not supported)
+	$PI.onDidReceiveSettings(action, ({ payload: receiveSettingsPayload }) => {
+		if (receiveSettingsPayload.isInMultiAction) {
+			document.querySelector('#longPress').style.display = 'none';
+		}
+	});
+	$PI.getSettings();
+
 	// Load custom action PI JS, if it exists
 	await import(`../actions/${actionName}/pi.js`).catch(() => console.log('No custom action JS loaded'));
 
