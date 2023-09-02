@@ -90,11 +90,16 @@ export abstract class AbstractBaseWsAction extends Action {
 		// -- Main logic when key is pressed --
 		this.onKeyDown(({ context, payload }: KeyDownData<PersistentSettings>) => {
 			if (this._pressesCache.has(context)) return;
-			const { settings, userDesiredState } = payload;
-			const timeout = setTimeout(() => {
+			const { settings, userDesiredState, isInMultiAction } = payload;
+			if (!isInMultiAction && settings.advanced?.longPress) {
+				const timeout = setTimeout(() => {
+					this._execute(context, settings, userDesiredState);
+				}, Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500);
+				this._pressesCache.set(context, timeout);
+			}
+			else {
 				this._execute(context, settings, userDesiredState);
-			}, settings.advanced?.longPress ? Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500 : 0);
-			this._pressesCache.set(context, timeout);
+			}
 		});
 
 		this.onKeyUp(({ context }: KeyUpData<PersistentSettings>) => {
