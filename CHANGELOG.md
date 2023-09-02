@@ -2,6 +2,31 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2023-09-02
+
+### Added
+
+-   Long key press support
+-   Default target global option
+-   Custom key images support, by properly setting SD action states
+-   Allow hiding target number indicators shown in keys
+
+### Changed
+
+-   Tweaked actions images colors
+-   Changed audio mute/unmute action icon
+
+### Fixed
+
+-   Make `Scene Collection` action update with events
+-   Show OK/alert feedback with a slight delay to avoid overrides from async events
+-   Prevent saving empty setting options
+-   Prevent some unneeded key images updates on events
+
+### Removed
+
+-   Plugin connection status action (`OBS WS Servers Status`)
+
 ## [0.1.0] - 2023-08-15
 
 First release of Multi OBS Controller StreamDeck plugin. This plugin allows easy remote control of multiple OBS Studio instances in a synchronous way.
