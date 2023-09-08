@@ -20,7 +20,7 @@ export class FormUtils {
 
 		formData.forEach((value, key) => {
 			if (!Reflect.has(formValue, key)) {
-				if (value !== '') formValue[key] = value;
+				formValue[key] = value;
 				return;
 			}
 			if (!Array.isArray(formValue[key])) {
@@ -28,6 +28,11 @@ export class FormUtils {
 			}
 			formValue[key].push(value);
 		});
+
+		// Remove keys with empty values
+		for (const key of Object.keys(formValue)) {
+			if (formValue[key] === '') delete formValue[key];
+		}
 
 		return formValue;
 	}
@@ -69,7 +74,7 @@ export class FormUtils {
 			}
 			else if (Array.isArray(value)) {
 				element.value = value.length > 0 ? value[0] : '';
-				value.shift();
+				value.shift();	// to-do: this shift call could be used above since it returns the element shifted
 				jsn = { ...jsn, [name]: value };
 			}
 			else {

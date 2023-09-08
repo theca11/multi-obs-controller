@@ -166,6 +166,17 @@
 					"Image": "assets/actions/rawbatchrequest/key"
 				}
 			]
+		},
+		{
+			"UUID": "dev.theca11.multiobs.stats",
+			"Icon": "assets/actions/rawbatchrequest/icon",
+			"Name": "Stats",
+			"Tooltip": "Get general/stream/record stats",
+			"States": [
+				{
+					"Image": "assets/actions/rawbatchrequest/key"
+				}
+			]
 		}
 	]
 }
