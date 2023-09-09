@@ -1,24 +1,47 @@
 import { sockets } from '../../plugin/sockets';
-import { DidReceiveSettingsData, WillAppearData, WillDisappearData } from '../types';
+import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappearData } from '../types';
+
+type StatObj = { target: number, stat: string, color: string }
+
+const dataOptions = {
+	general: {
+		cpuUsage: {
+			label: 'CPU',
+			format: (usage: number | null) => usage?.toFixed(1) + '%',
+		},
+		memoryUsage: {
+			label: 'Mem',
+			format: (usage: number | null) => Math.floor(usage ?? 0) + ' MB',
+		},
+		availableDiskSpace: {
+			label: 'Disk',
+			format: (space: number | null) => Math.floor((space ?? 0) / 1024) + ' GB',
+		},
+	},
+};
+
+const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
 
 export class StatsAction extends Action {
 
-	private _ctxCache = new Set<string>();
-	private _historicStats: any[] = [];
+	private _ctxSettingsCache = new Map<string, StatObj[]>();
+	private _stats: any = [{}, {}];
 
 	constructor() {
 		super('dev.theca11.multiobs.stats');
 
-		this.onWillAppear(async ({ context }: WillAppearData<unknown>) => {
-			this._ctxCache.add(context);
+		this.onWillAppear(async ({ context, payload }: WillAppearData<PersistentSettings>) => {
+			this._ctxSettingsCache.set(context, this.formatStatSettings(payload.settings));
+			this.updateImages();
 		});
 
-		this.onWillDisappear(async ({ context }: WillDisappearData<unknown>) => {
-			this._ctxCache.delete(context);
+		this.onWillDisappear(async ({ context }: WillDisappearData<PersistentSettings>) => {
+			this._ctxSettingsCache.delete(context);
 		});
 
-		this.onDidReceiveSettings(({ payload }: DidReceiveSettingsData<unknown>) => {
-			console.log(payload.settings);
+		this.onDidReceiveSettings(({ context, payload }: DidReceiveSettingsData<PersistentSettings>) => {
+			this._ctxSettingsCache.set(context, this.formatStatSettings(payload.settings));
+			this.updateImages();
 		});
 
 		setInterval(async () => {
@@ -33,15 +56,12 @@ export class StatsAction extends Action {
 			s.isConnected ? s.call('GetStats') : Promise.reject(),
 		));
 
-		const stats = callResults.map(res => res.status === 'fulfilled' ? res.value : null);
-
-		this._historicStats.push(stats);
-		if (this._historicStats.length > 10) this._historicStats.shift();
-		// console.log(this._historicStats);
+		const results = callResults.map(res => res.status === 'fulfilled' ? res.value : null);
+		results.map((r, i) => this._stats[i].general = r);
 	}
 
 	updateImages() {
-		for (const context of this._ctxCache) {
+		for (const [context] of this._ctxSettingsCache) {
 
 			const canvas = document.createElement('canvas');
 			const ctx = canvas.getContext('2d');
@@ -51,12 +71,25 @@ export class StatsAction extends Action {
 			canvas.width = 144;
 			canvas.height = 144;
 
-			for (let i = 0; i < sockets.length; i++) {
-				const xOffset = i * canvas.width / sockets.length;
-				ctx.fillStyle = '#efefef';
-				ctx.strokeStyle = '#efefef';
-				ctx.font = 'bold 25px Arial';
-				ctx.textBaseline = 'middle';
+			const statsArr = this._ctxSettingsCache.get(context);
+			if (!statsArr) return;
+
+			// Background color
+			ctx.fillStyle = '#517a96';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			// Text
+			ctx.font = `bold ${clamp(canvas.height / statsArr.length - 11, 20, 36)}px Arial`;
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			for (const [idx, { target, stat, color }] of statsArr.entries()) {
+				ctx.fillStyle = color;
+				console.log(this._stats);
+				const [statGroup, statName] = stat.split('.');
+
+				const yPos = (canvas.height) / (statsArr.length + 1) * (idx + 1);
+
+				ctx.fillText(`${(dataOptions as any)[statGroup][statName]?.['format'](this._stats[target - 1]?.[statGroup]?.[statName] ?? 0)}`, canvas.width / 2, yPos, canvas.width - 5);
 			}
 
 			const b64 = canvas.toDataURL('image/png', 1);
@@ -64,26 +97,49 @@ export class StatsAction extends Action {
 		}
 	}
 
-	// plot(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-	// 	const xStep = (canvas.width - 10) / 10;
+	formatStatSettings(actionSettings: PersistentSettings): StatObj[] {
+		const settingsArray = this.getSettingsArray(actionSettings);
+		const formattedStatsArray = settingsArray.flatMap((settings, socketIdx) => {
+			if (!settings) return [];
+			let { stats, colors } = settings as { stats: string | string[], colors: string | string[] };
+			if (!stats) return [];
+			if (!Array.isArray(stats)) stats = [stats];
+			if (!Array.isArray(colors)) colors = [colors];
+			const statObjArray = [];
+			for (let i = 0; i < stats.length; i++) {
+				statObjArray.push({ target: socketIdx + 1, stat: stats[i], color: colors[i] });
+			}
+			return statObjArray;
+		}).filter(item => item !== null);
+		return formattedStatsArray;
+	}
 
-	// 	const cpuUsageHistory = this._historicStats.map(stats => stats[0] ? stats[0].cpuUsage : null);
 
-	// 	ctx.save();
-	// 	ctx.transform(0, 0, 0, -1, 5, canvas.height - 5);
+	// -- General helpers --
+	getCommonSettings(settings: PersistentSettings) {
+		settings = settings ?? {};
+		return {
+			target: parseInt(settings.common?.target || '0'),
+			indivParams: !!settings.common?.indivParams,
+		};
+	}
 
-	// 	const plotUpperY = canvas.height - 5;
-	// 	const plotLowerY = 5;
+	getTarget(settings: PersistentSettings): number {
+		return this.getCommonSettings(settings).target;
+	}
 
-	// 	ctx.beginPath();
-	// 	// ctx.moveTo(5, canvas.height - 5);
-
-	// 	const maxData = cpuUsageHistory.sort().at(-1);
-	// 	for (const [idx, data] of cpuUsageHistory.entries()) {
-	// 		ctx.lineTo(xStep * idx, data / maxData * (plotUpperY - plotLowerY));
-	// 	}
-	// 	ctx.stroke();
-
-	// 	ctx.restore();
-	// }
+	getSettingsArray(settings: PersistentSettings) {
+		settings = settings ?? {};
+		const { target, indivParams } = this.getCommonSettings(settings);
+		const settingsArray = [];
+		for (let i = 0; i < sockets.length; i++) {
+			if (target === 0 || target === i + 1) {
+				settingsArray.push(settings[`params${(target === 0 && !indivParams) ? 1 : i + 1}`] ?? {});
+			}
+			else {
+				settingsArray.push(null);
+			}
+		}
+		return settingsArray;
+	}
 }
