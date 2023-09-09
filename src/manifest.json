@@ -169,12 +169,12 @@
 		},
 		{
 			"UUID": "dev.theca11.multiobs.stats",
-			"Icon": "assets/actions/rawbatchrequest/icon",
+			"Icon": "assets/actions/stats/icon",
 			"Name": "Stats",
 			"Tooltip": "Get general/stream/record stats",
 			"States": [
 				{
-					"Image": "assets/actions/rawbatchrequest/key"
+					"Image": "assets/default_key"
 				}
 			]
 		}
