@@ -4,15 +4,16 @@ import { sockets } from '../plugin/sockets';
 
 export const evtEmitter = new EventEmitter();
 
-// General states
-const streamStates: (boolean | null)[] = getDefaultStatesArray();
-const recordStates: (boolean | null)[] = getDefaultStatesArray();
-const currentProgramScenes: (string | null)[] = getDefaultStatesArray();
-const currentSceneCollections: (string | null)[] = getDefaultStatesArray();
-
-function getDefaultStatesArray() {
+function getDefaultArray() {
 	return new Array(sockets.length).fill(null);
 }
+
+// General states
+const streamStates: (boolean | null)[] = getDefaultArray();
+const recordStates: (boolean | null)[] = getDefaultArray();
+const currentProgramScenes: (string | null)[] = getDefaultArray();
+const currentSceneCollections: (string | null)[] = getDefaultArray();
+
 
 /**
  * Fetch & update general states of a particular OBS instance.
@@ -108,3 +109,51 @@ export async function getSceneItemId(socketIdx: number, sceneName: string, sourc
 	const { sceneItemId } = await sockets[socketIdx].call('GetSceneItemId', { sceneName, sourceName }).catch(() => { return {}; }) as OBSResponseTypes['GetSceneItemId'];
 	return sceneItemId;
 }
+
+// ---
+
+// --- General stats, stream stats and record stats ---
+export const generalStats: (OBSResponseTypes['GetStats'] | null)[] = getDefaultArray();
+export const streamStats: (OBSResponseTypes['GetStreamStatus'] | null)[] = getDefaultArray();
+export const recordStats: (OBSResponseTypes['GetRecordStatus'] | null)[] = getDefaultArray();
+
+async function fetchStats() {
+	const batchResults = await Promise.allSettled(sockets.map(s =>
+		s.isConnected
+			? s.callBatch([
+				{ requestType: 'GetStats' },
+				{ requestType: 'GetStreamStatus' },
+				{ requestType: 'GetRecordStatus' },
+			])
+			: Promise.reject(),
+	));
+	const responsesData = batchResults.map((res) => {
+		if (res.status === 'fulfilled') {
+			return res.value.map((r) => r.requestStatus.result === true ? r.responseData : null);
+		}
+		return null;
+	});
+
+	responsesData.map((responses, socketIdx) => {
+		if (!responses) {
+			generalStats[socketIdx] = null;
+			streamStats[socketIdx] = null;
+			recordStats[socketIdx] = null;
+		}
+		else {
+			responses.map((response, i) => {
+				if (i === 0) generalStats[socketIdx] = (response as OBSResponseTypes['GetStats']) ?? null;
+				else if (i === 1) streamStats[socketIdx] = (response as OBSResponseTypes['GetStreamStatus']) ?? null;
+				else if (i === 2) recordStats[socketIdx] = (response as OBSResponseTypes['GetRecordStatus']) ?? null;
+			});
+		}
+	});
+}
+
+// Fetch stats every second
+setInterval(() => {
+	fetchStats();
+	console.log(recordStats[0]?.outputTimecode);
+}, 1000);
+
+// ---

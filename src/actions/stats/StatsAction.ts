@@ -1,13 +1,20 @@
 import { sockets } from '../../plugin/sockets';
 import { clamp } from '../../plugin/utils';
+import { ExtendedAction } from '../ExtendedAction';
+import { generalStats, streamStats, recordStats } from '../states';
 import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappearData } from '../types';
 
 type StatObj = { target: number, stat: string, color: string }
 
-export class StatsAction extends Action {
+export class StatsAction extends ExtendedAction {
 
 	private _ctxSettingsCache = new Map<string, StatObj[]>();
-	private _stats: any = [{}, {}];
+	private first_encoded = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+	private first_skipped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+	private first_rendered = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+	private first_lagged = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+	private first_total = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+	private first_dropped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
 
 	constructor() {
 		super('dev.theca11.multiobs.stats');
@@ -26,32 +33,29 @@ export class StatsAction extends Action {
 			this.updateImages();
 		});
 
+		this.onLongPress(() => {
+			this.resetStats();
+		});
+
 		setInterval(async () => {
-			// console.log('updating stats');
-			await this._fetchStats();
+			// to-do: only fetch and update if there are action contexts
 			this.updateImages();
 		}, 2000);
 	}
 
-	async _fetchStats() {
-		const batchResults = await Promise.allSettled(sockets.map(s =>
-			s.isConnected
-				? s.callBatch([
-					{ requestType: 'GetStats' },
-					{ requestType: 'GetStreamStatus' },
-					{ requestType: 'GetRecordStatus' },
-				])
-				: Promise.reject(),
-		));
-		batchResults.map((res, socketIdx) => {
-			if (res.status === 'fulfilled') {
-				res.value.map((r, i) => {
-					if (i === 0) this._stats[socketIdx]['general'] = r.responseData;
-					else if (i === 1) this._stats[socketIdx]['stream'] = r.responseData;
-					else if (i === 2) this._stats[socketIdx]['record'] = r.responseData;
-				});
-			}
-		});
+	resetStats() {
+		// Reset stats from skipped/dropped frames
+		this.first_encoded = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+		this.first_skipped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+		this.first_rendered = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+		this.first_lagged = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+		this.first_total = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+		this.first_dropped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
+	}
+
+	getFontSizeToFit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
+		ctx.font = 'bold 1pt Arial';
+		return maxWidth / ctx.measureText(text).width;
 	}
 
 	updateImages() {
@@ -73,38 +77,42 @@ export class StatsAction extends Action {
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 			// Text
-			const fontSize = Math.floor(clamp(canvas.height / statsArr.length - 11, 20, 36));
-			ctx.font = `bold ${fontSize}px Arial`;
 			ctx.textBaseline = 'middle';
 			ctx.textAlign = 'center';
-			const yPad = 10;
+			const yPad = 5;
 			const yStep = (canvas.height - 2 * yPad) / (statsArr.length);
 			let lastTarget = 1;
 			for (const [idx, { target, stat, color }] of statsArr.entries()) {
 				// Target separating line
 				if (target !== lastTarget && idx !== 0) {
 					ctx.save();
-					ctx.strokeStyle = 'black';
-					ctx.lineWidth = 1;
+					ctx.strokeStyle = '#ffffff';
+					ctx.lineWidth = 2;
 					// ctx.setLineDash([20, 11]);
 					ctx.beginPath();
-					ctx.moveTo(0, yStep * idx + yPad - 2);
-					ctx.lineTo(canvas.width, yStep * idx + yPad - 2);
+					ctx.moveTo(0, yStep * idx + yPad + 0.5);
+					ctx.lineTo(canvas.width, yStep * idx + yPad + 0.5);
 					ctx.stroke();
 					ctx.restore();
 				}
 				lastTarget = target;
 
 				const yPos = yStep * (idx) + yStep / 2 + yPad;
-				const text = this.getStatString(target - 1, stat) || '???';
+				const text = this.getStatString(target - 1, stat) || '-';
 				ctx.save();
+				// Adjust size dynamically
+				const fontHeightLimit = Math.floor(clamp(canvas.height / statsArr.length - 11, 16, 34));
+				ctx.font = 'bold 1pt Arial';
+				const fontWidthLimit = Math.floor((canvas.width - 10) / ctx.measureText(text).width);
+				const fontSize = Math.min(fontWidthLimit, fontHeightLimit);
+				ctx.font = `bold ${fontSize}pt Arial`;
+
 				ctx.fillStyle = color;
 				ctx.strokeStyle = 'black';
-				ctx.lineWidth = Math.floor(fontSize / 10);
+				ctx.lineWidth = 2;
 				ctx.lineJoin = 'round';
-				ctx.miterLimit = 2;
-				ctx.strokeText(text, canvas.width / 2, yPos, canvas.width - 5);
-				ctx.fillText(text, canvas.width / 2, yPos, canvas.width - 5);
+				ctx.strokeText(text, canvas.width / 2 + 0.5, yPos, canvas.width - 10);
+				ctx.fillText(text, canvas.width / 2 + 0.5, yPos, canvas.width - 10);
 				ctx.restore();
 			}
 
@@ -121,7 +129,7 @@ export class StatsAction extends Action {
 			if (!stats) return [];
 			if (!Array.isArray(stats)) stats = [stats];
 			if (!Array.isArray(colors)) colors = [colors];
-			const statObjArray = [];
+			const statObjArray: StatObj[] = [];
 			for (let i = 0; i < stats.length; i++) {
 				statObjArray.push({ target: socketIdx + 1, stat: stats[i], color: colors[i] });
 			}
@@ -131,12 +139,10 @@ export class StatsAction extends Action {
 	}
 
 	getStatString(socketIdx: number, statName: string): string {
-		const socketStats = this._stats[socketIdx];
-		if (!socketStats) return '';
 		const [group, name] = statName.split('.');
-		const groupStats = socketStats[group];
-		if (!groupStats) return '';
 		if (group === 'general') {
+			const groupStats = generalStats[socketIdx];
+			if (!groupStats) return '';
 			if (name === 'cpuUsage') return groupStats[name].toFixed(1) + '%';
 			if (name === 'memoryUsage') return (groupStats[name] * 1024 * 1024 / 1024.01 / 1024.01).toFixed(1) + ' MB';
 			if (name === 'availableDiskSpace') {
@@ -148,25 +154,56 @@ export class StatsAction extends Action {
 			if (name === 'activeFps') return groupStats[name].toFixed(0) + ' FPS';
 			if (name === 'averageFrameRenderTime') return groupStats[name].toFixed(1) + ' ms';
 			if (name === 'renderSkippedFrames') {
-				const skipped = groupStats['renderSkippedFrames'];
-				const total = groupStats['renderTotalFrames'];
-				return `${skipped}/${total} (${(skipped / total * 100).toFixed(1)}%)`;
+				let skipped = groupStats['renderSkippedFrames'];
+				let total = groupStats['renderTotalFrames'];
+
+				if (total < this.first_rendered[socketIdx] || skipped < this.first_lagged[socketIdx]) {
+					this.first_rendered[socketIdx] = total;
+					this.first_lagged[socketIdx] = skipped;
+				}
+				total -= this.first_rendered[socketIdx];
+				skipped -= this.first_lagged[socketIdx];
+
+				const percentage = total ? (skipped / total) * 100 : 0.01;
+				return `${skipped} (${percentage.toFixed(1)}%)`;
 			}
 			if (name === 'outputSkippedFrames') {
-				const skipped = groupStats['outputSkippedFrames'];
-				const total = groupStats['outputTotalFrames'];
-				return `${skipped}/${total} (${(skipped / total * 100).toFixed(1)}%)`;
+				let skipped = groupStats['outputSkippedFrames'];
+				let total = groupStats['outputTotalFrames'];
+
+				if (total < this.first_encoded[socketIdx] || skipped < this.first_skipped[socketIdx]) {
+					this.first_encoded[socketIdx] = total;
+					this.first_skipped[socketIdx] = skipped;
+				}
+				total -= this.first_encoded[socketIdx];
+				skipped -= this.first_skipped[socketIdx];
+
+				const percentage = total ? (skipped / total) * 100 : 0.01;
+				return `${skipped} (${percentage.toFixed(1)}%)`;
 			}
 		}
 		else if (group === 'stream') {
+			const groupStats = streamStats[socketIdx];
+			if (!groupStats) return '';
 			if (name === 'outputActive') return groupStats['outputReconnecting'] ? 'Reconnecting' : groupStats['outputActive'] ? 'Active' : 'Inactive';
 			if (name === 'outputSkippedFrames') {
-				const skipped = groupStats['outputSkippedFrames'];
-				const total = groupStats['outputTotalFrames'];
-				return `${skipped}/${total} (${(skipped / total * 100).toFixed(1)}%)`;
+				let skipped = groupStats['outputSkippedFrames'];
+				let total = groupStats['outputTotalFrames'];
+
+				if (total < this.first_total[socketIdx] || skipped < this.first_dropped[socketIdx]) {
+					this.first_total[socketIdx] = total;
+					this.first_dropped[socketIdx] = skipped;
+				}
+				total -= this.first_total[socketIdx];
+				skipped -= this.first_dropped[socketIdx];
+
+				const percentage = total ? (skipped / total) * 100 : 0.01;
+				return `${skipped} (${percentage.toFixed(1)}%)`;
 			}
 		}
 		else if (group === 'record') {
+			const groupStats = recordStats[socketIdx];
+			if (!groupStats) return '';
 			if (name === 'outputActive') return groupStats['outputPaused'] ? 'Paused' : groupStats['outputActive'] ? 'Active' : 'Inactive';
 		}
 		return '';
