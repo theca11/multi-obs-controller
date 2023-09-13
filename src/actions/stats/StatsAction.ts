@@ -1,26 +1,8 @@
 import { sockets } from '../../plugin/sockets';
+import { clamp } from '../../plugin/utils';
 import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappearData } from '../types';
 
 type StatObj = { target: number, stat: string, color: string }
-
-const dataOptions = {
-	general: {
-		cpuUsage: {
-			label: 'CPU',
-			format: (usage: number | null) => usage?.toFixed(1) + '%',
-		},
-		memoryUsage: {
-			label: 'Mem',
-			format: (usage: number | null) => Math.floor(usage ?? 0) + ' MB',
-		},
-		availableDiskSpace: {
-			label: 'Disk',
-			format: (space: number | null) => Math.floor((space ?? 0) / 1024) + ' GB',
-		},
-	},
-};
-
-const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
 
 export class StatsAction extends Action {
 
@@ -52,12 +34,24 @@ export class StatsAction extends Action {
 	}
 
 	async _fetchStats() {
-		const callResults = await Promise.allSettled(sockets.map(s =>
-			s.isConnected ? s.call('GetStats') : Promise.reject(),
+		const batchResults = await Promise.allSettled(sockets.map(s =>
+			s.isConnected
+				? s.callBatch([
+					{ requestType: 'GetStats' },
+					{ requestType: 'GetStreamStatus' },
+					{ requestType: 'GetRecordStatus' },
+				])
+				: Promise.reject(),
 		));
-
-		const results = callResults.map(res => res.status === 'fulfilled' ? res.value : null);
-		results.map((r, i) => this._stats[i].general = r);
+		batchResults.map((res, socketIdx) => {
+			if (res.status === 'fulfilled') {
+				res.value.map((r, i) => {
+					if (i === 0) this._stats[socketIdx]['general'] = r.responseData;
+					else if (i === 1) this._stats[socketIdx]['stream'] = r.responseData;
+					else if (i === 2) this._stats[socketIdx]['record'] = r.responseData;
+				});
+			}
+		});
 	}
 
 	updateImages() {
@@ -79,17 +73,39 @@ export class StatsAction extends Action {
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 			// Text
-			ctx.font = `bold ${clamp(canvas.height / statsArr.length - 11, 20, 36)}px Arial`;
+			const fontSize = Math.floor(clamp(canvas.height / statsArr.length - 11, 20, 36));
+			ctx.font = `bold ${fontSize}px Arial`;
 			ctx.textBaseline = 'middle';
 			ctx.textAlign = 'center';
+			const yPad = 10;
+			const yStep = (canvas.height - 2 * yPad) / (statsArr.length);
+			let lastTarget = 1;
 			for (const [idx, { target, stat, color }] of statsArr.entries()) {
+				// Target separating line
+				if (target !== lastTarget && idx !== 0) {
+					ctx.save();
+					ctx.strokeStyle = 'black';
+					ctx.lineWidth = 1;
+					// ctx.setLineDash([20, 11]);
+					ctx.beginPath();
+					ctx.moveTo(0, yStep * idx + yPad - 2);
+					ctx.lineTo(canvas.width, yStep * idx + yPad - 2);
+					ctx.stroke();
+					ctx.restore();
+				}
+				lastTarget = target;
+
+				const yPos = yStep * (idx) + yStep / 2 + yPad;
+				const text = this.getStatString(target - 1, stat) || '???';
+				ctx.save();
 				ctx.fillStyle = color;
-				console.log(this._stats);
-				const [statGroup, statName] = stat.split('.');
-
-				const yPos = (canvas.height) / (statsArr.length + 1) * (idx + 1);
-
-				ctx.fillText(`${(dataOptions as any)[statGroup][statName]?.['format'](this._stats[target - 1]?.[statGroup]?.[statName] ?? 0)}`, canvas.width / 2, yPos, canvas.width - 5);
+				ctx.strokeStyle = 'black';
+				ctx.lineWidth = Math.floor(fontSize / 10);
+				ctx.lineJoin = 'round';
+				ctx.miterLimit = 2;
+				ctx.strokeText(text, canvas.width / 2, yPos, canvas.width - 5);
+				ctx.fillText(text, canvas.width / 2, yPos, canvas.width - 5);
+				ctx.restore();
 			}
 
 			const b64 = canvas.toDataURL('image/png', 1);
@@ -112,6 +128,48 @@ export class StatsAction extends Action {
 			return statObjArray;
 		}).filter(item => item !== null);
 		return formattedStatsArray;
+	}
+
+	getStatString(socketIdx: number, statName: string): string {
+		const socketStats = this._stats[socketIdx];
+		if (!socketStats) return '';
+		const [group, name] = statName.split('.');
+		const groupStats = socketStats[group];
+		if (!groupStats) return '';
+		if (group === 'general') {
+			if (name === 'cpuUsage') return groupStats[name].toFixed(1) + '%';
+			if (name === 'memoryUsage') return (groupStats[name] * 1024 * 1024 / 1024.01 / 1024.01).toFixed(1) + ' MB';
+			if (name === 'availableDiskSpace') {
+				const bytes = groupStats[name] * 1024 * 1024;
+				if (bytes > 1024 * 1024 * 1024 * 1024) return (bytes / 1024.01 / 1024.01 / 1024.01 / 1024.01).toFixed(1) + ' TB';
+				if (bytes > 1024 * 1024 * 1024) return (bytes / 1024.01 / 1024.01 / 1024.01).toFixed(1) + ' GB';
+				else return (bytes / 1024.01 / 1024.01).toFixed(1) + ' MB';
+			}
+			if (name === 'activeFps') return groupStats[name].toFixed(0) + ' FPS';
+			if (name === 'averageFrameRenderTime') return groupStats[name].toFixed(1) + ' ms';
+			if (name === 'renderSkippedFrames') {
+				const skipped = groupStats['renderSkippedFrames'];
+				const total = groupStats['renderTotalFrames'];
+				return `${skipped}/${total} (${(skipped / total * 100).toFixed(1)}%)`;
+			}
+			if (name === 'outputSkippedFrames') {
+				const skipped = groupStats['outputSkippedFrames'];
+				const total = groupStats['outputTotalFrames'];
+				return `${skipped}/${total} (${(skipped / total * 100).toFixed(1)}%)`;
+			}
+		}
+		else if (group === 'stream') {
+			if (name === 'outputActive') return groupStats['outputReconnecting'] ? 'Reconnecting' : groupStats['outputActive'] ? 'Active' : 'Inactive';
+			if (name === 'outputSkippedFrames') {
+				const skipped = groupStats['outputSkippedFrames'];
+				const total = groupStats['outputTotalFrames'];
+				return `${skipped}/${total} (${(skipped / total * 100).toFixed(1)}%)`;
+			}
+		}
+		else if (group === 'record') {
+			if (name === 'outputActive') return groupStats['outputPaused'] ? 'Paused' : groupStats['outputActive'] ? 'Active' : 'Inactive';
+		}
+		return '';
 	}
 
 

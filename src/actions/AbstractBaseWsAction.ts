@@ -2,7 +2,8 @@ import { ResponseMessage } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
 import { evtEmitter } from './states';
 import { SDUtils, ImageUtils, CanvasUtils } from '../plugin/utils';
-import { BatchRequestPayload, ConstructorParams, DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyDownData, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, SingleRequestPayload, WillAppearData, WillDisappearData } from './types';
+import { BatchRequestPayload, ConstructorParams, DidReceiveGlobalSettingsData, DidReceiveSettingsData, GlobalSettings, KeyUpData, PersistentSettings, RequestPayload, SendToPluginData, SingleRequestPayload, WillAppearData, WillDisappearData } from './types';
+import { ExtendedAction } from './ExtendedAction';
 
 export enum StateEnum {
 	None,		// Stateless action
@@ -17,12 +18,11 @@ $SD.onDidReceiveGlobalSettings(({ payload }: DidReceiveGlobalSettingsData<Global
 });
 
 /** Base class for all actions used to send OBS WS requests */
-export abstract class AbstractBaseWsAction extends Action {
+export abstract class AbstractBaseWsAction extends ExtendedAction {
 	_showSuccess = true;
 	_ctxSettingsCache = new Map<string, PersistentSettings>();	// <context, settings> map (not included if in multiaction)
 	_ctxStatesCache = new Map<string, StateEnum[]>();	// <context, statesArray> map (not included if in multiaction)
 	_statesColors = { on: '#517a96', off: '#2b3e4b' };
-	_pressesCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID);
@@ -87,24 +87,17 @@ export abstract class AbstractBaseWsAction extends Action {
 			this.updateImages();
 		});
 
-		// -- Main logic when key is pressed --
-		this.onKeyDown(({ context, payload }: KeyDownData<PersistentSettings>) => {
-			if (this._pressesCache.has(context)) return;
+		// -- Key press listeners --
+		this.onSinglePress(({ context, payload }: KeyUpData<PersistentSettings>) => {
 			const { settings, userDesiredState, isInMultiAction } = payload;
-			if (!isInMultiAction && settings.advanced?.longPress) {
-				const timeout = setTimeout(() => {
-					this._execute(context, settings, userDesiredState);
-				}, Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500);
-				this._pressesCache.set(context, timeout);
-			}
-			else {
+			if (isInMultiAction || !settings.advanced?.longPress) {
 				this._execute(context, settings, userDesiredState);
 			}
 		});
 
-		this.onKeyUp(({ context }: KeyUpData<PersistentSettings>) => {
-			clearTimeout(this._pressesCache.get(context));
-			this._pressesCache.delete(context);
+		this.onLongPress(({ context, payload }: KeyUpData<PersistentSettings>) => {
+			const { settings, userDesiredState } = payload;
+			this._execute(context, settings, userDesiredState);
 		});
 		// --
 
