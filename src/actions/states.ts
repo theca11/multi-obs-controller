@@ -113,11 +113,11 @@ export async function getSceneItemId(socketIdx: number, sceneName: string, sourc
 // ---
 
 // --- General stats, stream stats and record stats ---
-export const generalStats: (OBSResponseTypes['GetStats'] | null)[] = getDefaultArray();
-export const streamStats: (OBSResponseTypes['GetStreamStatus'] | null)[] = getDefaultArray();
-export const recordStats: (OBSResponseTypes['GetRecordStatus'] | null)[] = getDefaultArray();
+export async function fetchStats() {
+	const generalStats: (OBSResponseTypes['GetStats'] | null)[] = getDefaultArray();
+	const streamStats: (OBSResponseTypes['GetStreamStatus'] | null)[] = getDefaultArray();
+	const recordStats: (OBSResponseTypes['GetRecordStatus'] | null)[] = getDefaultArray();
 
-async function fetchStats() {
 	const batchResults = await Promise.allSettled(sockets.map(s =>
 		s.isConnected
 			? s.callBatch([
@@ -148,12 +148,7 @@ async function fetchStats() {
 			});
 		}
 	});
+
+	return [ generalStats, streamStats, recordStats ];
 }
-
-// Fetch stats every second
-setInterval(() => {
-	fetchStats();
-	console.log(recordStats[0]?.outputTimecode);
-}, 1000);
-
 // ---

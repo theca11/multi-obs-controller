@@ -78,7 +78,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			};
 			this._contexts.set(context, contextData);
 			this.updateTitle(context, this._titleParam);
-			this.updateKeyImage(context, contextData.targetObs);
+			this.updateKeyImage(context);
 		});
 
 		this.onWillDisappear((evtData: WillDisappearData<any>) => {
@@ -97,7 +97,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			};
 			this._contexts.set(context, contextData);
 			this.updateTitle(context, this._titleParam);
-			this.updateKeyImage(context, contextData.targetObs);
+			this.updateKeyImage(context);
 		});
 		// --
 
@@ -274,8 +274,8 @@ export abstract class AbstractBaseWsAction extends Action {
 	 */
 	async updateImages(): Promise<void> {
 		try {
-			for (const [context, contextData] of this._contexts) {
-				this.updateKeyImage(context, contextData.targetObs);
+			for (const [context] of this._contexts) {
+				this.updateKeyImage(context);
 			}
 		}
 		catch (e) {
@@ -285,9 +285,9 @@ export abstract class AbstractBaseWsAction extends Action {
 
 	async getForegroundImage?(context: string): Promise<HTMLImageElement | HTMLCanvasElement | undefined>;
 
-
-	async updateKeyImage(context: string, target: number) {
-		const states = this._contexts.get(context)?.states;
+	async updateKeyImage(context: string) {
+		if (!this._contexts.has(context)) return;
+		const { states, targetObs } = this._contexts.get(context)!;
 
 		const canvas = document.createElement('canvas');
 		const ctx = canvas.getContext('2d');
@@ -309,11 +309,11 @@ export abstract class AbstractBaseWsAction extends Action {
 			ctx.fillStyle = '#efefef';
 			ctx.font = 'bold 25px Arial';
 			ctx.textBaseline = 'top';
-			if (target === 0 || target === 1) {
+			if (targetObs === 0 || targetObs === 1) {
 				ctx.textAlign = 'left';
 				ctx.fillText('1', 0 + 10, 10);
 			}
-			if (target === 0 || target === 2) {
+			if (targetObs === 0 || targetObs === 2) {
 				ctx.textAlign = 'right';
 				ctx.fillText('2', 144 - 10, 10);
 			}
@@ -321,15 +321,15 @@ export abstract class AbstractBaseWsAction extends Action {
 
 		// Draw target state
 		if (states) {
-			if (target !== 0) {
-				if (states[target - 1] === StateEnum.Unavailable) {
+			if (targetObs !== 0) {
+				if (states[targetObs - 1] === StateEnum.Unavailable) {
 					CanvasUtils.drawLineVPatternRect(ctx, 0, 1);
 				}
 				else {
-					if (states[target - 1] === StateEnum.Inactive) {
+					if (states[targetObs - 1] === StateEnum.Inactive) {
 						CanvasUtils.drawColorRect(ctx, '#a0a0a0', 0, 1, 'source-atop');
 					}
-					CanvasUtils.drawColorRect(ctx, states[target - 1] === StateEnum.Inactive ? this._statesColors.off : this._statesColors.on, 0, 1, 'destination-over');
+					CanvasUtils.drawColorRect(ctx, states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : this._statesColors.on, 0, 1, 'destination-over');
 				}
 			}
 			else {
@@ -359,14 +359,14 @@ export abstract class AbstractBaseWsAction extends Action {
 	attachEventListener(statusEvent: string) {
 		if (!this.shouldUpdateState || !this.getStateFromEvent) return;
 		evtEmitter.on(statusEvent, async (evtSocketIdx, evtData) => {
-			for (const [context, { settings, states, targetObs }] of this._contexts) {
+			for (const [context, { settings, states }] of this._contexts) {
 				try {
 					const socketSettings = settings[evtSocketIdx];
 					if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
 						const newState = await this.getStateFromEvent!(evtData, socketSettings);
 						states[evtSocketIdx] = newState;
 						this._setContextStates(context, states);
-						this.updateKeyImage(context, targetObs);
+						this.updateKeyImage(context);
 					}
 				}
 				catch (e) {

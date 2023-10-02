@@ -1,7 +1,7 @@
 import { sockets } from '../../plugin/sockets';
 import { clamp } from '../../plugin/utils';
 import { AbstractStatelessAction } from '../BaseWsAction';
-import { generalStats, streamStats, recordStats } from '../states';
+import { fetchStats } from '../states';
 import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappearData } from '../types';
 
 type StatConfig = { target: number, stat: string, color: string }
@@ -16,31 +16,43 @@ export class StatsAction extends AbstractStatelessAction {
 	private first_total = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
 	private first_dropped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
 
+	private _statsUpdateInterval: NodeJS.Timeout | null = null;
+
+	_generalStats = new Array(sockets.length).fill(null);
+	_streamStats = new Array(sockets.length).fill(null);
+	_recordStats = new Array(sockets.length).fill(null);
+
 	constructor() {
 		super('dev.theca11.multiobs.stats');
 
 		this.onWillAppear(async ({ context, payload }: WillAppearData<PersistentSettings>) => {
 			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
-			this.updateImages();
+			if (this._ctxStatsSettings.size === 1 && !this._statsUpdateInterval) {
+				[this._generalStats, this._streamStats, this._recordStats] = await fetchStats();
+				this._statsUpdateInterval = setInterval(async () => {
+					[this._generalStats, this._streamStats, this._recordStats] = await fetchStats();
+					this.updateImages();
+				}, 2000);
+			}
+			this.updateKeyImage(context);
 		});
 
 		this.onWillDisappear(async ({ context }: WillDisappearData<PersistentSettings>) => {
 			this._ctxStatsSettings.delete(context);
+			if (this._ctxStatsSettings.size === 0 && this._statsUpdateInterval) {
+				clearInterval(this._statsUpdateInterval);
+				this._statsUpdateInterval = null;
+			}
 		});
 
 		this.onDidReceiveSettings(({ context, payload }: DidReceiveSettingsData<PersistentSettings>) => {
 			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
-			this.updateImages();
+			this.updateKeyImage(context);
 		});
 
 		this.onLongPress(() => {
 			this.resetStats();
 		});
-
-		setInterval(async () => {
-			// to-do: only fetch and update if there are action contexts
-			this.updateImages();
-		}, 2000);
 	}
 
 	resetStats() {
@@ -133,7 +145,7 @@ export class StatsAction extends AbstractStatelessAction {
 	getStatString(socketIdx: number, statName: string): string {
 		const [group, name] = statName.split('.');
 		if (group === 'general') {
-			const groupStats = generalStats[socketIdx];
+			const groupStats = this._generalStats[socketIdx];
 			if (!groupStats) return '';
 			if (name === 'cpuUsage') return groupStats[name].toFixed(1) + '%';
 			if (name === 'memoryUsage') return (groupStats[name] * 1024 * 1024 / 1024.01 / 1024.01).toFixed(1) + ' MB';
@@ -175,7 +187,7 @@ export class StatsAction extends AbstractStatelessAction {
 			}
 		}
 		else if (group === 'stream') {
-			const groupStats = streamStats[socketIdx];
+			const groupStats = this._streamStats[socketIdx];
 			if (!groupStats) return '';
 			if (name === 'outputActive') return groupStats['outputReconnecting'] ? 'Reconnecting' : groupStats['outputActive'] ? 'Active' : 'Inactive';
 			if (name === 'outputSkippedFrames') {
@@ -194,7 +206,7 @@ export class StatsAction extends AbstractStatelessAction {
 			}
 		}
 		else if (group === 'record') {
-			const groupStats = recordStats[socketIdx];
+			const groupStats = this._recordStats[socketIdx];
 			if (!groupStats) return '';
 			if (name === 'outputActive') return groupStats['outputPaused'] ? 'Paused' : groupStats['outputActive'] ? 'Active' : 'Inactive';
 		}
