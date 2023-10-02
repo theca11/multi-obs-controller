@@ -16,9 +16,9 @@ $PI.onConnected(async (jsn) => {
 
 	// Insert tabs and action fields
 	const actionName = action.split('.').at(-1);
-	const { fields } = await import(`../actions/${actionName}/fields.js`)
+	const { fields, generateFields } = await import(`../actions/${actionName}/fields.js`)
 	.catch(() => { console.log('No custom fields loaded'); return {}; });
-	if (fields) {
+	if (fields || generateFields) {
 		const tabs = [];
 		const tabsContents = [];
 		for (let i = 1; i <= NUM_INSTANCES; i++) {
@@ -30,7 +30,7 @@ $PI.onConnected(async (jsn) => {
 			tabsContents.push(`
 				<div id="tab${i}" class="tab-container">
 					<form id="action-fields-${i}">
-						${indexHtmlFields(fields, i)}
+						${indexHtmlFields(fields ?? generateFields(settings[`params${i}`] ?? {}), i)}
 					</form>
 				</div>
 			`);

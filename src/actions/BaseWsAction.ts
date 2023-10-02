@@ -24,10 +24,15 @@ export abstract class AbstractBaseWsAction extends Action {
 
 	_showSuccess = true;
 
+	_defaultImg: HTMLImageElement | undefined;
+
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID);
 		this._titleParam = params?.titleParam;
 		this._statesColors = { ...this._statesColors, ...params?.statesColors };
+
+		// Load default image
+		this.getDefaultKeyImage().then(img => this._defaultImg = img).catch(() => console.warn(`Default img for ${this.UUID} couldn't be loaded`));
 
 		// -- Main logic when key is pressed --
 		this.onKeyDown((evtData: KeyDownData<{ advanced: { longPressMs?: string } }>) => {
@@ -73,8 +78,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			};
 			this._contexts.set(context, contextData);
 			this.updateTitle(context, this._titleParam);
-			const img = await this.getDefaultKeyImage();
-			this.updateKeyImage(context, contextData.targetObs, img);
+			this.updateKeyImage(context, contextData.targetObs);
 		});
 
 		this.onWillDisappear((evtData: WillDisappearData<any>) => {
@@ -93,8 +97,7 @@ export abstract class AbstractBaseWsAction extends Action {
 			};
 			this._contexts.set(context, contextData);
 			this.updateTitle(context, this._titleParam);
-			const img = await this.getDefaultKeyImage();
-			this.updateKeyImage(context, contextData.targetObs, img);
+			this.updateKeyImage(context, contextData.targetObs);
 		});
 		// --
 
@@ -271,9 +274,8 @@ export abstract class AbstractBaseWsAction extends Action {
 	 */
 	async updateImages(): Promise<void> {
 		try {
-			const img = await this.getDefaultKeyImage();
 			for (const [context, contextData] of this._contexts) {
-				this.updateKeyImage(context, contextData.targetObs, img);
+				this.updateKeyImage(context, contextData.targetObs);
 			}
 		}
 		catch (e) {
@@ -281,8 +283,10 @@ export abstract class AbstractBaseWsAction extends Action {
 		}
 	}
 
+	async getForegroundImage?(context: string): Promise<HTMLImageElement | HTMLCanvasElement | undefined>;
 
-	updateKeyImage(context: string, target: number, img: HTMLImageElement) {
+
+	async updateKeyImage(context: string, target: number) {
 		const states = this._contexts.get(context)?.states;
 
 		const canvas = document.createElement('canvas');
@@ -294,7 +298,10 @@ export abstract class AbstractBaseWsAction extends Action {
 		canvas.height = 144;
 
 		// Draw image to canvas
-		ctx.drawImage(img, 0, 0);
+		const foregroundImg = this.getForegroundImage ? await this.getForegroundImage(context) : this._defaultImg;
+		if (foregroundImg) {
+			ctx.drawImage(foregroundImg, 0, 0);
+		}
 
 		// Draw target numbers
 		if (globalSettings.targetNumbers !== 'hide') {
@@ -352,8 +359,6 @@ export abstract class AbstractBaseWsAction extends Action {
 	attachEventListener(statusEvent: string) {
 		if (!this.shouldUpdateState || !this.getStateFromEvent) return;
 		evtEmitter.on(statusEvent, async (evtSocketIdx, evtData) => {
-			const img = await this.getDefaultKeyImage();
-
 			for (const [context, { settings, states, targetObs }] of this._contexts) {
 				try {
 					const socketSettings = settings[evtSocketIdx];
@@ -361,7 +366,7 @@ export abstract class AbstractBaseWsAction extends Action {
 						const newState = await this.getStateFromEvent!(evtData, socketSettings);
 						states[evtSocketIdx] = newState;
 						this._setContextStates(context, states);
-						this.updateKeyImage(context, targetObs, img);
+						this.updateKeyImage(context, targetObs);
 					}
 				}
 				catch (e) {
