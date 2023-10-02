@@ -1,9 +1,9 @@
-import { StateEnum } from '../AbstractBaseWsAction';
-import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
+import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { StateEnum } from '../StateEnum';
 import { getScenesLists } from '../lists';
 import { getCurrentScene } from '../states';
 
-export class SetSceneAction extends AbstractStatefulWsAction {
+export class SetSceneAction extends AbstractStatefulRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.setscene', { titleParam: 'sceneName', statusEvent: 'CurrentProgramSceneChanged' });
 	}
@@ -16,7 +16,7 @@ export class SetSceneAction extends AbstractStatefulWsAction {
 		};
 	}
 
-	async onPropertyInspectorReady({ context, action }: { context: string, action: string }) {
+	override async onPropertyInspectorReady({ context, action }: { context: string, action: string }) {
 		const scenesLists = await getScenesLists();
 		const payload = { event: 'SceneListLoaded', scenesLists: scenesLists };
 		$SD.sendToPropertyInspector(context, payload, action);

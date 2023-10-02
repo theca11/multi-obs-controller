@@ -1,6 +1,6 @@
-import { AbstractStatelessWsAction } from '../AbstractStatelessWsAction';
+import { AbstractStatelessRequestAction } from '../BaseRequestAction';
 
-export class RawRequestAction extends AbstractStatelessWsAction {
+export class RawRequestAction extends AbstractStatelessRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.rawrequest');
 	}

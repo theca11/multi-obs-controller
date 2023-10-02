@@ -1,11 +1,11 @@
-import { StateEnum } from '../AbstractBaseWsAction';
-import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
+import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { StateEnum } from '../StateEnum';
 import { getInputsLists } from '../lists';
 import { getInputMuteState } from '../states';
 
 type Input = { inputName: string, inputKind: string, unversionedInputKind: string };
 
-export class ToggleInputMuteAction extends AbstractStatefulWsAction {
+export class ToggleInputMuteAction extends AbstractStatefulRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
 	}
@@ -26,7 +26,7 @@ export class ToggleInputMuteAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
+	override async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
 		const inputsLists = await getInputsLists() as Input[][];
 		const payload = {
 			event: 'InputListLoaded',

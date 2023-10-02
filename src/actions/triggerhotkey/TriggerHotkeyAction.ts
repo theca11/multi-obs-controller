@@ -1,6 +1,6 @@
-import { AbstractStatelessWsAction } from '../AbstractStatelessWsAction';
+import { AbstractStatelessRequestAction } from '../BaseRequestAction';
 
-export class TriggerHotkeyAction extends AbstractStatelessWsAction {
+export class TriggerHotkeyAction extends AbstractStatelessRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.triggerhotkey');
 	}

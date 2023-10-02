@@ -1,8 +1,8 @@
-import { StateEnum } from '../AbstractBaseWsAction';
-import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
+import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { StateEnum } from '../StateEnum';
 import { getRecordState } from '../states';
 
-export class ToggleRecordAction extends AbstractStatefulWsAction {
+export class ToggleRecordAction extends AbstractStatefulRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglerecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#cc3636' } });
 	}

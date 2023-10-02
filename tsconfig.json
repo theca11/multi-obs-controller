@@ -9,7 +9,8 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"allowJs": true
+		"allowJs": true,
+		"noImplicitOverride": true
 	},
 	"exclude": ["node_modules", "build", "dist"]
 }

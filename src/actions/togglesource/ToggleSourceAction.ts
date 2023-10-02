@@ -1,10 +1,10 @@
-import { StateEnum } from '../AbstractBaseWsAction';
-import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
+import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { StateEnum } from '../StateEnum';
 import { getScenesLists, getSceneItemsList } from '../lists';
 import { getSceneItemEnableState, getSceneItemId } from '../states';
 import { BatchRequestPayload, SendToPluginData } from '../types';
 
-export class ToggleSourceAction extends AbstractStatefulWsAction {
+export class ToggleSourceAction extends AbstractStatefulRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglesource', { titleParam: 'sourceName', statusEvent: 'SceneItemEnableStateChanged' });
 
@@ -60,7 +60,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		}
 	}
 
-	async sendWsRequests(payloadsArray: (BatchRequestPayload | null)[]): Promise<PromiseSettledResult<any>[]> {
+	override async sendWsRequests(payloadsArray: (BatchRequestPayload | null)[]): Promise<PromiseSettledResult<any>[]> {
 		const requestType = payloadsArray.find(payload => payload)?.requests[1].requestType;
 		if (requestType === 'SetSceneItemEnabled') { return super.sendWsRequests(payloadsArray); }
 
@@ -90,7 +90,7 @@ export class ToggleSourceAction extends AbstractStatefulWsAction {
 		return super.sendWsRequests(secondBatchPayloadsArray);
 	}
 
-	async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
+	override async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
 		const scenesLists = await getScenesLists();
 		const payload = { event: 'SceneListLoaded', scenesLists: scenesLists };
 		$SD.sendToPropertyInspector(context, payload, action);

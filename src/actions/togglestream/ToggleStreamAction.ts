@@ -1,8 +1,8 @@
-import { StateEnum } from '../AbstractBaseWsAction';
-import { AbstractStatefulWsAction } from '../AbstractStatefulWsAction';
+import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { StateEnum } from '../StateEnum';
 import { getStreamState } from '../states';
 
-export class ToggleStreamAction extends AbstractStatefulWsAction {
+export class ToggleStreamAction extends AbstractStatefulRequestAction {
 	constructor() {
 		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { on: '#5a9b4a' } });
 	}
