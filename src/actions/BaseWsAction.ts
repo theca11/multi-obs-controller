@@ -175,11 +175,11 @@ export abstract class AbstractBaseWsAction extends Action {
 		const contextData = this._contexts.get(context);
 		if (!contextData || contextData.isInMultiAction) return;	// to-do: also check if a title associated param is defined for this class object
 
-		const title = contextData.settings
+		const titles = contextData.settings
 		.filter(socketSettings => socketSettings)
-		.map(socketSettings => socketSettings[settingsParam] as string || '?')
-		.join('\n');
+		.map(socketSettings => socketSettings[settingsParam] as string || '?');
 
+		const title = [...new Set(titles)].join('\n');
 		SDUtils.setKeyTitle(context, title);
 	}
 	// --
