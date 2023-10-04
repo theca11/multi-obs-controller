@@ -1,12 +1,13 @@
+import { OBSResponseTypes } from 'obs-websocket-js';
 import { sockets } from '../../plugin/sockets';
 import { clamp } from '../../plugin/utils';
 import { AbstractStatelessAction } from '../BaseWsAction';
-import { fetchStats } from '../states';
 import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappearData } from '../types';
 
+type ActionSettings = { stats: string[], colors: string[] }
 type StatConfig = { target: number, stat: string, color: string }
 
-export class StatsAction extends AbstractStatelessAction {
+export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 
 	private _ctxStatsSettings = new Map<string, StatConfig[]>();
 	private first_encoded = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
@@ -25,19 +26,19 @@ export class StatsAction extends AbstractStatelessAction {
 	constructor() {
 		super('dev.theca11.multiobs.stats');
 
-		this.onWillAppear(async ({ context, payload }: WillAppearData<PersistentSettings>) => {
+		this.onWillAppear(async ({ context, payload }: WillAppearData<PersistentSettings<ActionSettings>>) => {
 			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
 			if (this._ctxStatsSettings.size === 1 && !this._statsUpdateInterval) {
-				[this._generalStats, this._streamStats, this._recordStats] = await fetchStats();
+				await this.fetchStats();
 				this._statsUpdateInterval = setInterval(async () => {
-					[this._generalStats, this._streamStats, this._recordStats] = await fetchStats();
+					await this.fetchStats();
 					this.updateImages();
 				}, 2000);
 			}
 			this.updateKeyImage(context);
 		});
 
-		this.onWillDisappear(async ({ context }: WillDisappearData<PersistentSettings>) => {
+		this.onWillDisappear(async ({ context }: WillDisappearData<PersistentSettings<ActionSettings>>) => {
 			this._ctxStatsSettings.delete(context);
 			if (this._ctxStatsSettings.size === 0 && this._statsUpdateInterval) {
 				clearInterval(this._statsUpdateInterval);
@@ -45,7 +46,7 @@ export class StatsAction extends AbstractStatelessAction {
 			}
 		});
 
-		this.onDidReceiveSettings(({ context, payload }: DidReceiveSettingsData<PersistentSettings>) => {
+		this.onDidReceiveSettings(({ context, payload }: DidReceiveSettingsData<PersistentSettings<ActionSettings>>) => {
 			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
 			this.updateKeyImage(context);
 		});
@@ -125,7 +126,7 @@ export class StatsAction extends AbstractStatelessAction {
 		return canvas;
 	}
 
-	formatStatSettings(actionSettings: PersistentSettings): StatConfig[] {
+	formatStatSettings(actionSettings: PersistentSettings<ActionSettings>): StatConfig[] {
 		const settingsArray = this.getSettingsArray(actionSettings);
 		const formattedStatsArray = settingsArray.flatMap((settings, socketIdx) => {
 			if (!settings) return [];
@@ -211,5 +212,38 @@ export class StatsAction extends AbstractStatelessAction {
 			if (name === 'outputActive') return groupStats['outputPaused'] ? 'Paused' : groupStats['outputActive'] ? 'Active' : 'Inactive';
 		}
 		return '';
+	}
+
+	async fetchStats() {
+		const batchResults = await Promise.allSettled(sockets.map(s =>
+			s.isConnected
+				? s.callBatch([
+					{ requestType: 'GetStats' },
+					{ requestType: 'GetStreamStatus' },
+					{ requestType: 'GetRecordStatus' },
+				])
+				: Promise.reject(),
+		));
+		const responsesData = batchResults.map((res) => {
+			if (res.status === 'fulfilled') {
+				return res.value.map((r) => r.requestStatus.result === true ? r.responseData : null);
+			}
+			return null;
+		});
+
+		responsesData.map((responses, socketIdx) => {
+			if (!responses) {
+				this._generalStats[socketIdx] = null;
+				this._streamStats[socketIdx] = null;
+				this._recordStats[socketIdx] = null;
+			}
+			else {
+				responses.map((response, i) => {
+					if (i === 0) this._generalStats[socketIdx] = (response as OBSResponseTypes['GetStats']) ?? null;
+					else if (i === 1) this._streamStats[socketIdx] = (response as OBSResponseTypes['GetStreamStatus']) ?? null;
+					else if (i === 2) this._recordStats[socketIdx] = (response as OBSResponseTypes['GetRecordStatus']) ?? null;
+				});
+			}
+		});
 	}
 }

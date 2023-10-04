@@ -41,7 +41,7 @@ export type SendToPIData<T> = {
 // ---
 
 // --- MultiOBS types ---
-export type PersistentSettings = Partial<{
+export type PersistentSettings<T> = Partial<{
 	common: {
 		target?: string,
 		indivParams?: 'true'
@@ -50,7 +50,7 @@ export type PersistentSettings = Partial<{
 		longPress?: 'true',
 		longPressMs?: string
 	}
-	[key: `params${number}`]: Record<string, unknown>
+	[key: `params${number}`]: Partial<T>
 }>
 export type GlobalSettings = Partial<{
 	[key: `ip${number}`]: string,
@@ -62,10 +62,12 @@ export type GlobalSettings = Partial<{
 	targetNumbers: 'hide'
 }>
 
+export type SocketSettings<T> = Partial<T> | Record<string, never>; // to-do: move this to types file?
+
 export type RequestPayload = SingleRequestPayload<T> | BatchRequestPayload | null;
-export type SingleRequestPayload<Type extends keyof OBSRequestTypes> = {
-	requestType: Type,
-	requestData?: OBSRequestTypes[Type]
+export type SingleRequestPayload<T extends keyof OBSRequestTypes> = {
+	requestType: T,
+	requestData?: OBSRequestTypes[T]
 }
 export type BatchRequestPayload = {
 	requests: RequestBatchRequest[],
@@ -75,7 +77,7 @@ export type BatchRequestPayload = {
 
 export type ConstructorParams = {
 	titleParam?: string,
-	statusEvent?: string,
+	statusEvent?: keyof OBSEventTypes,
 	statesColors?: {
 		on?: string,
 		off?: string

@@ -1,14 +1,18 @@
+import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { SocketSettings } from '../types';
 import { StateEnum } from '../StateEnum';
 import { getScenesLists } from '../lists';
-import { getCurrentScene } from '../states';
+import { SingleRequestPayload } from '../types';
 
-export class SetSceneAction extends AbstractStatefulRequestAction {
+type ActionSettings = { sceneName: string }
+
+export class SetSceneAction extends AbstractStatefulRequestAction<ActionSettings, 'CurrentProgramSceneChanged'> {
 	constructor() {
 		super('dev.theca11.multiobs.setscene', { titleParam: 'sceneName', statusEvent: 'CurrentProgramSceneChanged' });
 	}
 
-	getPayloadFromSettings(settings: any) {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentProgramScene'> {
 		const { sceneName } = settings;
 		return {
 			requestType: 'SetCurrentProgramScene',
@@ -22,18 +26,19 @@ export class SetSceneAction extends AbstractStatefulRequestAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
-		const currentScene = getCurrentScene(socketIdx);
-		return socketSettings.sceneName && socketSettings.sceneName === currentScene ? StateEnum.Active : StateEnum.Inactive;
+	// to-do: think if I can cache this info, since usually there are multiple Scene keys and fetching the current scene for each one is really redundant
+	// not super important, since fetching is only done at startup ans OBS reconnect - later everything is event based right?
+	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+		if (!socketSettings.sceneName) return StateEnum.Inactive;
+		const { currentProgramSceneName } = await sockets[socketIdx].call('GetCurrentProgramScene');
+		return socketSettings.sceneName === currentProgramSceneName ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(evtData: any, socketSettings: any): Promise<boolean> {
-		const { sceneName } = socketSettings;
-		if (sceneName) return true;
-		return false;
+	async shouldUpdateState(evtData: { sceneName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
+		return socketSettings.sceneName ? true : false;
 	}
 
-	async getStateFromEvent(evtData: any, socketSettings: any): Promise<StateEnum> {
+	async getStateFromEvent(evtData: { sceneName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<StateEnum> {
 		return evtData.sceneName === socketSettings.sceneName ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

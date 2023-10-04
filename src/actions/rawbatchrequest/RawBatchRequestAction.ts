@@ -1,14 +1,17 @@
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
+import { BatchRequestPayload } from '../types';
 
-export class RawBatchRequestAction extends AbstractStatelessRequestAction {
+type ActionSettings = { executionType: string, haltOnFailure: string, requestsArray: string }
+
+export class RawBatchRequestAction extends AbstractStatelessRequestAction<ActionSettings> {
 	constructor() {
 		super('dev.theca11.multiobs.rawbatchrequest');
 	}
 
-	getPayloadFromSettings(settings: any) {
+	getPayloadFromSettings(settings: Partial<ActionSettings> | Record<string, never>): BatchRequestPayload {
 		const { requestsArray, executionType, haltOnFailure } = settings;
 		try {
-			const requests = JSON.parse(requestsArray);
+			const requests = requestsArray ? JSON.parse(requestsArray) : [{ requestType: 'NoRequest' }];
 			return {
 				requests: requests,
 				options: {

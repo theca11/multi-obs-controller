@@ -1,15 +1,19 @@
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
+import { SingleRequestPayload } from '../types';
 
-export class RawRequestAction extends AbstractStatelessRequestAction {
+type ActionSettings = { requestType: string, requestData: string }
+
+export class RawRequestAction extends AbstractStatelessRequestAction<ActionSettings> {
 	constructor() {
 		super('dev.theca11.multiobs.rawrequest');
 	}
 
-	getPayloadFromSettings(settings: any) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	getPayloadFromSettings(settings: Partial<ActionSettings> | Record<string, never>): SingleRequestPayload<any> {
 		const { requestType, requestData } = settings;
 		return {
 			requestType: requestType,
-			requestData: JSON.parse(requestData ?? {}),
+			requestData: requestData ? JSON.parse(requestData) : {},
 		};
 	}
 }

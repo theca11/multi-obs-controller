@@ -1,11 +1,14 @@
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
+import { BatchRequestPayload } from '../types.js';
 
-export class RefreshCaptureDeviceAction extends AbstractStatelessRequestAction {
+type ActionSettings = { deviceName: string, sleepMs: string }
+
+export class RefreshCaptureDeviceAction extends AbstractStatelessRequestAction<ActionSettings> {
 	constructor() {
 		super('dev.theca11.multiobs.refreshcapturedevice', { titleParam: 'deviceName' });
 	}
 
-	getPayloadFromSettings(settings: any) {
+	getPayloadFromSettings(settings: Partial<ActionSettings> | Record<string, never>): BatchRequestPayload {
 		const { deviceName, sleepMs } = settings;
 		return {
 			requests: [

@@ -1,25 +1,26 @@
+import { OBSEventTypes } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
 import { CanvasUtils, ImageUtils, SDUtils } from '../plugin/utils';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
-import { evtEmitter } from './states';
 import { ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
 import { EventEmitter as EvtEmitter } from 'eventemitter3';
+import { SocketSettings } from './types';
 
-interface ContextData {
+interface ContextData<T> {
 	targetObs: number,
 	isInMultiAction: boolean,
-	settings: any[],
+	settings: (SocketSettings<T> | null)[],
 	states: StateEnum[]
 }
 
-export abstract class AbstractBaseWsAction extends Action {
+export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> extends Action {
 	_pressCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
 	_eventEmitter = new EvtEmitter();	// to-do: remove and use the internal eventEmitter emit/on functions?
 
-	_contexts = new Map<string, ContextData>();
+	_contexts = new Map<string, ContextData<T>>();
 
-	_titleParam: string | undefined;
+	_titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
 	_statesColors = { on: '#517a96', intermediate: '#de902a', off: '#2b3e4b' };
 
 	_showSuccess = true;
@@ -42,7 +43,6 @@ export abstract class AbstractBaseWsAction extends Action {
 			if (this._pressCache.has(context)) return;
 
 			const timeout = setTimeout(() => {
-				console.log('long press');
 				this._pressCache.delete(context);
 				this._eventEmitter.emit('longPress', evtData);
 			}, Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500);
@@ -59,7 +59,6 @@ export abstract class AbstractBaseWsAction extends Action {
 			else {
 				clearTimeout(this._pressCache.get(context));
 				this._pressCache.delete(context);
-				console.log('single press');
 				this._eventEmitter.emit('singlePress', evtData);
 			}
 
@@ -70,7 +69,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		this.onWillAppear(async (evtData: WillAppearData<any>) => {
 			const { context, payload } = evtData;
 			const { settings, isInMultiAction } = payload;
-			const contextData: ContextData = {
+			const contextData: ContextData<T> = {
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
 				settings: this.getSettingsArray(settings),
@@ -89,7 +88,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		this.onDidReceiveSettings(async (evtData: DidReceiveSettingsData<any>) => {
 			const { context, payload } = evtData;
 			const { settings, isInMultiAction } = payload;
-			const contextData: ContextData = {
+			const contextData: ContextData<T> = {
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
 				settings: this.getSettingsArray(settings),
@@ -102,19 +101,22 @@ export abstract class AbstractBaseWsAction extends Action {
 		// --
 
 		// -- Sockets connected/disconnected
-		evtEmitter.on('SocketInitialized', async (socketIdx) => {
-			for (const [context, { settings }] of this._contexts) {
-				const newState = await this.fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
-				this._updateSocketState(context, socketIdx, newState);
-			}
-			this.updateImages();
-		});
+		sockets.forEach((socket, socketIdx) => {
+			socket.on('Identified', async () => {
+				for (const [context, { settings }] of this._contexts) {
+					const newState = await this.fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
+					this._updateSocketState(context, socketIdx, newState);
+				}
+				this.updateImages();
+			});
 
-		evtEmitter.on('SocketDisconnected', (socketIdx) => {
-			for (const [context] of this._contexts) {
-				this._updateSocketState(context, socketIdx, StateEnum.Unavailable);
-			}
-			this.updateImages();
+			// @ts-expect-error Disconnected event is custom of the Socket class, not part of the OBS WS protocol
+			socket.on('Disconnected', () => {
+				for (const [context] of this._contexts) {
+					this._updateSocketState(context, socketIdx, StateEnum.Unavailable);
+				}
+				this.updateImages();
+			});
 		});
 		// --
 
@@ -134,7 +136,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		// Attach status event listener if defined
 		const statusEvent = params?.statusEvent;
 		if (statusEvent) {
-			this.attachEventListener(statusEvent);
+			this.attachEventListener(statusEvent as keyof OBSEventTypes);
 		}
 
 	}
@@ -143,7 +145,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this._eventEmitter.on('longPress', callback);
 
 	// -- General helpers --
-	getCommonSettings(settings: PersistentSettings) {
+	getCommonSettings(settings: PersistentSettings<T>) {
 		settings = settings ?? {};
 		return {
 			target: parseInt(settings.common?.target || globalSettings.defaultTarget || '0'),
@@ -151,11 +153,11 @@ export abstract class AbstractBaseWsAction extends Action {
 		};
 	}
 
-	getTarget(settings: PersistentSettings): number {
+	getTarget(settings: PersistentSettings<T>): number {
 		return this.getCommonSettings(settings).target;
 	}
 
-	getSettingsArray(settings: PersistentSettings) {
+	getSettingsArray(settings: PersistentSettings<T>): (SocketSettings<T> | null)[] {
 		settings = settings ?? {};
 		const { target, indivParams } = this.getCommonSettings(settings);
 		const settingsArray = [];
@@ -180,7 +182,7 @@ export abstract class AbstractBaseWsAction extends Action {
 
 		const titles = contextData.settings
 		.filter(socketSettings => socketSettings)
-		.map(socketSettings => socketSettings[settingsParam] as string || '?');
+		.map(socketSettings => socketSettings![settingsParam] as string || '?');
 
 		const title = [...new Set(titles)].join('\n');
 		SDUtils.setKeyTitle(context, title);
@@ -197,7 +199,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		return this._contexts.get(context)?.settings;
 	}
 
-	_setContextSettings(context: string, settings: any[]) {
+	_setContextSettings(context: string, settings: (SocketSettings<T> | null)[]) {
 		if (!this._contexts.has(context)) return;
 		this._contexts.get(context)!.settings = settings;
 	}
@@ -206,7 +208,7 @@ export abstract class AbstractBaseWsAction extends Action {
 		return this._contexts.get(context)?.states;
 	}
 
-	_setContextStates(context: string, states: any[]) {
+	_setContextStates(context: string, states: StateEnum[]) {
 		const contextData = this._contexts.get(context);
 		if (!contextData) return;
 
@@ -227,7 +229,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * @param settings Action persistent settings
 	 * @returns
 	 */
-	async fetchStates(settings: PersistentSettings): Promise<StateEnum[]> {
+	async fetchStates(settings: PersistentSettings<T>): Promise<StateEnum[]> {
 		const settingsArray = this.getSettingsArray(settings);
 		const statesResults = await Promise.allSettled(settingsArray.map((socketSettings, idx) => {
 			return this.fetchSocketState(socketSettings, idx);
@@ -354,25 +356,26 @@ export abstract class AbstractBaseWsAction extends Action {
 	// --
 
 	// -- Optional functions for stateful actions
-
-	// Attach listener to status event to update key image
-	attachEventListener(statusEvent: string) {
+	attachEventListener(statusEvent: keyof OBSEventTypes) {
 		if (!this.shouldUpdateState || !this.getStateFromEvent) return;
-		evtEmitter.on(statusEvent, async (evtSocketIdx, evtData) => {
-			for (const [context, { settings, states }] of this._contexts) {
-				try {
-					const socketSettings = settings[evtSocketIdx];
-					if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
-						const newState = await this.getStateFromEvent!(evtData, socketSettings);
-						states[evtSocketIdx] = newState;
-						this._setContextStates(context, states);
-						this.updateKeyImage(context);
+		sockets.forEach((socket, evtSocketIdx) => {
+			socket.on(statusEvent, async (...args) => {
+				for (const [context, { settings, states }] of this._contexts) {
+					try {
+						const [evtData] = args;
+						const socketSettings = settings[evtSocketIdx];
+						if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
+							const newState = await this.getStateFromEvent!(evtData, socketSettings);
+							states[evtSocketIdx] = newState;	// to-do: only update if different, mark as dirty or sth and also batch with the other socket
+							this._setContextStates(context, states);
+							this.updateKeyImage(context);
+						}
+					}
+					catch (e) {
+						console.error(`Error getting state from event: ${e}`);
 					}
 				}
-				catch (e) {
-					console.error(`Error getting state from event: ${e}`);
-				}
-			}
+			});
 		});
 	}
 
@@ -383,7 +386,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * @param socketIdx Index of the OBS instance to fetch settings from
 	 * @returns None/Active/Inactive
 	 */
-	async fetchState?(socketSettings: Record<string, any>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable>>;
+	async fetchState?(socketSettings: SocketSettings<T>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable | StateEnum.None>>;
 
 	/**
 	 * Whether a received event should trigger an state update an action
@@ -391,7 +394,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * @param socketSettings Action settings for the corresponding socket
 	 * @param socketIdx Socket index
 	 */
-	async shouldUpdateState?(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean>;
+	async shouldUpdateState?(evtData: unknown, socketSettings: SocketSettings<T>, socketIdx: number): Promise<boolean>;
 
 	/**
 	 * Get state associated with the action from the event that notifies a state update
@@ -399,21 +402,21 @@ export abstract class AbstractBaseWsAction extends Action {
 	 * @param socketSettings Action settings for the corresponding socket
 	 * @returns New true/false state
 	 */
-	async getStateFromEvent?(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<StateEnum>;
+	async getStateFromEvent?(evtData: unknown, socketSettings: SocketSettings<T>): Promise<StateEnum>;
 	// --
 }
 
 
 export { AbstractBaseWsAction as AbstractStatelessAction };
 
-export abstract class AbstractStatefulAction extends AbstractBaseWsAction {
+export abstract class AbstractStatefulAction<T extends Record<string, unknown>, U extends keyof OBSEventTypes> extends AbstractBaseWsAction<T> {
 
 	constructor(UUID: string, params: PartiallyRequired<ConstructorParams, 'statusEvent'>) {
 		super(UUID, params);
 		this._showSuccess = false;	// success already shown via event updates
 	}
 
-	abstract override fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive>;
-	abstract override shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean>;
-	abstract override getStateFromEvent(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<StateEnum>;
+	abstract override fetchState(socketSettings: SocketSettings<T>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable | StateEnum.None>>;
+	abstract override shouldUpdateState(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>, socketIdx: number): Promise<boolean>;
+	abstract override getStateFromEvent(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>): Promise<StateEnum>;
 }

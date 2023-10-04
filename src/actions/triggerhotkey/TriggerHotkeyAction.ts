@@ -1,15 +1,18 @@
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
+import { SingleRequestPayload } from '../types.js';
 
-export class TriggerHotkeyAction extends AbstractStatelessRequestAction {
+type ActionSettings = { seq: string }
+
+export class TriggerHotkeyAction extends AbstractStatelessRequestAction<ActionSettings> {
 	constructor() {
 		super('dev.theca11.multiobs.triggerhotkey');
 	}
 
-	getPayloadFromSettings(settings: any) {
+	getPayloadFromSettings(settings: Partial<ActionSettings> | Record<string, never>): SingleRequestPayload<'TriggerHotkeyByKeySequence'> {
 		const { seq } = settings;
 		return {
 			requestType: 'TriggerHotkeyByKeySequence',
-			requestData: parseSequenceString(seq),
+			requestData: parseSequenceString(seq ?? ''),
 		};
 	}
 }

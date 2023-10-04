@@ -1,25 +1,26 @@
-import { ResponseMessage } from 'obs-websocket-js';
+import { OBSEventTypes, ResponseMessage } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
 import { SDUtils } from '../plugin/utils';
 import { BatchRequestPayload, ConstructorParams, KeyDownData, PartiallyRequired, PersistentSettings, RequestPayload, SingleRequestPayload } from './types';
 import { AbstractBaseWsAction } from './BaseWsAction';
+import { SocketSettings } from './types';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
 
 /** Base class for all actions used to send OBS WS requests */
-export abstract class AbstractBaseRequestAction extends AbstractBaseWsAction {
+export abstract class AbstractBaseRequestAction<T extends Record<string, unknown>> extends AbstractBaseWsAction<T> {
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID, params);
 
-		this.onSinglePress(({ context, payload }: KeyDownData<PersistentSettings>) => {
+		this.onSinglePress(({ context, payload }: KeyDownData<PersistentSettings<T>>) => {
 			const { settings, userDesiredState, isInMultiAction } = payload;
 			if (isInMultiAction || !settings.advanced?.longPress) {
 				this._execute(context, settings, userDesiredState);
 			}
 		});
 
-		this.onLongPress(({ context, payload }: KeyDownData<PersistentSettings>) => {
+		this.onLongPress(({ context, payload }: KeyDownData<PersistentSettings<T>>) => {
 			const { settings, userDesiredState } = payload;
 			if (settings.advanced?.longPress) {
 				this._execute(context, settings, userDesiredState);
@@ -33,7 +34,7 @@ export abstract class AbstractBaseRequestAction extends AbstractBaseWsAction {
 	 * @param persistentSettings Action settings saved for the action
 	 * @param userDesiredState Desired state, if in multiaction and set by the user
 	 */
-	async _execute(context: string, persistentSettings: PersistentSettings, userDesiredState?: number) {
+	async _execute(context: string, persistentSettings: PersistentSettings<T>, userDesiredState?: number) {
 
 		// 1. Get settings per instance, as expected later for OBS WS call, in an array
 		const settingsArray = this.getSettingsArray(persistentSettings);
@@ -80,7 +81,7 @@ export abstract class AbstractBaseRequestAction extends AbstractBaseWsAction {
 	 * @param desiredState If in multiaction, the desired state by the user
 	 * @returns Object or array of objects properly formatted as OBS WS request payload
 	 */
-	abstract getPayloadFromSettings(settings: any, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
+	abstract getPayloadFromSettings(settings: Exclude<SocketSettings<T>, null>, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
 
 	/**
 	 * Send OBS WS requests to OBS socket instances
@@ -108,14 +109,13 @@ export abstract class AbstractBaseRequestAction extends AbstractBaseWsAction {
 
 export { AbstractBaseRequestAction as AbstractStatelessRequestAction };
 
-export abstract class AbstractStatefulRequestAction extends AbstractBaseRequestAction {
-
+export abstract class AbstractStatefulRequestAction<T extends Record<string, unknown>, U extends keyof OBSEventTypes> extends AbstractBaseRequestAction<T> {
 	constructor(UUID: string, params: PartiallyRequired<ConstructorParams, 'statusEvent'>) {
 		super(UUID, params);
 		this._showSuccess = false;	// success already shown via event updates
 	}
 
-	abstract override fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive>;
-	abstract override shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean>;
-	abstract override getStateFromEvent(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<StateEnum>;
+	abstract override fetchState(socketSettings: NonNullable<SocketSettings<T>>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable | StateEnum.None>>;
+	abstract override shouldUpdateState(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>, socketIdx: number): Promise<boolean>;
+	abstract override getStateFromEvent(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>): Promise<StateEnum>;
 }

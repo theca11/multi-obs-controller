@@ -1,10 +1,14 @@
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { SocketSettings } from '../types';
 import { StateEnum } from '../StateEnum';
 import { getScenesLists, getSceneItemsList } from '../lists';
-import { getSceneItemEnableState, getSceneItemId } from '../states';
 import { BatchRequestPayload, SendToPluginData } from '../types';
+import { sockets } from '../../plugin/sockets';
+import { OBSResponseTypes } from 'obs-websocket-js';
 
-export class ToggleSourceAction extends AbstractStatefulRequestAction {
+type ActionSettings = { sceneName: string, sourceName: string }
+
+export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSettings, 'SceneItemEnableStateChanged'> {
 	constructor() {
 		super('dev.theca11.multiobs.togglesource', { titleParam: 'sourceName', statusEvent: 'SceneItemEnableStateChanged' });
 
@@ -21,7 +25,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction {
 		});
 	}
 
-	getPayloadFromSettings(settings: any, desiredState?: number | undefined) {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, desiredState?: number | undefined): BatchRequestPayload {
 		const { sceneName, sourceName } = settings;
 		if (desiredState === 0 || desiredState === 1) {
 			return {
@@ -96,21 +100,38 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction {
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
-		const enabled = await getSceneItemEnableState(socketIdx, socketSettings.sceneName, socketSettings.sourceName);
+	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+		const { sceneName, sourceName } = socketSettings;
+		if (!sceneName || !sourceName) return StateEnum.Inactive;
+
+		const requestResults = await sockets[socketIdx].callBatch([
+			{
+				requestType: 'GetSceneItemId',
+				requestData: { sceneName, sourceName },
+				// @ts-expect-error ouputVariables is not typed in obswebsocketjs (https://github.com/obs-websocket-community-projects/obs-websocket-js/issues/313)
+				outputVariables: { sceneItemIdVariable: 'sceneItemId' },
+			},
+			{
+				requestType: 'GetSceneItemEnabled',
+				// @ts-expect-error ouputVariables is not typed in obswebsocketjs (https://github.com/obs-websocket-community-projects/obs-websocket-js/issues/313)
+				requestData: { sceneName },
+				inputVariables: { sceneItemId: 'sceneItemIdVariable' },
+			},
+		]);
+		const enabled = (requestResults.at(-1)?.responseData as OBSResponseTypes['GetSceneItemEnabled']).sceneItemEnabled;
 		return enabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean> {
+	async shouldUpdateState(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }, socketSettings: SocketSettings<ActionSettings>, socketIdx: number): Promise<boolean> {
 		const { sceneName, sourceName } = socketSettings;
 		if (sceneName && sourceName && sceneName === evtData.sceneName) {
-			const sceneItemId = await getSceneItemId(socketIdx, sceneName, sourceName);
+			const { sceneItemId } = await sockets[socketIdx].call('GetSceneItemId', { sceneName, sourceName });
 			if (sceneItemId && sceneItemId === evtData.sceneItemId) return true;
 		}
 		return false;
 	}
 
-	async getStateFromEvent(evtData: any): Promise<StateEnum> {
+	async getStateFromEvent(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }): Promise<StateEnum> {
 		return evtData.sceneItemEnabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 }
