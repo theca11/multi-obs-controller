@@ -115,7 +115,7 @@ export abstract class AbstractStatefulRequestAction extends AbstractBaseRequestA
 		this._showSuccess = false;	// success already shown via event updates
 	}
 
-	abstract override fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive>;
+	abstract override fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive>;
 	abstract override shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean>;
 	abstract override getStateFromEvent(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<StateEnum>;
 }

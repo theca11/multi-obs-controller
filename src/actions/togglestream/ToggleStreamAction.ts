@@ -19,8 +19,9 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction {
 		}
 	}
 
-	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive> {
-		return getStreamState(socketIdx) ? StateEnum.Active : StateEnum.Inactive;
+	async fetchState(socketSettings: any, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+		const state = getStreamState(socketIdx);
+		return state === 'on' ? StateEnum.Active : state === 'reconnecting' ? StateEnum.Intermediate : StateEnum.Inactive;
 	}
 
 	async shouldUpdateState(): Promise<boolean> {
@@ -28,6 +29,6 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction {
 	}
 
 	async getStateFromEvent(evtData: any): Promise<StateEnum> {
-		return evtData.outputActive ? StateEnum.Active : StateEnum.Inactive;
+		return evtData === 'on' ? StateEnum.Active : evtData === 'reconnecting' ? StateEnum.Intermediate : StateEnum.Inactive;
 	}
 }

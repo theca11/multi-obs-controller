@@ -20,7 +20,7 @@ export abstract class AbstractBaseWsAction extends Action {
 	_contexts = new Map<string, ContextData>();
 
 	_titleParam: string | undefined;
-	_statesColors = { on: '#517a96', off: '#2b3e4b' };
+	_statesColors = { on: '#517a96', intermediate: '#de902a', off: '#2b3e4b' };
 
 	_showSuccess = true;
 
@@ -329,7 +329,7 @@ export abstract class AbstractBaseWsAction extends Action {
 					if (states[targetObs - 1] === StateEnum.Inactive) {
 						CanvasUtils.drawColorRect(ctx, '#a0a0a0', 0, 1, 'source-atop');
 					}
-					CanvasUtils.drawColorRect(ctx, states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : this._statesColors.on, 0, 1, 'destination-over');
+					CanvasUtils.drawColorRect(ctx, states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : states[targetObs - 1] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on, 0, 1, 'destination-over');
 				}
 			}
 			else {
@@ -341,7 +341,7 @@ export abstract class AbstractBaseWsAction extends Action {
 						if (states[i] === StateEnum.Inactive) {
 							CanvasUtils.drawColorRect(ctx, '#a0a0a0', i / 2, (i + 1) / 2, 'source-atop');
 						}
-						CanvasUtils.drawColorRect(ctx, states[i] === StateEnum.Inactive ? this._statesColors.off : this._statesColors.on, i / 2, (i + 1) / 2, 'destination-over');
+						CanvasUtils.drawColorRect(ctx, states[i] === StateEnum.Inactive ? this._statesColors.off : states[i] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on, i / 2, (i + 1) / 2, 'destination-over');
 					}
 				}
 			}
@@ -413,7 +413,7 @@ export abstract class AbstractStatefulAction extends AbstractBaseWsAction {
 		this._showSuccess = false;	// success already shown via event updates
 	}
 
-	abstract override fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Inactive>;
+	abstract override fetchState(socketSettings: Record<string, any>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive>;
 	abstract override shouldUpdateState(evtData: any, socketSettings: any, socketIdx: number): Promise<boolean>;
 	abstract override getStateFromEvent(evtData: Record<string, any>, socketSettings: Record<string, any>): Promise<StateEnum>;
 }

@@ -9,8 +9,8 @@ function getDefaultArray() {
 }
 
 // General states
-const streamStates: (boolean | null)[] = getDefaultArray();
-const recordStates: (boolean | null)[] = getDefaultArray();
+const streamStates: ('on' | 'reconnecting' | 'off' | null)[] = getDefaultArray();
+const recordStates: ('on' | 'paused' | 'off' | null)[] = getDefaultArray();
 const currentProgramScenes: (string | null)[] = getDefaultArray();
 const currentSceneCollections: (string | null)[] = getDefaultArray();
 
@@ -28,8 +28,10 @@ async function fetchGeneralStates(socketIdx: number) {
 		{ requestType: 'GetSceneCollectionList' },
 	]);
 	const responses = results.map(result => result.requestStatus.result === true ? result.responseData : {});
-	streamStates[socketIdx] = (responses[0] as OBSResponseTypes['GetStreamStatus'])?.outputActive ?? null;
-	recordStates[socketIdx] = (responses[1] as OBSResponseTypes['GetRecordStatus'])?.outputActive ?? null;
+	const streamStatus = (responses[0] as OBSResponseTypes['GetStreamStatus']);
+	streamStates[socketIdx] = streamStatus.outputReconnecting ? 'reconnecting' : streamStatus.outputActive ? 'on' : 'off';
+	const recordStatus = (responses[1] as OBSResponseTypes['GetRecordStatus']);
+	recordStates[socketIdx] = recordStatus.outputPaused ? 'paused' : recordStatus.outputActive ? 'on' : 'off';
 	currentProgramScenes[socketIdx] = (responses[2] as OBSResponseTypes['GetCurrentProgramScene'])?.currentProgramSceneName ?? null;
 	currentSceneCollections[socketIdx] = (responses[3] as OBSResponseTypes['GetSceneCollectionList'])?.currentSceneCollectionName ?? null;
 }
@@ -48,13 +50,37 @@ sockets.forEach((socket, i) => {
 		currentSceneCollections[i] = null;
 		evtEmitter.emit('SocketDisconnected', i);
 	});
-	socket.on('StreamStateChanged', ({ outputActive }) => {
-		streamStates[i] = outputActive;
-		evtEmitter.emit('StreamStateChanged', i, { outputActive });
+	socket.on('StreamStateChanged', ({ outputState }) => {
+		switch (outputState) {
+			case 'OBS_WEBSOCKET_OUTPUT_STARTED':
+			case 'OBS_WEBSOCKET_OUTPUT_RECONNECTED':
+				streamStates[i] = 'on';
+				break;
+			case 'OBS_WEBSOCKET_OUTPUT_RECONNECTING':
+				streamStates[i] = 'reconnecting';
+				break;
+			case 'OBS_WEBSOCKET_OUTPUT_STOPPED':
+			case 'OBS_WEBSOCKET_OUTPUT_UNKNOWN':
+				streamStates[i] = 'off';
+				break;
+		}
+		evtEmitter.emit('StreamStateChanged', i, streamStates[i]);
 	});
-	socket.on('RecordStateChanged', ({ outputActive }) => {
-		recordStates[i] = outputActive;
-		evtEmitter.emit('RecordStateChanged', i, { outputActive });
+	socket.on('RecordStateChanged', ({ outputState }) => {
+		switch (outputState) {
+			case 'OBS_WEBSOCKET_OUTPUT_STARTED':
+			case 'OBS_WEBSOCKET_OUTPUT_RESUMED':
+				recordStates[i] = 'on';
+				break;
+			case 'OBS_WEBSOCKET_OUTPUT_PAUSED':
+				recordStates[i] = 'paused';
+				break;
+			case 'OBS_WEBSOCKET_OUTPUT_STOPPED':
+			case 'OBS_WEBSOCKET_OUTPUT_UNKNOWN':
+				recordStates[i] = 'off';
+				break;
+		}
+		evtEmitter.emit('RecordStateChanged', i, recordStates[i]);
 	});
 	socket.on('CurrentProgramSceneChanged', ({ sceneName }) => {
 		currentProgramScenes[i] = sceneName;
@@ -149,6 +175,6 @@ export async function fetchStats() {
 		}
 	});
 
-	return [ generalStats, streamStats, recordStats ];
+	return [generalStats, streamStats, recordStats];
 }
 // ---

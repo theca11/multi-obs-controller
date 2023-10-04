@@ -60,6 +60,23 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.pauserecord",
+			"Icon": "assets/actions/pauserecord/icon",
+			"Name": "Record Pause",
+			"Tooltip": "Pause/resume recording",
+			"States": [
+				{
+					"Image": "assets/actions/pauserecord/key_on",
+					"Name": "Pause"
+				},
+				{
+					"Image": "assets/actions/pauserecord/key_off",
+					"Name": "Resume"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.setscene",
 			"Icon": "assets/actions/setscene/icon",
 			"Name": "Scene",
