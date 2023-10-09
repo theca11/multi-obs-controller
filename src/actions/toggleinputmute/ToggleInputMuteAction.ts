@@ -51,7 +51,7 @@ export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionS
 		return socketSettings.inputName === evtData.inputName ? true : false;
 	}
 
-	async getStateFromEvent(evtData: { inputName: string; inputMuted: boolean; }): Promise<StateEnum> {
+	getStateFromEvent(evtData: { inputName: string; inputMuted: boolean; }): StateEnum {
 		return !evtData.inputMuted ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

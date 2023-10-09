@@ -38,7 +38,7 @@ export class SetSceneAction extends AbstractStatefulRequestAction<ActionSettings
 		return socketSettings.sceneName ? true : false;
 	}
 
-	async getStateFromEvent(evtData: { sceneName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<StateEnum> {
+	getStateFromEvent(evtData: { sceneName: string; }, socketSettings: SocketSettings<ActionSettings>): StateEnum {
 		return evtData.sceneName === socketSettings.sceneName ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

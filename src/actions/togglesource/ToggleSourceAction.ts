@@ -131,7 +131,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		return false;
 	}
 
-	async getStateFromEvent(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }): Promise<StateEnum> {
+	getStateFromEvent(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }): StateEnum {
 		return evtData.sceneItemEnabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

@@ -117,5 +117,5 @@ export abstract class AbstractStatefulRequestAction<T extends Record<string, unk
 
 	abstract override fetchState(socketSettings: NonNullable<SocketSettings<T>>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable | StateEnum.None>>;
 	abstract override shouldUpdateState(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>, socketIdx: number): Promise<boolean>;
-	abstract override getStateFromEvent(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>): Promise<StateEnum>;
+	abstract override getStateFromEvent(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>): StateEnum;
 }

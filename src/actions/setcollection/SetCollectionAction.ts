@@ -36,7 +36,7 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 		return socketSettings.sceneCollectionName ? true : false;
 	}
 
-	async getStateFromEvent(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<StateEnum> {
+	getStateFromEvent(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): StateEnum {
 		return evtData.sceneCollectionName === socketSettings.sceneCollectionName ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

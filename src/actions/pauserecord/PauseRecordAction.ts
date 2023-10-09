@@ -32,7 +32,7 @@ export class PauseRecordAction extends AbstractStatefulRequestAction<ActionSetti
 		return true;
 	}
 
-	async getStateFromEvent(evtData: { outputActive: boolean; outputState: string; outputPath: string; }): Promise<StateEnum> {
+	getStateFromEvent(evtData: { outputActive: boolean; outputState: string; outputPath: string; }): StateEnum {
 		const { outputState } = evtData;
 		return outputState === 'OBS_WEBSOCKET_OUTPUT_PAUSED' ? StateEnum.Active : StateEnum.Inactive;
 	}

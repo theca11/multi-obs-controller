@@ -32,7 +32,7 @@ export class ToggleRecordAction extends AbstractStatefulRequestAction<ActionSett
 		return true;
 	}
 
-	async getStateFromEvent(evtData: { outputActive: boolean; outputState: string; outputPath: string; }): Promise<StateEnum> {
+	getStateFromEvent(evtData: { outputActive: boolean; outputState: string; outputPath: string; }): StateEnum {
 		const { outputState } = evtData;
 		switch (outputState) {
 			case 'OBS_WEBSOCKET_OUTPUT_STARTED':
