@@ -271,23 +271,9 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		return ImageUtils.loadImagePromise(imgUrl);
 	}
 
-	/**
-	 * Update key images for all action contexts in cache.
-	 */
-	async updateImages(): Promise<void> {
-		try {
-			for (const [context] of this._contexts) {
-				this.updateKeyImage(context);
-			}
-		}
-		catch (e) {
-			console.error(`Error updating key images: ${e}`);
-		}
-	}
-
 	async getForegroundImage?(context: string): Promise<HTMLImageElement | HTMLCanvasElement | undefined>;
 
-	async updateKeyImage(context: string) {
+	async generateKeyImage(context: string) {
 		if (!this._contexts.has(context)) return;
 		const { states, targetObs } = this._contexts.get(context)!;
 
@@ -349,13 +335,36 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			}
 		}
 
-		// Get base64 img and set image
-		const b64 = canvas.toDataURL('image/png', 1);
+		return canvas.toDataURL('image/png', 1);
+	}
+
+	async updateKeyImage(context: string) {
+		const b64 = await this.generateKeyImage(context);
 		$SD.setImage(context, b64);
+	}
+
+	/**
+	 * Update key images for all action contexts in cache.
+	 */
+	async updateImages(): Promise<void> {
+		try {
+			const images = new Map<string, string>();
+			for (const [context] of this._contexts) {
+				const image = await this.generateKeyImage(context);
+				if (image) images.set(context, image);
+			}
+			for (const [context, image] of images) {
+				$SD.setImage(context, image);
+			}
+		}
+		catch (e) {
+			console.error(`Error updating key images: ${e}`);
+		}
 	}
 	// --
 
 	// -- Optional functions for stateful actions
+	_dirtyContexts = new Set<string>();
 	attachEventListener(statusEvent: keyof OBSEventTypes) {
 		if (!this.shouldUpdateState || !this.getStateFromEvent) return;
 		sockets.forEach((socket, evtSocketIdx) => {
@@ -365,16 +374,31 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						const [evtData] = args;
 						const socketSettings = settings[evtSocketIdx];
 						if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
-							const newState = await this.getStateFromEvent!(evtData, socketSettings);
-							states[evtSocketIdx] = newState;	// to-do: only update if different, mark as dirty or sth and also batch with the other socket
-							this._setContextStates(context, states);
-							this.updateKeyImage(context);
+							const newState = await this.getStateFromEvent!(evtData, socketSettings);	// to-do: getStateFromEvent can probably be not async
+							if (newState !== states[evtSocketIdx]) {
+								states[evtSocketIdx] = newState;
+								this._setContextStates(context, states);
+								this._dirtyContexts.add(context);
+							}
 						}
 					}
 					catch (e) {
 						console.error(`Error getting state from event: ${e}`);
 					}
 				}
+
+				// Small delay to batch image updates with ptential events from other sockets
+				setTimeout(async () => {
+					const images = new Map<string, string>();
+					for (const context of this._dirtyContexts) {
+						const image = await this.generateKeyImage(context);
+						if (image) images.set(context, image);
+						this._dirtyContexts.delete(context);
+					}
+					for (const [context, image] of images) {
+						$SD.setImage(context, image);
+					}
+				}, 50);
 			});
 		});
 	}
