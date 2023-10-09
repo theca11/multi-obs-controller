@@ -103,6 +103,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		// -- Sockets connected/disconnected
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('Identified', async () => {
+				if (this.onSocketConnected) await this.onSocketConnected(socketIdx);
 				for (const [context, { settings }] of this._contexts) {
 					const newState = await this.fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
 					this._updateSocketState(context, socketIdx, newState);
@@ -111,7 +112,8 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			});
 
 			// @ts-expect-error Disconnected event is custom of the Socket class, not part of the OBS WS protocol
-			socket.on('Disconnected', () => {
+			socket.on('Disconnected', async () => {
+				if (this.onSocketDisconnected) await this.onSocketDisconnected(socketIdx);
 				for (const [context] of this._contexts) {
 					this._updateSocketState(context, socketIdx, StateEnum.Unavailable);
 				}
@@ -143,6 +145,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 	onSinglePress = (callback: (evtData: KeyUpData<any>) => void) => this._eventEmitter.on('singlePress', callback);
 	onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this._eventEmitter.on('longPress', callback);
+
+	// -- Optional methods called on socket connected/disconnected
+	async onSocketConnected?(socketIdx: number): Promise<void>
+	async onSocketDisconnected?(socketIdx: number): Promise<void>
 
 	// -- General helpers --
 	getCommonSettings(settings: PersistentSettings<T>) {

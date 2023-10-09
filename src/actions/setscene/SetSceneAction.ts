@@ -8,8 +8,16 @@ import { SingleRequestPayload } from '../types';
 type ActionSettings = { sceneName: string }
 
 export class SetSceneAction extends AbstractStatefulRequestAction<ActionSettings, 'CurrentProgramSceneChanged'> {
+	currentSceneName = new Array(sockets.length).fill(null);
+
 	constructor() {
 		super('dev.theca11.multiobs.setscene', { titleParam: 'sceneName', statusEvent: 'CurrentProgramSceneChanged' });
+
+		sockets.forEach((socket, socketIdx) => {
+			socket.on('CurrentProgramSceneChanged', ({ sceneName }) => {
+				this.currentSceneName[socketIdx] = sceneName;
+			});
+		});
 	}
 
 	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentProgramScene'> {
@@ -26,12 +34,23 @@ export class SetSceneAction extends AbstractStatefulRequestAction<ActionSettings
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	// to-do: think if I can cache this info, since usually there are multiple Scene keys and fetching the current scene for each one is really redundant
-	// not super important, since fetching is only done at startup ans OBS reconnect - later everything is event based right?
+	override async onSocketConnected(socketIdx: number): Promise<void> {
+		try {
+			const { currentProgramSceneName } = await sockets[socketIdx].call('GetCurrentProgramScene');
+			this.currentSceneName[socketIdx] = currentProgramSceneName;
+		}
+		catch {
+			this.currentSceneName[socketIdx] = null;
+		}
+	}
+
+	override async onSocketDisconnected(socketIdx: number): Promise<void> {
+		this.currentSceneName[socketIdx] = null;
+	}
+
 	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
 		if (!socketSettings.sceneName) return StateEnum.Inactive;
-		const { currentProgramSceneName } = await sockets[socketIdx].call('GetCurrentProgramScene');
-		return socketSettings.sceneName === currentProgramSceneName ? StateEnum.Active : StateEnum.Inactive;
+		return socketSettings.sceneName === this.currentSceneName[socketIdx] ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	async shouldUpdateState(evtData: { sceneName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
