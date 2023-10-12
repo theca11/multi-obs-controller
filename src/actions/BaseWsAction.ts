@@ -3,9 +3,7 @@ import { sockets } from '../plugin/sockets';
 import { CanvasUtils, ImageUtils, SDUtils } from '../plugin/utils';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
-import { ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
-import { EventEmitter as EvtEmitter } from 'eventemitter3';
-import { SocketSettings } from './types';
+import { SocketSettings, ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
 
 interface ContextData<T> {
 	targetObs: number,
@@ -16,8 +14,6 @@ interface ContextData<T> {
 
 export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> extends Action {
 	_pressCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
-	_eventEmitter = new EvtEmitter();	// to-do: remove and use the internal eventEmitter emit/on functions?
-
 	_contexts = new Map<string, ContextData<T>>();
 
 	_titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
@@ -47,7 +43,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 			const timeout = setTimeout(() => {
 				this._pressCache.delete(context);
-				this._eventEmitter.emit('longPress', evtData);
+				this.emit(`${this.UUID}.longPress`, evtData);
 			}, Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500);
 			this._pressCache.set(context, timeout);
 
@@ -62,9 +58,8 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			else {
 				clearTimeout(this._pressCache.get(context));
 				this._pressCache.delete(context);
-				this._eventEmitter.emit('singlePress', evtData);
+				this.emit(`${this.UUID}.singlePress`, evtData);
 			}
-
 		});
 		// --
 
@@ -146,8 +141,8 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 	}
 
-	onSinglePress = (callback: (evtData: KeyUpData<any>) => void) => this._eventEmitter.on('singlePress', callback);
-	onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this._eventEmitter.on('longPress', callback);
+	onSinglePress = (callback: (evtData: KeyUpData<any>) => void) => this.on(`${this.UUID}.singlePress`, callback);
+	onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this.on(`${this.UUID}.longPress`, callback);
 
 	// -- Optional methods called on socket connected/disconnected
 	async onSocketConnected?(socketIdx: number): Promise<void>
