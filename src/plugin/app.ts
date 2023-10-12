@@ -9,8 +9,8 @@ for (const PluginAction of Object.values(pluginActions)) {
 }
 
 // SD starts
-$SD.onConnected(() => {
-	SDUtils.log('Stream Deck connected');
+$SD.onConnected(({ appInfo }: any) => {
+	SDUtils.log(`Stream Deck connected (v${appInfo.application.version}) | ${appInfo.application.platform} ${appInfo.application.platformVersion} | Plugin version ${appInfo.plugin.version}`);
 	$SD.getGlobalSettings();
 
 	// Check OBS WS connections every 10s
