@@ -302,14 +302,16 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			ctx.globalCompositeOperation = 'source-over';
 			ctx.fillStyle = '#efefef';
 			ctx.font = 'bold 25px Arial';
-			ctx.textBaseline = 'top';
+			const pos = globalSettings.targetNumbers ?? 'top';
+			ctx.textBaseline = pos;
+			const yPos = pos === 'top' ? 10 : pos === 'middle' ? canvas.height / 2 : canvas.height - 10;
 			if (targetObs === 0 || targetObs === 1) {
 				ctx.textAlign = 'left';
-				ctx.fillText('1', 0 + 10, 10);
+				ctx.fillText('1', 0 + 10, yPos);
 			}
 			if (targetObs === 0 || targetObs === 2) {
 				ctx.textAlign = 'right';
-				ctx.fillText('2', 144 - 10, 10);
+				ctx.fillText('2', canvas.width - 10, yPos);
 			}
 		}
 

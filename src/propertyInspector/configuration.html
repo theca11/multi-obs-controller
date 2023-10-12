@@ -117,15 +117,23 @@
 						<div class="sdpi-item-label">Long press length (ms)</div>
 						<input class="sdpi-item-value" type="number" name="longPressMs" value="500" required>
 					</div>
+					<div type="radio" class="sdpi-item" title="Target indicators position in key" style="margin-top: 2px">
+						<div class="sdpi-item-label">Target position</div>
+						<div class="sdpi-item-value" style="margin-bottom: 0px;">
+							<input id="top" type="radio" name="targetNumbers" value="top" checked>
+							<label for="top" class="sdpi-item-label"><span></span>Top</label>
+							<input id="middle" type="radio" name="targetNumbers" value="middle">
+							<label for="middle" class="sdpi-item-label"><span></span>Middle</label>
+							<input id="bottom" type="radio" name="targetNumbers" value="bottom">
+							<label for="bottom" class="sdpi-item-label"><span></span>Bottom</label>
+							<input id="hide" type="radio" name="targetNumbers" value="hide">
+							<label for="hide" class="sdpi-item-label"><span></span>Hidden</label>
+						</div>
+					</div>
 					<div type="checkbox" class="sdpi-item" style="margin-left: 4px;">
 						<div class="sdpi-item-label empty"></div>
 						<input class="sdpi-item-value" id="chk0" type="checkbox" name="feedback" value="hide">
 						<label for="chk0"><span></span>Don't show visual OK/alert feedback after pressing a key</label>
-					</div>
-					<div type="checkbox" class="sdpi-item" style="margin-left: 4px;">
-						<div class="sdpi-item-label empty"></div>
-						<input class="sdpi-item-value" id="chk1" type="checkbox" name="targetNumbers" value="hide">
-						<label for="chk1"><span></span>Don't show target numbers indicators in keys</label>
 					</div>
 				</form>
 			</div>

@@ -59,10 +59,10 @@ export type GlobalSettings = Partial<{
 	defaultTarget: string,
 	longPressMs: string,
 	feedback: 'hide',
-	targetNumbers: 'hide'
+	targetNumbers: 'bottom' | 'middle' | 'top' | 'hide'
 }>
 
-export type SocketSettings<T> = Partial<T> | Record<string, never>; // to-do: move this to types file?
+export type SocketSettings<T> = Partial<T> | Record<string, never>;
 
 export type RequestPayload = SingleRequestPayload<T> | BatchRequestPayload | null;
 export type SingleRequestPayload<T extends keyof OBSRequestTypes> = {
