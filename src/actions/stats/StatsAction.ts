@@ -7,8 +7,6 @@ import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappe
 type ActionSettings = { stats: string[], colors: string[] }
 type StatConfig = { target: number, stat: string, color: string }
 
-// to-do: review what's happening with default image, that can't be loaded as per console log
-
 export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 
 	private _ctxStatsSettings = new Map<string, StatConfig[]>();
