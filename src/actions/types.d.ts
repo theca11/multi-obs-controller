@@ -81,7 +81,8 @@ export type ConstructorParams = {
 	statesColors?: {
 		on?: string,
 		off?: string
-	}
+	},
+	hideTargetIndicators?: boolean
 }
 
 export type PartiallyRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;

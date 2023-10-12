@@ -23,6 +23,8 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	_titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
 	_statesColors = { on: '#517a96', intermediate: '#de902a', off: '#2b3e4b' };
 
+	_hideTargetIndicators = false;
+
 	_showSuccess = true;
 
 	_defaultImg: HTMLImageElement | undefined;
@@ -31,6 +33,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		super(UUID);
 		this._titleParam = params?.titleParam;
 		this._statesColors = { ...this._statesColors, ...params?.statesColors };
+		this._hideTargetIndicators = !!params?.hideTargetIndicators;
 
 		// Load default image
 		this.getDefaultKeyImage().then(img => this._defaultImg = img).catch(() => console.warn(`Default img for ${this.UUID} couldn't be loaded`));
@@ -298,7 +301,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		}
 
 		// Draw target numbers
-		if (globalSettings.targetNumbers !== 'hide') {
+		if (!this._hideTargetIndicators && globalSettings.targetNumbers !== 'hide') {
 			ctx.globalCompositeOperation = 'source-over';
 			ctx.fillStyle = '#efefef';
 			ctx.font = 'bold 25px Arial';

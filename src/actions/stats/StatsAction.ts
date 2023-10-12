@@ -7,6 +7,8 @@ import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappe
 type ActionSettings = { stats: string[], colors: string[] }
 type StatConfig = { target: number, stat: string, color: string }
 
+// to-do: review what's happening with default image, that can't be loaded as per console log
+
 export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 
 	private _ctxStatsSettings = new Map<string, StatConfig[]>();
@@ -24,7 +26,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	_recordStats = new Array(sockets.length).fill(null);
 
 	constructor() {
-		super('dev.theca11.multiobs.stats');
+		super('dev.theca11.multiobs.stats', { hideTargetIndicators: true });
 
 		this.onWillAppear(async ({ context, payload }: WillAppearData<PersistentSettings<ActionSettings>>) => {
 			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
