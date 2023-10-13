@@ -4,8 +4,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/package-json/v/theca11/multi-obs-controller/master?label=%20&color=green" />
-  <a href="https://apps.elgato.com/plugins/dev.theca11.multiobs">
-        <img src="https://img.shields.io/badge/Stream_Deck_store-gray?logo=elgato&logoColor=white&labelColor=1231ac&color=gray" alt="Stream Deck Store">
+  <a href="https://marketplace.elgato.com/product/multi-obs-controller-6926228a-2efa-4fb9-849a-3f7d9ad86a9b">
+        <img src="https://img.shields.io/badge/Elgato_Marketplace-gray?logo=elgato&logoColor=white&labelColor=1231ac&color=gray" alt="Elgato Marketplace">
   </a>
   <a href="https://discord.gg/sMSDVRQSUd">
         <img src="https://img.shields.io/badge/Discord-gray?logo=discord&logoColor=white&labelColor=6A7EC2&color=gray" alt="Discord Support">
@@ -36,9 +36,9 @@ Requires OBS Studio v29.0 or later (which supports OBS Websockets v5 protocol).
 
 ## Installation
 
-### Installation from Stream Deck store (recommended)
+### Installation from Elgato Marketplace (recommended)
 
-Go to the [Stream Deck store plugin page](https://apps.elgato.com/plugins/dev.theca11.multiobs) and click the `Install` button. Stream Deck will prompt for installation confirmation.
+Go to the [Elgato Marketplace plugin page](https://marketplace.elgato.com/product/multi-obs-controller-6926228a-2efa-4fb9-849a-3f7d9ad86a9b) and click the `Get` button to download and install.
 
 ### Installation from Github release
 
