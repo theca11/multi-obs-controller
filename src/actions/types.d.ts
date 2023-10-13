@@ -63,6 +63,12 @@ export type GlobalSettings = Partial<{
 }>
 
 export type SocketSettings<T> = Partial<T> | Record<string, never>;
+export interface ContextData<T> {
+	targetObs: number;
+	isInMultiAction: boolean;
+	settings: (SocketSettings<T> | null)[];
+	states: StateEnum[];
+}
 
 export type RequestPayload = SingleRequestPayload<T> | BatchRequestPayload | null;
 export type SingleRequestPayload<T extends keyof OBSRequestTypes> = {

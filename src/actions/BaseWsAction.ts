@@ -3,14 +3,7 @@ import { sockets } from '../plugin/sockets';
 import { CanvasUtils, ImageUtils, SDUtils } from '../plugin/utils';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
-import { SocketSettings, ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
-
-interface ContextData<T> {
-	targetObs: number,
-	isInMultiAction: boolean,
-	settings: (SocketSettings<T> | null)[],
-	states: StateEnum[]
-}
+import { ContextData, SocketSettings, ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
 
 export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> extends Action {
 	_pressCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
@@ -76,11 +69,13 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			this._contexts.set(context, contextData);
 			this.updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
+			if (this.onContextAppear) this.onContextAppear(context, contextData);
 		});
 
 		this.onWillDisappear((evtData: WillDisappearData<any>) => {
 			const { context } = evtData;
 			this._contexts.delete(context);
+			if (this.onContextDisappear) this.onContextDisappear(context);
 		});
 
 		this.onDidReceiveSettings(async (evtData: DidReceiveSettingsData<any>) => {
@@ -95,6 +90,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			this._contexts.set(context, contextData);
 			this.updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
+			if (this.onContextSettingsUpdated) this.onContextSettingsUpdated(context, contextData);
 		});
 		// --
 
@@ -144,9 +140,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	onSinglePress = (callback: (evtData: KeyUpData<any>) => void) => this.on(`${this.UUID}.singlePress`, callback);
 	onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this.on(`${this.UUID}.longPress`, callback);
 
-	// -- Optional methods called on socket connected/disconnected
+	// -- Optional methods called on socket connected/disconnected, on context appear/disappear
 	async onSocketConnected?(socketIdx: number): Promise<void>
 	async onSocketDisconnected?(socketIdx: number): Promise<void>
+	async onContextAppear?(context: string, contextData: ContextData<T>): Promise<void>
+	async onContextDisappear?(context: string): Promise<void>
+	async onContextSettingsUpdated?(context: string, contextData: ContextData<T>): Promise<void>
 
 	// -- General helpers --
 	getCommonSettings(settings: PersistentSettings<T>) {
@@ -256,7 +255,6 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	 * @param socketIdx Socket index to update
 	 * @param state New state for the socket
 	 */
-	// to-do: check if this function is really needed or I can directly modify the contexts map
 	_updateSocketState(context: string, socketIdx: number, state: StateEnum) {
 		const { states } = this._contexts.get(context) ?? {};
 		if (!states) return;

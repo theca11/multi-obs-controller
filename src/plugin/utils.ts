@@ -136,3 +136,13 @@ export class CanvasUtils {
 export function clamp(val: number, min: number, max: number) {
 	return Math.min(Math.max(val, min), max);
 }
+
+export function secondsToTimecode(seconds: number): string {
+	return [
+		seconds / 60 / 60,	// hours
+		seconds / 60 % 60,	// minutes
+		seconds % 60,		// seconds
+	]
+	.map(n => Math.floor(n).toString().padStart(2, '0'))
+	.join(':');
+}
