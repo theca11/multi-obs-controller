@@ -1,5 +1,5 @@
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
-import { SingleRequestPayload } from '../types.js';
+import { SingleRequestPayload } from '../types';
 
 type ActionSettings = { seq: string }
 

@@ -1,5 +1,5 @@
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
-import { BatchRequestPayload } from '../types.js';
+import { BatchRequestPayload } from '../types';
 
 type ActionSettings = { deviceName: string, sleepMs: string }
 
