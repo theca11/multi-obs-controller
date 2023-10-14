@@ -2,7 +2,7 @@ import { OBSResponseTypes } from 'obs-websocket-js';
 import { sockets } from '../../plugin/sockets';
 import { clamp } from '../../plugin/utils';
 import { AbstractStatelessAction } from '../BaseWsAction';
-import { DidReceiveSettingsData, PersistentSettings, WillAppearData, WillDisappearData } from '../types';
+import { ContextData, SocketSettings } from '../types';
 
 type ActionSettings = { stats: string[], colors: string[] }
 type StatConfig = { target: number, stat: string, color: string }
@@ -26,34 +26,32 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	constructor() {
 		super('dev.theca11.multiobs.stats', { hideTargetIndicators: true });
 
-		this.onWillAppear(async ({ context, payload }: WillAppearData<PersistentSettings<ActionSettings>>) => {
-			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
-			if (this._ctxStatsSettings.size === 1 && !this._statsUpdateInterval) {
-				await this.fetchStats();
-				this._statsUpdateInterval = setInterval(async () => {
-					await this.fetchStats();
-					this.updateImages();
-				}, 2000);
-			}
-			this.updateKeyImage(context);
-		});
-
-		this.onWillDisappear(async ({ context }: WillDisappearData<PersistentSettings<ActionSettings>>) => {
-			this._ctxStatsSettings.delete(context);
-			if (this._ctxStatsSettings.size === 0 && this._statsUpdateInterval) {
-				clearInterval(this._statsUpdateInterval);
-				this._statsUpdateInterval = null;
-			}
-		});
-
-		this.onDidReceiveSettings(({ context, payload }: DidReceiveSettingsData<PersistentSettings<ActionSettings>>) => {
-			this._ctxStatsSettings.set(context, this.formatStatSettings(payload.settings));
-			this.updateKeyImage(context);
-		});
-
 		this.onLongPress(() => {
 			this.resetStats();
 		});
+	}
+
+	override async onContextAppear(context: string, contextData: ContextData<ActionSettings>): Promise<void> {
+		this._ctxStatsSettings.set(context, this.formatStatSettings(contextData.settings));
+		if (this._ctxStatsSettings.size === 1 && !this._statsUpdateInterval) {
+			await this.fetchStats();
+			this._statsUpdateInterval = setInterval(async () => {
+				await this.fetchStats();
+				this.updateImages();
+			}, 2000);
+		}
+	}
+
+	override async onContextDisappear(context: string): Promise<void> {
+		this._ctxStatsSettings.delete(context);
+		if (this._ctxStatsSettings.size === 0 && this._statsUpdateInterval) {
+			clearInterval(this._statsUpdateInterval);
+			this._statsUpdateInterval = null;
+		}
+	}
+
+	override async onContextSettingsUpdated(context: string, contextData: ContextData<ActionSettings>): Promise<void> {
+		this._ctxStatsSettings.set(context, this.formatStatSettings(contextData.settings));
 	}
 
 	resetStats() {
@@ -126,8 +124,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 		return canvas;
 	}
 
-	formatStatSettings(actionSettings: PersistentSettings<ActionSettings>): StatConfig[] {
-		const settingsArray = this.getSettingsArray(actionSettings);
+	formatStatSettings(settingsArray: (SocketSettings<ActionSettings> | null)[]): StatConfig[] {
 		const formattedStatsArray = settingsArray.flatMap((settings, socketIdx) => {
 			if (!settings) return [];
 			let { stats, colors } = settings as { stats: string | string[], colors: string | string[] };

@@ -67,9 +67,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				states: await this.fetchStates(settings),
 			};
 			this._contexts.set(context, contextData);
+			if (this.onContextAppear) await this.onContextAppear(context, contextData);
+
 			this.updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
-			if (this.onContextAppear) this.onContextAppear(context, contextData);
 		});
 
 		this.onWillDisappear((evtData: WillDisappearData<any>) => {
@@ -88,9 +89,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				states: await this.fetchStates(settings),
 			};
 			this._contexts.set(context, contextData);
+			if (this.onContextSettingsUpdated) await this.onContextSettingsUpdated(context, contextData);
+
 			this.updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
-			if (this.onContextSettingsUpdated) this.onContextSettingsUpdated(context, contextData);
 		});
 		// --
 
