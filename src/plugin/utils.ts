@@ -1,39 +1,17 @@
 export class SDUtils {
 	/**
-	 * Set key title, wrapped in a maximum of 2 lines of aprox. 9 characters each
+	 * Set key title, wrapped in lines of aprox. 9 characters each
 	 * @param context Action context
 	 * @param title Title to set
 	 * @param target HW/SW target
 	 */
 	static setKeyTitle(context: string, title: string, target = 0) {
-		title = String(title ?? '');
-
-		const maxLines = 2;
-		const maxWidth = 9;
-		// Assume spaces are a bit smaller than a full character
-		const space_width = 2 / 3;
-
-		const parts = title.split(' ');
-		let part = 0;
-		const lines = [];
-		for (let lineNum = 0; lineNum < maxLines && part < parts.length; ++lineNum) {
-			const line = [];
-			let length = 0;
-			let total_len = 0;
-			while (total_len < maxWidth && part < parts.length) {
-				if (length > 0 && total_len + space_width + parts[part].length > maxWidth) {
-					break;
-				}
-				line.push(parts[part]);
-				length += parts[part].length;
-				part++;
-				total_len = length + (line.length - 1) * space_width;
-			}
-			lines.push(line.join(' '));
+		if (!title) return;
+		const lines = title.match(/.{1,9}(\s|$)|\S+?(\s|$)/g); // up to 9 characters words
+		const joined = lines?.map(l => l.trim()).join('\n');
+		if (joined) {
+			$SD.setTitle(context, joined, target);
 		}
-		title = lines.join('\n');
-
-		$SD.setTitle(context, title, target);
 	}
 
 	// Aux object to define console log levels

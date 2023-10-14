@@ -189,7 +189,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		.filter(socketSettings => socketSettings)
 		.map(socketSettings => socketSettings![settingsParam] as string || '?');
 
-		const title = [...new Set(titles)].join('\n');
+		const title = [...new Set(titles)].join('\n········\n');
 		SDUtils.setKeyTitle(context, title);
 	}
 	// --
