@@ -13,3 +13,4 @@ export { ToggleStreamAction } from './togglestream/ToggleStreamAction';
 export { ToggleStudioModeAction } from './togglestudiomode/ToggleStudioModeAction';
 export { ToggleVirtualCamAction } from './togglevirtualcam/ToggleVirtualCamAction';
 export { TriggerHotkeyAction } from './triggerhotkey/TriggerHotkeyAction';
+export { TriggerStudioModeTransitionAction } from './triggerstudiomodetransition/TriggerStudioModeTransitionAction';

@@ -190,6 +190,21 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.triggerstudiomodetransition",
+			"Icon": "assets/actions/triggerstudiomodetransition/icon",
+			"Name": "Studio Mode Transition",
+			"Tooltip": "Trigger studio mode transition",
+			"States": [
+				{
+					"Image": "assets/actions/triggerstudiomodetransition/key_on"
+				},
+				{
+					"Image": "assets/actions/triggerstudiomodetransition/key_off"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.triggerhotkey",
 			"Icon": "assets/actions/triggerhotkey/icon",
 			"Name": "Hotkey Sequence",
