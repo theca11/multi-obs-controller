@@ -77,6 +77,23 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.togglevirtualcam",
+			"Icon": "assets/actions/togglevirtualcam/icon",
+			"Name": "Virtual camera",
+			"Tooltip": "Start/stop virtual camera",
+			"States": [
+				{
+					"Image": "assets/actions/togglevirtualcam/key_on",
+					"Name": "Start"
+				},
+				{
+					"Image": "assets/actions/togglevirtualcam/key_off",
+					"Name": "Stop"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.setscene",
 			"Icon": "assets/actions/setscene/icon",
 			"Name": "Scene",
