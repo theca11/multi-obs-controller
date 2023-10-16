@@ -124,6 +124,21 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.setprofile",
+			"Icon": "assets/actions/setprofile/icon",
+			"Name": "Profile",
+			"Tooltip": "Set current profile",
+			"States": [
+				{
+					"Image": "assets/actions/setprofile/key_on"
+				},
+				{
+					"Image": "assets/actions/setprofile/key_off"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.toggleinputmute",
 			"Icon": "assets/actions/toggleinputmute/icon",
 			"Name": "Audio Mute",

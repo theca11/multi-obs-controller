@@ -12,6 +12,17 @@ export async function getCollectionsLists() {
 }
 
 /**
+ * Get a list of all profiles in all OBS instances
+ * @returns One array of profile names per OBS instance
+ */
+export async function getProfilesLists() {
+	const results = await Promise.allSettled(
+		sockets.map(socket => socket.isConnected ? socket.call('GetProfileList') : Promise.reject()),
+	);
+	return results.map(result => result.status === 'fulfilled' ? result.value.profiles : []);
+}
+
+/**
  * Get a list of all scenes in all OBS instances
  * @returns One array of scenes per OBS instance. Each scene JsonObject contains sceneIndex and sceneName
  */
