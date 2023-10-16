@@ -16,7 +16,7 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction<ActionSett
 		this.attachListenersForTimer();
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, desiredState?: number | undefined): SingleRequestPayload<'StartStream' | 'StopStream' | 'ToggleStream'> {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, socketIdx: number, desiredState?: number | undefined): SingleRequestPayload<'StartStream' | 'StopStream' | 'ToggleStream'> {
 		if (desiredState === 0) {
 			return { requestType: 'StartStream' };
 		}

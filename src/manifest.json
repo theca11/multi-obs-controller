@@ -173,6 +173,23 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.togglestudiomode",
+			"Icon": "assets/actions/togglestudiomode/icon",
+			"Name": "Studio Mode",
+			"Tooltip": "Enable/disable studio mode",
+			"States": [
+				{
+					"Image": "assets/actions/togglestudiomode/key_on",
+					"Name": "Enable"
+				},
+				{
+					"Image": "assets/actions/togglestudiomode/key_off",
+					"Name": "Disable"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.triggerhotkey",
 			"Icon": "assets/actions/triggerhotkey/icon",
 			"Name": "Hotkey Sequence",

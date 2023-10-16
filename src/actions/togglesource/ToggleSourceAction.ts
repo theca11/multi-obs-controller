@@ -25,7 +25,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		});
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, desiredState?: number | undefined): BatchRequestPayload {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, socketIdx: number, desiredState?: number | undefined): BatchRequestPayload {
 		const { sceneName, sourceName } = settings;
 		if (desiredState === 0 || desiredState === 1) {
 			return {

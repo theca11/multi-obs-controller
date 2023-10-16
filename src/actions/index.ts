@@ -10,5 +10,6 @@ export { ToggleInputMuteAction } from './toggleinputmute/ToggleInputMuteAction';
 export { ToggleRecordAction } from './togglerecord/ToggleRecordAction';
 export { ToggleSourceAction } from './togglesource/ToggleSourceAction';
 export { ToggleStreamAction } from './togglestream/ToggleStreamAction';
+export { ToggleStudioModeAction } from './togglestudiomode/ToggleStudioModeAction';
 export { ToggleVirtualCamAction } from './togglevirtualcam/ToggleVirtualCamAction';
 export { TriggerHotkeyAction } from './triggerhotkey/TriggerHotkeyAction';
