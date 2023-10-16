@@ -8,8 +8,16 @@ import { sockets } from '../../plugin/sockets';
 type ActionSettings = { sceneCollectionName: string }
 
 export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSettings, 'CurrentSceneCollectionChanged'> {
+	currentSceneCollectionName = new Array(sockets.length).fill(null);
+
 	constructor() {
 		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName', statusEvent: 'CurrentSceneCollectionChanged' });
+
+		sockets.forEach((socket, socketIdx) => {
+			socket.on('CurrentSceneCollectionChanged', ({ sceneCollectionName }) => {
+				this.currentSceneCollectionName[socketIdx] = sceneCollectionName;
+			});
+		});
 	}
 
 	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentSceneCollection'> {
@@ -26,10 +34,23 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
+	override async onSocketConnected(socketIdx: number): Promise<void> {
+		try {
+			const { currentSceneCollectionName } = await sockets[socketIdx].call('GetSceneCollectionList');
+			this.currentSceneCollectionName[socketIdx] = currentSceneCollectionName;
+		}
+		catch {
+			this.currentSceneCollectionName[socketIdx] = null;
+		}
+	}
+
+	override async onSocketDisconnected(socketIdx: number): Promise<void> {
+		this.currentSceneCollectionName[socketIdx] = null;
+	}
+
 	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
 		if (!socketSettings.sceneCollectionName) return StateEnum.Inactive;
-		const { currentSceneCollectionName } = await sockets[socketIdx].call('GetSceneCollectionList');
-		return socketSettings.sceneCollectionName === currentSceneCollectionName ? StateEnum.Active : StateEnum.Inactive;
+		return socketSettings.sceneCollectionName === this.currentSceneCollectionName[socketIdx] ? StateEnum.Active : StateEnum.Inactive;
 	}
 
 	async shouldUpdateState(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
