@@ -1,9 +1,8 @@
+import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
-import { SocketSettings } from '../types';
 import { StateEnum } from '../StateEnum';
 import { getInputsLists } from '../lists';
-import { SingleRequestPayload } from '../types';
-import { sockets } from '../../plugin/sockets';
+import { SocketSettings, SingleRequestPayload } from '../types';
 
 type ActionSettings = { inputName: string }
 type Input = { inputName: string, inputKind: string, unversionedInputKind: string };

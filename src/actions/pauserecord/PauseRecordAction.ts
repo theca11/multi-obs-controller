@@ -1,8 +1,8 @@
+import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
 import { StateEnum } from '../StateEnum';
-import { sockets } from '../../plugin/sockets';
-import { SingleRequestPayload } from '../types';
-import { SocketSettings } from '../types';
+import { SingleRequestPayload, SocketSettings } from '../types';
+
 
 type ActionSettings = Record<string, never>
 

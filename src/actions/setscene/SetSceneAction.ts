@@ -1,9 +1,8 @@
 import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
-import { SocketSettings } from '../types';
 import { StateEnum } from '../StateEnum';
 import { getScenesLists } from '../lists';
-import { SingleRequestPayload } from '../types';
+import { SocketSettings, SingleRequestPayload } from '../types';
 
 type ActionSettings = { sceneName: string }
 

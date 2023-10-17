@@ -1,11 +1,10 @@
 import { OBSEventTypes, ResponseMessage } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
 import { SDUtils } from '../plugin/utils';
-import { BatchRequestPayload, ConstructorParams, KeyDownData, PartiallyRequired, PersistentSettings, RequestPayload, SingleRequestPayload } from './types';
 import { AbstractBaseWsAction } from './BaseWsAction';
-import { SocketSettings } from './types';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
+import { BatchRequestPayload, ConstructorParams, KeyDownData, PartiallyRequired, PersistentSettings, RequestPayload, SingleRequestPayload, SocketSettings } from './types';
 
 /** Base class for all actions used to send OBS WS requests */
 export abstract class AbstractBaseRequestAction<T extends Record<string, unknown>> extends AbstractBaseWsAction<T> {

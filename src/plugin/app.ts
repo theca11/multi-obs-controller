@@ -1,7 +1,7 @@
-import { sockets } from './sockets';
 import * as pluginActions from '../actions/index';
-import { SDUtils } from './utils';
 import { DidReceiveGlobalSettingsData, GlobalSettings } from '../actions/types';
+import { sockets } from './sockets';
+import { SDUtils } from './utils';
 
 // Initialize all plugin actions
 for (const PluginAction of Object.values(pluginActions)) {

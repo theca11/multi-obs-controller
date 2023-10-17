@@ -1,8 +1,8 @@
 import { sockets } from '../../plugin/sockets';
-import { AbstractStatefulRequestAction } from '../BaseRequestAction';
-import { ContextData, SocketSettings, SingleRequestPayload } from '../types';
-import { StateEnum } from '../StateEnum';
 import { secondsToTimecode } from '../../plugin/utils';
+import { AbstractStatefulRequestAction } from '../BaseRequestAction';
+import { StateEnum } from '../StateEnum';
+import { ContextData, SocketSettings, SingleRequestPayload } from '../types';
 
 type ActionSettings = { showTime: string }
 

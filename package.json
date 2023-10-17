@@ -9,7 +9,8 @@
 		"copy-previews": "npx cpy previews/*.png build/dev.theca11.multiobs.sdPlugin/previews",
 		"package": "cd ./dist && npx trash dev.theca11.multiobs.streamDeckPlugin && DistributionTool.exe -b -i ../build/dev.theca11.multiobs.sdPlugin -o .",
 		"release": "npm run copy-previews && npm run package",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"lint-fix": "eslint --fix ."
 	},
 	"repository": {
 		"type": "git",
@@ -30,6 +31,7 @@
 		"copy-webpack-plugin": "^11.0.0",
 		"cpy-cli": "^5.0.0",
 		"eslint": "^8.48.0",
+		"eslint-plugin-import": "^2.28.1",
 		"license-webpack-plugin": "^4.0.2",
 		"symlink-dir": "^5.1.1",
 		"terser-webpack-plugin": "^5.3.9",

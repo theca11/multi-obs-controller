@@ -1,11 +1,8 @@
 {
 	"root": true,
 	"ignorePatterns": ["build", "dist", "webpack.config.js", "src/libs"],
-	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/recommended"
-	],
-	"plugins": ["@typescript-eslint"],
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+	"plugins": ["@typescript-eslint", "import"],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": 2022,
@@ -28,6 +25,7 @@
 		"max-statements-per-line": ["error", { "max": 2 }],
 		"no-console": "off",
 		"no-control-regex": "warn",
+		"no-duplicate-imports":"error",
 		"no-empty-function": "off",
 		"no-floating-decimal": "error",
 		"no-inline-comments": "off",
@@ -57,6 +55,25 @@
 		"spaced-comment": "error",
 		"yoda": "error",
 		"@typescript-eslint/no-explicit-any": "warn",
-		"@typescript-eslint/no-shadow": ["error"]
+		"@typescript-eslint/no-shadow": ["error"],
+		"import/first": "error",
+		"import/newline-after-import": "error",
+		"import/order": [
+			"error",
+			{
+				"groups": [
+					"builtin",
+					"external",
+					"internal",
+					"parent",
+					"sibling",
+					"index",
+					"object",
+					"type"
+				],
+				"newlines-between": "never",
+				"alphabetize": {"order": "asc", "orderImportKind": "asc"}
+			}
+		]
 	}
 }

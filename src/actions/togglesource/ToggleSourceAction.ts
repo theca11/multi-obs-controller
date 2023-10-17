@@ -1,10 +1,9 @@
+import { OBSResponseTypes } from 'obs-websocket-js';
+import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
-import { SocketSettings } from '../types';
 import { StateEnum } from '../StateEnum';
 import { getScenesLists, getSceneItemsList } from '../lists';
-import { BatchRequestPayload, SendToPluginData } from '../types';
-import { sockets } from '../../plugin/sockets';
-import { OBSResponseTypes } from 'obs-websocket-js';
+import { SocketSettings, BatchRequestPayload, SendToPluginData } from '../types';
 
 type ActionSettings = { sceneName: string, sourceName: string }
 
