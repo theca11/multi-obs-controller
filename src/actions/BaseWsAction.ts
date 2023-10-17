@@ -60,11 +60,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		this.onWillAppear(async (evtData: WillAppearData<any>) => {
 			const { context, payload } = evtData;
 			const { settings, isInMultiAction } = payload;
+			const settingsArray = this.getSettingsArray(settings);
 			const contextData: ContextData<T> = {
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
-				settings: this.getSettingsArray(settings),
-				states: await this.fetchStates(settings),
+				settings: settingsArray,
+				states: await this.fetchStates(settingsArray),
 			};
 			this._contexts.set(context, contextData);
 			if (this.onContextAppear) await this.onContextAppear(context, contextData);
@@ -82,11 +83,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		this.onDidReceiveSettings(async (evtData: DidReceiveSettingsData<any>) => {
 			const { context, payload } = evtData;
 			const { settings, isInMultiAction } = payload;
+			const settingsArray = this.getSettingsArray(settings);
 			const contextData: ContextData<T> = {
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
-				settings: this.getSettingsArray(settings),
-				states: await this.fetchStates(settings),
+				settings: settingsArray,
+				states: await this.fetchStates(settingsArray),
 			};
 			this._contexts.set(context, contextData);
 			if (this.onContextSettingsUpdated) await this.onContextSettingsUpdated(context, contextData);
@@ -101,7 +103,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			socket.on('Identified', async () => {
 				if (this.onSocketConnected) await this.onSocketConnected(socketIdx);
 				for (const [context, { settings }] of this._contexts) {
-					const newState = await this.fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
+					const newState = await this._fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
 					this._updateSocketState(context, socketIdx, newState);
 				}
 				this.updateImages();
@@ -231,22 +233,20 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	/**
 	 * Fetch the current states associated with an action, for all OBS instances.
 	 * Never rejects
-	 * @param settings Action persistent settings
+	 * @param settings Action settings
 	 * @returns
 	 */
-	async fetchStates(settings: PersistentSettings<T>): Promise<StateEnum[]> {
-		const settingsArray = this.getSettingsArray(settings);
-		const statesResults = await Promise.allSettled(settingsArray.map((socketSettings, idx) => {
-			return this.fetchSocketState(socketSettings, idx);
+	async fetchStates(settings: (SocketSettings<T> | null)[]): Promise<StateEnum[]> {
+		const statesResults = await Promise.allSettled(settings.map((socketSettings, idx) => {
+			return this._fetchSocketState(socketSettings, idx);
 		}));
 		return statesResults.map(res => res.status === 'fulfilled' ? res.value : StateEnum.Unavailable);
 	}
 
 	/**
 	 * Utility wrapper around fetchState. Don't override
-	 * to-do: make it private, private methods can't be overriden by children
 	 */
-	async fetchSocketState(socketSettings: unknown, socketIdx: number): Promise<StateEnum> {
+	private async _fetchSocketState(socketSettings: SocketSettings<T> | null, socketIdx: number): Promise<StateEnum> {
 		if (!socketSettings || !sockets[socketIdx].isConnected) return StateEnum.Unavailable;
 		return this.fetchState ? this.fetchState(socketSettings, socketIdx) : StateEnum.None;
 	}
