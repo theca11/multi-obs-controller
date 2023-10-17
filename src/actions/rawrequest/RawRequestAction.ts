@@ -9,7 +9,7 @@ export class RawRequestAction extends AbstractStatelessRequestAction<ActionSetti
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	getPayloadFromSettings(settings: Partial<ActionSettings> | Record<string, never>): SingleRequestPayload<any> {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<any> {
 		const { requestType, requestData } = settings;
 		return {
 			requestType: requestType,

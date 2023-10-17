@@ -11,7 +11,7 @@ export class PauseRecordAction extends AbstractStatefulRequestAction<ActionSetti
 		super('dev.theca11.multiobs.pauserecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#de902a' } });
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, socketIdx: number, desiredState?: number | undefined): SingleRequestPayload<'PauseRecord' | 'ResumeRecord' | 'ToggleRecordPause'> {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'PauseRecord' | 'ResumeRecord' | 'ToggleRecordPause'> {
 		if (desiredState === 0) {
 			return { requestType: 'PauseRecord' };
 		}

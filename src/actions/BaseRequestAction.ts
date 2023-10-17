@@ -16,14 +16,14 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 		this.onSinglePress(({ context, payload }: KeyDownData<PersistentSettings<T>>) => {
 			const { settings, userDesiredState, isInMultiAction } = payload;
 			if (isInMultiAction || !settings.advanced?.longPress) {
-				this._execute(context, settings, userDesiredState);
+				this._execute(context, userDesiredState);
 			}
 		});
 
 		this.onLongPress(({ context, payload }: KeyDownData<PersistentSettings<T>>) => {
 			const { settings, userDesiredState } = payload;
 			if (settings.advanced?.longPress) {
-				this._execute(context, settings, userDesiredState);
+				this._execute(context, userDesiredState);
 			}
 		});
 	}
@@ -31,17 +31,17 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 	/**
 	 * Execute the main logic of the action
 	 * @param context Action context string
-	 * @param persistentSettings Action settings saved for the action
 	 * @param userDesiredState Desired state, if in multiaction and set by the user
 	 */
-	async _execute(context: string, persistentSettings: PersistentSettings<T>, userDesiredState?: number) {
+	async _execute(context: string, userDesiredState?: number) {
 
 		// 1. Get settings per instance, as expected later for OBS WS call, in an array
-		const settingsArray = this.getSettingsArray(persistentSettings);
-		const payloadsArray = settingsArray.map((settings, idx) => {
+		if (!this._contexts.has(context)) return;
+		const { settings, states } = this._contexts.get(context)!;
+		const payloadsArray = settings.map((socketSettings, socketIdx) => {
 			try {
-				if (!settings) return null;
-				return this.getPayloadFromSettings(settings, idx, userDesiredState);
+				if (!socketSettings) return null;
+				return this.getPayloadFromSettings(socketSettings, states[socketIdx], userDesiredState);
 			}
 			catch {
 				SDUtils.logError('Error parsing action settings - request will be invalid');
@@ -78,11 +78,11 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 	/**
 	 * Get a proper OBS WS request payload from the actions settings saved for a particular OBS instance
 	 * @param settings Actions settings associated with a particular OBS instance
-	 * @param socketIdx Socket index associated with the settings
+	 * @param state Current action state for the particular OBS instance
 	 * @param desiredState If in multiaction, the desired state by the user
 	 * @returns Object or array of objects properly formatted as OBS WS request payload
 	 */
-	abstract getPayloadFromSettings(settings: Exclude<SocketSettings<T>, null>, socketIdx: number, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
+	abstract getPayloadFromSettings(settings: Exclude<SocketSettings<T>, null>, state: StateEnum, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
 
 	/**
 	 * Send OBS WS requests to OBS socket instances

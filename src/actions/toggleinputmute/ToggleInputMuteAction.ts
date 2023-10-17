@@ -13,7 +13,7 @@ export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionS
 		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, socketIdx: number, desiredState?: number | undefined): SingleRequestPayload<'SetInputMute' | 'ToggleInputMute'> {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'SetInputMute' | 'ToggleInputMute'> {
 		const { inputName } = settings;
 		if (desiredState === 0 || desiredState === 1) {
 			return {

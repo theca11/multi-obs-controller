@@ -17,7 +17,7 @@ export class ToggleRecordAction extends AbstractStatefulRequestAction<ActionSett
 		this.attachListenersForTimer();
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, socketIdx: number, desiredState?: number | undefined): SingleRequestPayload<'StartRecord' | 'StopRecord' | 'ToggleRecord'> {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'StartRecord' | 'StopRecord' | 'ToggleRecord'> {
 		if (desiredState === 0) {
 			return { requestType: 'StartRecord' };
 		}

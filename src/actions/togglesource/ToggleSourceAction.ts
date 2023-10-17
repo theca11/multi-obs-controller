@@ -25,73 +25,25 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		});
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, socketIdx: number, desiredState?: number | undefined): BatchRequestPayload {
+	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): BatchRequestPayload {
 		const { sceneName, sourceName } = settings;
-		if (desiredState === 0 || desiredState === 1) {
-			return {
-				requests: [
-					{
-						requestType: 'GetSceneItemId',
-						requestData: { sceneName: sceneName, sourceName: sourceName },
-						outputVariables: { sceneItemIdVariable: 'sceneItemId' },
-					},
-					{
-						requestType: 'SetSceneItemEnabled',
-						requestData: {
-							sceneName: sceneName,
-							sceneItemEnabled: desiredState === 0 ? true : false,
-						},
-						inputVariables: { sceneItemId: 'sceneItemIdVariable' },
-					},
-				],
-			};
-		}
-		else {
-			return {
-				requests: [
-					{
-						requestType: 'GetSceneItemId',
-						requestData: { sceneName: sceneName, sourceName: sourceName },
-						outputVariables: { sceneItemIdVariable: 'sceneItemId' },
-					},
-					{
-						requestType: 'GetSceneItemEnabled',
-						requestData: { sceneName: sceneName },
-						inputVariables: { sceneItemId: 'sceneItemIdVariable' },
-					},
-				],
-			};
-		}
-	}
-
-	override async sendWsRequests(payloadsArray: (BatchRequestPayload | null)[]): Promise<PromiseSettledResult<any>[]> {
-		const requestType = payloadsArray.find(payload => payload)?.requests[1].requestType;
-		if (requestType === 'SetSceneItemEnabled') { return super.sendWsRequests(payloadsArray); }
-
-		const sceneNames = payloadsArray.map((p) => p ? p.requests[0].requestData.sceneName : null);
-		const firstBatchResults = await super.sendWsRequests(payloadsArray);
-		const secondBatchPayloadsArray = firstBatchResults.flat().map((r, idx) => {
-			if (!payloadsArray[idx]) {
-				return null;
-			}
-			const obsResponse = (r as PromiseFulfilledResult<any>).value;
-			if (obsResponse) {
-				const sceneItemId = obsResponse[0].responseData?.sceneItemId;
-				const sceneItemEnabled = obsResponse[1].responseData?.sceneItemEnabled;
-				return {
+		return {
+			requests: [
+				{
+					requestType: 'GetSceneItemId',
+					requestData: { sceneName: sceneName, sourceName: sourceName },
+					outputVariables: { sceneItemIdVariable: 'sceneItemId' },
+				},
+				{
 					requestType: 'SetSceneItemEnabled',
 					requestData: {
-						sceneName: sceneNames[idx],
-						sceneItemId: sceneItemId,
-						sceneItemEnabled: !sceneItemEnabled,
+						sceneName: sceneName,
+						sceneItemEnabled: desiredState !== undefined ? !desiredState : state !== StateEnum.Active,
 					},
-				};
-			}
-			else {
-				return { requestType: 'InvalidRequest', requestData: {} };
-			}
-		});
-		return super.sendWsRequests(secondBatchPayloadsArray);
+					inputVariables: { sceneItemId: 'sceneItemIdVariable' },
+				},
+			],
+		};
 	}
 
 	override async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
