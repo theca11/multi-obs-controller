@@ -18,7 +18,7 @@ export class ToggleStudioModeAction extends AbstractStatefulRequestAction<Action
 		});
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'SetStudioModeEnabled'> {
+	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'SetStudioModeEnabled'> {
 		if (desiredState === 0) {
 			return { requestType: 'SetStudioModeEnabled', requestData: { studioModeEnabled: true } };
 		}

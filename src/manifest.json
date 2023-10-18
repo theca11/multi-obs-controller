@@ -205,6 +205,17 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.screenshot",
+			"Icon": "assets/actions/screenshot/icon",
+			"Name": "Screenshot",
+			"Tooltip": "Take screenshot of output or specific scene/source",
+			"States": [
+				{
+					"Image": "assets/actions/screenshot/key_on"
+				}
+			]
+		},
+		{
 			"UUID": "dev.theca11.multiobs.triggerhotkey",
 			"Icon": "assets/actions/triggerhotkey/icon",
 			"Name": "Hotkey Sequence",

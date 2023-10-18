@@ -8,7 +8,7 @@ export class TriggerHotkeyAction extends AbstractStatelessRequestAction<ActionSe
 		super('dev.theca11.multiobs.triggerhotkey');
 	}
 
-	getPayloadFromSettings(settings: Partial<ActionSettings> | Record<string, never>): SingleRequestPayload<'TriggerHotkeyByKeySequence'> {
+	getPayloadFromSettings(socketIdx: number, settings: Partial<ActionSettings> | Record<string, never>): SingleRequestPayload<'TriggerHotkeyByKeySequence'> {
 		const { seq } = settings;
 		return {
 			requestType: 'TriggerHotkeyByKeySequence',

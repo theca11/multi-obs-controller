@@ -40,7 +40,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 		const payloadsArray = settings.map((socketSettings, socketIdx) => {
 			try {
 				if (!socketSettings) return null;
-				return this.getPayloadFromSettings(socketSettings, states[socketIdx], userDesiredState);
+				return this.getPayloadFromSettings(socketIdx, socketSettings, states[socketIdx], userDesiredState);
 			}
 			catch {
 				SDUtils.logError('Error parsing action settings - request will be invalid');
@@ -76,12 +76,13 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 
 	/**
 	 * Get a proper OBS WS request payload from the actions settings saved for a particular OBS instance
+	 * @param socketIdx Index of the associated OBS socket
 	 * @param settings Actions settings associated with a particular OBS instance
 	 * @param state Current action state for the particular OBS instance
 	 * @param desiredState If in multiaction, the desired state by the user
 	 * @returns Object or array of objects properly formatted as OBS WS request payload
 	 */
-	abstract getPayloadFromSettings(settings: Exclude<SocketSettings<T>, null>, state: StateEnum, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
+	abstract getPayloadFromSettings(socketIdx: number, settings: Exclude<SocketSettings<T>, null>, state: StateEnum, desiredState?: number): SingleRequestPayload<any> | BatchRequestPayload;
 
 	/**
 	 * Send OBS WS requests to OBS socket instances

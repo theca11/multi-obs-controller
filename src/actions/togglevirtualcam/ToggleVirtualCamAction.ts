@@ -18,7 +18,7 @@ export class ToggleVirtualCamAction extends AbstractStatefulRequestAction<Action
 		});
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'StartVirtualCam' | 'StopVirtualCam' | 'ToggleVirtualCam'> {
+	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'StartVirtualCam' | 'StopVirtualCam' | 'ToggleVirtualCam'> {
 		if (desiredState === 0) {
 			return { requestType: 'StartVirtualCam' };
 		}

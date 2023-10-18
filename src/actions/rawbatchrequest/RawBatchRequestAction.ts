@@ -8,7 +8,7 @@ export class RawBatchRequestAction extends AbstractStatelessRequestAction<Action
 		super('dev.theca11.multiobs.rawbatchrequest');
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): BatchRequestPayload {
+	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): BatchRequestPayload {
 		const { requestsArray, executionType, haltOnFailure } = settings;
 		try {
 			const requests = requestsArray ? JSON.parse(requestsArray) : [{ requestType: 'NoRequest' }];

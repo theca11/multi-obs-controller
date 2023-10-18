@@ -19,7 +19,7 @@ export class SetProfileAction extends AbstractStatefulRequestAction<ActionSettin
 		});
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentProfile'> {
+	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentProfile'> {
 		const { profileName } = settings;
 		return {
 			requestType: 'SetCurrentProfile',

@@ -19,7 +19,7 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 		});
 	}
 
-	getPayloadFromSettings(settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentSceneCollection'> {
+	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentSceneCollection'> {
 		const { sceneCollectionName } = settings;
 		return {
 			requestType: 'SetCurrentSceneCollection',
