@@ -53,7 +53,7 @@ export class SetProfileAction extends AbstractStatefulRequestAction<ActionSettin
 	}
 
 	async shouldUpdateState(evtData: { profileName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
-		return socketSettings.profileName ? true : false;
+		return !!socketSettings.profileName;
 	}
 
 	getStateFromEvent(evtData: { profileName: string; }, socketSettings: SocketSettings<ActionSettings>): StateEnum {

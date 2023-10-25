@@ -17,7 +17,7 @@ export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionS
 				requestType: 'SetInputMute',
 				requestData: {
 					inputName: inputName,
-					inputMuted: desiredState === 0 ? true : false,
+					inputMuted: desiredState === 0,
 				},
 			};
 		}
@@ -45,7 +45,7 @@ export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionS
 	}
 
 	async shouldUpdateState(evtData: { inputName: string; inputMuted: boolean; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
-		return socketSettings.inputName === evtData.inputName ? true : false;
+		return socketSettings.inputName === evtData.inputName;
 	}
 
 	getStateFromEvent(evtData: { inputName: string; inputMuted: boolean; }): StateEnum {

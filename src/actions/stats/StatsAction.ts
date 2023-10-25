@@ -210,14 +210,14 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 			return null;
 		});
 
-		responsesData.map((responses, socketIdx) => {
+		responsesData.forEach((responses, socketIdx) => {
 			if (!responses) {
 				this._generalStats[socketIdx] = null;
 				this._streamStats[socketIdx] = null;
 				this._recordStats[socketIdx] = null;
 			}
 			else {
-				responses.map((response, i) => {
+				responses.forEach((response, i) => {
 					if (i === 0) this._generalStats[socketIdx] = (response as OBSResponseTypes['GetStats']) ?? null;
 					else if (i === 1) this._streamStats[socketIdx] = (response as OBSResponseTypes['GetStreamStatus']) ?? null;
 					else if (i === 2) this._recordStats[socketIdx] = (response as OBSResponseTypes['GetRecordStatus']) ?? null;

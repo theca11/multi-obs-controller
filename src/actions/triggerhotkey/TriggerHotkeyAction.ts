@@ -62,16 +62,16 @@ function parseSequenceString(sequence: string): KeyCombination {
  * @returns {@link https://github.com/obsproject/obs-studio/blob/master/libobs/obs-hotkeys.h | OBS key string}
  */
 function jsKeyToObsKey(code: string): string {
-	if (code.substring(0, 6) == 'Numpad' && code.length == 7) {
+	if (code.startsWith('Numpad') && code.length == 7) {
 		return 'OBS_KEY_NUM' + code.substring(6);
 	}
-	else if (code.substring(0, 3) == 'Key') {
+	else if (code.startsWith('Key')) {
 		return 'OBS_KEY_' + code.substring(3);
 	}
-	else if (code.substring(0, 5) == 'Digit') {
+	else if (code.startsWith('Digit')) {
 		return 'OBS_KEY_' + code.substring(5);
 	}
-	else if (code[0] == 'F' && code.length < 4) {
+	else if (code.startsWith('F') && code.length < 4) {
 		return 'OBS_KEY_' + code;
 	}
 

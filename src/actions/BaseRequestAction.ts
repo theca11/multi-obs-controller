@@ -94,7 +94,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 			sockets.map((socket, idx) => {
 				const payload = payloadsArray[idx];
 				if (payload) {
-					if (!socket.isConnected) return Promise.reject('Not connected to OBS WS server');
+					if (!socket.isConnected) return Promise.reject(new Error('Not connected to OBS WS server'));
 					return 'requestType' in payload
 						? socket.call(payload.requestType, payload.requestData)
 						: socket.callBatch(payload.requests, payload.options);

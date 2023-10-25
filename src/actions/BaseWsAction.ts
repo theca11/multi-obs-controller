@@ -344,7 +344,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		if (!image) return;
 		AbstractBaseWsAction._dirtyImages.set(context, image);
 		if (AbstractBaseWsAction._dirtyImages.size === 1) {
-			setTimeout(async () => {
+			setTimeout(() => {
 				for (const [ctx, img] of AbstractBaseWsAction._dirtyImages) {
 					$SD.setImage(ctx, img);
 					AbstractBaseWsAction._dirtyImages.delete(ctx);

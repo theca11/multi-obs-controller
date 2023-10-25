@@ -15,7 +15,7 @@ $SD.onConnected(({ appInfo }: any) => {
 
 	// Check OBS WS connections every 10s
 	setInterval(() => {
-		sockets.forEach(async socket => socket.tryConnect());
+		sockets.forEach(socket => socket.tryConnect());
 	}, 10 * 1000);
 });
 

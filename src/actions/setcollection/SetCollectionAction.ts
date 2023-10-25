@@ -61,7 +61,7 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 	}
 
 	async shouldUpdateState(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
-		return socketSettings.sceneCollectionName ? true : false;
+		return !!socketSettings.sceneCollectionName;
 	}
 
 	getStateFromEvent(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): StateEnum {
