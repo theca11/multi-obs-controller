@@ -1,6 +1,6 @@
 import { OBSEventTypes } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
-import { CanvasUtils, ImageUtils, SDUtils } from '../plugin/utils';
+import { SDUtils, createVPattern } from '../plugin/utils';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
 import { ContextData, SocketSettings, ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
@@ -10,13 +10,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	_contexts = new Map<string, ContextData<T>>();
 
 	_titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
-	_statesColors = { on: '#517a96', intermediate: '#de902a', off: '#2b3e4b' };
-
+	_statesColors = { on: '#517a96', intermediate: '#de902a', off: '#43667d' };
 	_hideTargetIndicators = false;
-
 	_showSuccess = true;
 
-	_defaultImg: HTMLImageElement | undefined;
+	_defaultKeyImg: string | undefined;
+	static _dirtyImages = new Map<string, string>(); // <context, b64 image>
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID);
@@ -25,7 +24,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		this._hideTargetIndicators = !!params?.hideTargetIndicators;
 
 		// Load default image
-		this.getDefaultKeyImage().then(img => this._defaultImg = img).catch(() => console.warn(`Default img for ${this.UUID} couldn't be loaded`));
+		this.getDefaultKeyImage().then(img => this._defaultKeyImg = img).catch(() => console.warn(`Default key image for ${this.UUID} couldn't be loaded`));
 
 		// -- Main logic when key is pressed --
 		this.onKeyDown((evtData: KeyDownData<{ advanced: { longPressMs?: string } }>) => {
@@ -39,7 +38,6 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				this.emit(`${this.UUID}.longPress`, evtData);
 			}, Number(settings.advanced?.longPressMs) || Number(globalSettings.longPressMs) || 500);
 			this._pressCache.set(context, timeout);
-
 		});
 
 		this.onKeyUp((evtData: KeyUpData<unknown>) => {
@@ -102,20 +100,24 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('Identified', async () => {
 				if (this.onSocketConnected) await this.onSocketConnected(socketIdx);
-				for (const [context, { settings }] of this._contexts) {
+				for (const [context, { settings, states }] of this._contexts) {
 					const newState = await this._fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
-					this._updateSocketState(context, socketIdx, newState);
+					if (newState !== states[socketIdx]) {
+						this._updateSocketState(context, socketIdx, newState);
+						this.updateKeyImage(context);
+					}
 				}
-				this.updateImages();
 			});
 
 			// @ts-expect-error Disconnected event is custom of the Socket class, not part of the OBS WS protocol
 			socket.on('Disconnected', async () => {
 				if (this.onSocketDisconnected) await this.onSocketDisconnected(socketIdx);
-				for (const [context] of this._contexts) {
-					this._updateSocketState(context, socketIdx, StateEnum.Unavailable);
+				for (const [context, { states }] of this._contexts) {
+					if (states[socketIdx] !== StateEnum.Unavailable) {
+						this._updateSocketState(context, socketIdx, StateEnum.Unavailable);
+						this.updateKeyImage(context);
+					}
 				}
-				this.updateImages();
 			});
 		});
 		// --
@@ -267,110 +269,104 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 	// -- Images update --
 	/**
-	 * Get default action key image, defined in the manifest.json, as an HTML element
+	 * Get default action key image, defined in the manifest.json, as SVG string
 	 */
-	getDefaultKeyImage(): Promise<HTMLImageElement> {
+	async getDefaultKeyImage(): Promise<string> {
 		const actionName = this.UUID.split('.').at(-1);
-		const imgUrl = `../assets/actions/${actionName}/key.svg`;
-		return ImageUtils.loadImagePromise(imgUrl);
+		const key = (await import(`../assets/actions/${actionName}/key.svg`)).default;
+		return key;
 	}
 
-	async getForegroundImage?(context: string): Promise<HTMLImageElement | HTMLCanvasElement | undefined>;
+	async getForegroundImage?(context: string): Promise<string | undefined>;
 
 	async generateKeyImage(context: string) {
 		if (!this._contexts.has(context)) return;
 		const { states, targetObs } = this._contexts.get(context)!;
 
-		const canvas = document.createElement('canvas');
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-		ctx.globalCompositeOperation = 'source-over';
-
-		canvas.width = 144;
-		canvas.height = 144;
-
-		// Draw image to canvas
-		const foregroundImg = this.getForegroundImage ? await this.getForegroundImage(context) : this._defaultImg;
-		if (foregroundImg) {
-			ctx.drawImage(foregroundImg, 0, 0);
-		}
-
-		// Draw target numbers
-		if (!this._hideTargetIndicators && globalSettings.targetNumbers !== 'hide') {
-			ctx.globalCompositeOperation = 'source-over';
-			ctx.fillStyle = '#efefef';
-			ctx.font = 'bold 25px Arial';
-			const pos = globalSettings.targetNumbers ?? 'top';
-			ctx.textBaseline = pos;
-			const yPos = pos === 'top' ? 10 : pos === 'middle' ? canvas.height / 2 : canvas.height - 10;
-			if (targetObs === 0 || targetObs === 1) {
-				ctx.textAlign = 'left';
-				ctx.fillText('1', 0 + 10, yPos);
-			}
-			if (targetObs === 0 || targetObs === 2) {
-				ctx.textAlign = 'right';
-				ctx.fillText('2', canvas.width - 10, yPos);
-			}
-		}
-
-		// Draw target state
+		// State rectangles
+		let bgLayer = '', fgLayer = '';
 		if (states) {
 			if (targetObs !== 0) {
 				if (states[targetObs - 1] === StateEnum.Unavailable) {
-					CanvasUtils.drawLineVPatternRect(ctx, 0, 1);
+					fgLayer += createVPattern();
 				}
 				else {
+					bgLayer += `<rect x="0" y="0" width="144" height="144" fill="${states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : states[targetObs - 1] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on}"/>`;
 					if (states[targetObs - 1] === StateEnum.Inactive) {
-						CanvasUtils.drawColorRect(ctx, '#a0a0a0', 0, 1, 'source-atop');
+						fgLayer += '<rect x="0" y="0" width="144" height="144" fill="black" fill-opacity="0.33"/>';
 					}
-					CanvasUtils.drawColorRect(ctx, states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : states[targetObs - 1] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on, 0, 1, 'destination-over');
 				}
 			}
 			else {
 				for (let i = 0; i < states.length; i++) {
 					if (states[i] === StateEnum.Unavailable) {
-						CanvasUtils.drawLineVPatternRect(ctx, i / 2, (i + 1) / 2);
+						fgLayer += createVPattern(i / 2, (i + 1) / 2);
 					}
 					else {
+						bgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}" height="144" fill="${states[i] === StateEnum.Inactive ? this._statesColors.off : states[i] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on}"/>`;
 						if (states[i] === StateEnum.Inactive) {
-							CanvasUtils.drawColorRect(ctx, '#a0a0a0', i / 2, (i + 1) / 2, 'source-atop');
+							fgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}"  height="144" fill="black" fill-opacity="0.33"/>`;
 						}
-						CanvasUtils.drawColorRect(ctx, states[i] === StateEnum.Inactive ? this._statesColors.off : states[i] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on, i / 2, (i + 1) / 2, 'destination-over');
 					}
 				}
 			}
 		}
 
-		return canvas.toDataURL('image/png', 1);
+		// Target numbers
+		let targetsText = '';
+		if (!this._hideTargetIndicators && globalSettings.targetNumbers !== 'hide') {
+			const pos = globalSettings.targetNumbers ?? 'top';
+
+			const yPos = pos === 'top' ? 28 : pos === 'middle' ? 144 / 2 + 10 : 144 - 10;
+			if (targetObs === 0 || targetObs === 1) {
+				targetsText += `<text x="${0 + 10}" y="${yPos}" text-anchor="start" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="#efefef">1</text>`;
+			}
+			if (targetObs === 0 || targetObs === 2) {
+				targetsText += `<text x="${144 - 10}" y="${yPos}" text-anchor="end" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="#efefef">2</text>`;
+			}
+		}
+
+		const svgStr = `
+		<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+			${bgLayer}
+			${this.getForegroundImage ? await this.getForegroundImage(context) : this._defaultKeyImg?.replace(/<\/?svg.*?>/g, '')}
+			${targetsText}
+			${fgLayer}
+		</svg>
+		`;
+		return `data:image/svg+xml;base64,${btoa(svgStr)}`;
 	}
 
-	async updateKeyImage(context: string) {
-		const b64 = await this.generateKeyImage(context);
-		$SD.setImage(context, b64);
+	/**
+	 * Update the context key image.
+	 * The update is not immediate, it's queued in a small buffer to improve sync and avoid unneeded messages to SD
+	 * @param context Action context
+	 */
+	async updateKeyImage(context: string): Promise<void> {
+		const image = await this.generateKeyImage(context).catch(e => { console.error(`Error updating key image for context ${context}: ${e}`); });
+		if (!image) return;
+		AbstractBaseWsAction._dirtyImages.set(context, image);
+		if (AbstractBaseWsAction._dirtyImages.size === 1) {
+			setTimeout(async () => {
+				for (const [ctx, img] of AbstractBaseWsAction._dirtyImages) {
+					$SD.setImage(ctx, img);
+					AbstractBaseWsAction._dirtyImages.delete(ctx);
+				}
+			}, 15);
+		}
 	}
 
 	/**
 	 * Update key images for all action contexts in cache.
 	 */
-	async updateImages(): Promise<void> {
-		try {
-			const images = new Map<string, string>();
-			for (const [context] of this._contexts) {
-				const image = await this.generateKeyImage(context);
-				if (image) images.set(context, image);
-			}
-			for (const [context, image] of images) {
-				$SD.setImage(context, image);
-			}
-		}
-		catch (e) {
-			console.error(`Error updating key images: ${e}`);
+	updateImages(): void {
+		for (const [context] of this._contexts) {
+			this.updateKeyImage(context);
 		}
 	}
 	// --
 
 	// -- Optional functions for stateful actions
-	_dirtyContexts = new Set<string>();
 	attachEventListener(statusEvent: keyof OBSEventTypes) {
 		if (!this.shouldUpdateState || !this.getStateFromEvent) return;
 		sockets.forEach((socket, evtSocketIdx) => {
@@ -384,7 +380,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 							if (newState !== states[evtSocketIdx]) {
 								states[evtSocketIdx] = newState;
 								this._setContextStates(context, states);
-								this._dirtyContexts.add(context);
+								this.updateKeyImage(context);
 							}
 						}
 					}
@@ -392,19 +388,6 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						console.error(`Error getting state from event: ${e}`);
 					}
 				}
-
-				// Small delay to batch image updates with ptential events from other sockets
-				setTimeout(async () => {
-					const images = new Map<string, string>();
-					for (const context of this._dirtyContexts) {
-						const image = await this.generateKeyImage(context);
-						if (image) images.set(context, image);
-						this._dirtyContexts.delete(context);
-					}
-					for (const [context, image] of images) {
-						$SD.setImage(context, image);
-					}
-				}, 50);
 			});
 		});
 	}

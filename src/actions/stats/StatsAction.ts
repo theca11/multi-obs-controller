@@ -1,6 +1,6 @@
 import { OBSResponseTypes } from 'obs-websocket-js';
 import { sockets } from '../../plugin/sockets';
-import { clamp } from '../../plugin/utils';
+import { getTextBbox } from '../../plugin/utils';
 import { AbstractStatelessAction } from '../BaseWsAction';
 import { ContextData, SocketSettings } from '../types';
 
@@ -64,64 +64,45 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 		this.first_dropped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
 	}
 
-	getFontSizeToFit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
-		ctx.font = 'bold 1pt Arial';
-		return maxWidth / ctx.measureText(text).width;
-	}
-
 	override async getForegroundImage(context: string) {
-		const canvas = document.createElement('canvas');
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-		ctx.globalCompositeOperation = 'source-over';
-
-		canvas.width = 144;
-		canvas.height = 144;
-
 		const statsArr = this._ctxStatsSettings.get(context);
 		if (!statsArr) return;
 
-		// Text
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		const yPad = 5;
-		const yStep = (canvas.height - 2 * yPad) / (statsArr.length);
+		const width = 144;
+		const height = 144;
+		const yStep = height / statsArr.length;
 		let lastTarget = 1;
+		let elements = '';
+
 		for (const [idx, { target, stat, color }] of statsArr.entries()) {
 			// Target separating line
 			if (target !== lastTarget && idx !== 0) {
-				ctx.save();
-				ctx.strokeStyle = '#ffffff';
-				ctx.lineWidth = 2;
-				// ctx.setLineDash([20, 11]);
-				ctx.beginPath();
-				ctx.moveTo(0, yStep * idx + yPad + 0.5);
-				ctx.lineTo(canvas.width, yStep * idx + yPad + 0.5);
-				ctx.stroke();
-				ctx.restore();
+				elements += `<line x1="0" y1="${yStep * idx}" x2="${width}" y2="${yStep * idx}" stroke="white" stroke-width="2" stroke-linecap="round" stroke-dasharray="4, 10"/>`;
 			}
 			lastTarget = target;
 
-			const yPos = yStep * (idx) + yStep / 2 + yPad;
-			const text = this.getStatString(target - 1, stat) || '-';
-			ctx.save();
-			// Adjust size dynamically
-			const fontHeightLimit = Math.floor(clamp(canvas.height / statsArr.length - 11, 16, 34));
-			ctx.font = 'bold 1pt Arial';
-			const fontWidthLimit = Math.floor((canvas.width - 10) / ctx.measureText(text).width);
-			const fontSize = Math.min(fontWidthLimit, fontHeightLimit);
-			ctx.font = `bold ${fontSize}pt Arial`;
+			// Get text string
+			const text = this.getStatString(target - 1, stat) || '---';
 
-			ctx.fillStyle = color;
-			ctx.strokeStyle = 'black';
-			ctx.lineWidth = 2;
-			ctx.lineJoin = 'round';
-			ctx.strokeText(text, canvas.width / 2 + 0.5, yPos, canvas.width - 10);
-			ctx.fillText(text, canvas.width / 2 + 0.5, yPos, canvas.width - 10);
-			ctx.restore();
+			// Adjust font size and y-position dynamically
+			const fontFamily = 'Arial';
+			const fontWeight = '800';
+			const testSize = 30;
+			const textBBox = getTextBbox(text, fontFamily, fontWeight, testSize, width, height);
+			const widthScale = width * testSize / textBBox.width;
+			const heightScale = yStep * testSize / (textBBox.height * 0.8);	// slightly tighter box than detected to remove some padding
+			let scale = Math.floor(Math.min(widthScale, heightScale));
+			if (text === '---') scale = Math.min(scale, 35);
+			const yPos = Math.round(yStep * (idx + 1 / 2) + textBBox.height * scale * 0.25 / testSize);	// reposition to move text baseline to middle
+
+			// Text external stroke + fill
+			elements += `
+			<text x="${width / 2}" y="${yPos}" text-anchor="middle" font-size="${scale}" font-family="${fontFamily}" font-weight="${fontWeight}" fill="black" stroke="black" stroke-width="6" stroke-linejoin="round">${text}</text>
+			<text x="${width / 2}" y="${yPos}" text-anchor="middle" font-size="${scale}" font-family="${fontFamily}" font-weight="${fontWeight}" fill="${color}">${text}</text>
+			`;
 		}
 
-		return canvas;
+		return elements;
 	}
 
 	formatStatSettings(settingsArray: (SocketSettings<ActionSettings> | null)[]): StatConfig[] {
@@ -140,6 +121,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 		return formattedStatsArray;
 	}
 
+	// to-do: I should optimize this a bit, add some extra checks when things are disconnected and so on
 	getStatString(socketIdx: number, statName: string): string {
 		const [group, name] = statName.split('.');
 		if (group === 'general') {
@@ -167,7 +149,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 				skipped -= this.first_lagged[socketIdx];
 
 				const percentage = total ? (skipped / total) * 100 : 0.01;
-				return `${skipped} (${percentage.toFixed(1)}%)`;
+				return `${skipped} / ${percentage.toFixed(1)}%`;
 			}
 			if (name === 'outputSkippedFrames') {
 				let skipped = groupStats['outputSkippedFrames'];
@@ -181,7 +163,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 				skipped -= this.first_skipped[socketIdx];
 
 				const percentage = total ? (skipped / total) * 100 : 0.01;
-				return `${skipped} (${percentage.toFixed(1)}%)`;
+				return `${skipped} / ${percentage.toFixed(1)}%`;
 			}
 		}
 		else if (group === 'stream') {
@@ -200,7 +182,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 				skipped -= this.first_dropped[socketIdx];
 
 				const percentage = total ? (skipped / total) * 100 : 0.01;
-				return `${skipped} (${percentage.toFixed(1)}%)`;
+				return `${skipped} / ${percentage.toFixed(1)}%`;
 			}
 		}
 		else if (group === 'record') {
