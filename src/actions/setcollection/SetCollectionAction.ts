@@ -16,6 +16,14 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 			socket.on('CurrentSceneCollectionChanged', ({ sceneCollectionName }) => {
 				this.currentSceneCollectionName[socketIdx] = sceneCollectionName;
 			});
+
+			socket.on('CurrentSceneCollectionChanging', async () => {
+				for (const [context, { settings }] of this._contexts) {
+					if (!settings[socketIdx]) return;
+					this._setContextSocketState(context, socketIdx, StateEnum.Intermediate);
+					this.updateKeyImage(context);
+				}
+			});
 		});
 	}
 
