@@ -238,13 +238,24 @@
 			]
 		},
 		{
+			"UUID": "dev.theca11.multiobs.stats",
+			"Icon": "assets/actions/stats/icon",
+			"Name": "Stats",
+			"Tooltip": "Get general/stream/record stats",
+			"States": [
+				{
+					"Image": "assets/actions/stats/key_on"
+				}
+			]
+		},
+		{
 			"UUID": "dev.theca11.multiobs.rawrequest",
 			"Icon": "assets/actions/rawrequest/icon",
 			"Name": "Raw WS Request",
 			"Tooltip": "[Advanced] Send a raw WS request",
 			"States": [
 				{
-					"Image": "assets/actions/rawrequest/key"
+					"Image": "assets/actions/rawrequest/key_on"
 				}
 			]
 		},
@@ -255,18 +266,7 @@
 			"Tooltip": "[Advanced] Send raw WS batch request",
 			"States": [
 				{
-					"Image": "assets/actions/rawbatchrequest/key"
-				}
-			]
-		},
-		{
-			"UUID": "dev.theca11.multiobs.stats",
-			"Icon": "assets/actions/stats/icon",
-			"Name": "Stats",
-			"Tooltip": "Get general/stream/record stats",
-			"States": [
-				{
-					"Image": "assets/default_key"
+					"Image": "assets/actions/rawbatchrequest/key_on"
 				}
 			]
 		}
