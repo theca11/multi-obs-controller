@@ -22,6 +22,21 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 				$SD.sendToPropertyInspector(context, piPayload, action);
 			}
 		});
+
+		// Refetch states on scene collection changed, since source-specific events are not emitted
+		sockets.forEach((socket, socketIdx) => {
+			socket.on('CurrentSceneCollectionChanged', async () => {
+				console.log('CurrentSceneCollectionChanged');
+				for (const [context, { settings, states }] of this._contexts) {
+					if (!settings[socketIdx]) return;
+					const newState = await this.fetchState(settings[socketIdx]!, socketIdx).catch(() => StateEnum.Unavailable);	// to-do: review consistency for returning Unavailable - should I return this every time config is not vali, or better off?
+					if (newState !== states[socketIdx]) {
+						this._updateSocketState(context, socketIdx, newState);
+						this.updateKeyImage(context);
+					}
+				}
+			});
+		});
 	}
 
 	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): BatchRequestPayload {
