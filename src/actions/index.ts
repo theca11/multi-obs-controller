@@ -1,6 +1,7 @@
 export { PauseRecordAction } from './pauserecord/PauseRecordAction';
 export { RawBatchRequestAction } from './rawbatchrequest/RawBatchRequestAction';
 export { RawRequestAction } from './rawrequest/RawRequestAction';
+export { RefreshBrowserSourceAction } from './refreshbrowsersource/RefreshBrowserSourceAction';
 export { RefreshCaptureDeviceAction } from './refreshcapturedevice/RefreshCaptureDeviceAction';
 export { ScreenshotAction } from './screenshot/ScreenshotAction';
 export { SetCollectionAction } from './setcollection/SetCollectionAction';

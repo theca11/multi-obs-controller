@@ -2,11 +2,9 @@ import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
 import { StateEnum } from '../StateEnum';
 import { getInputsLists } from '../lists';
-import { SocketSettings, SingleRequestPayload } from '../types';
+import { Input, SocketSettings, SingleRequestPayload } from '../types';
 
 type ActionSettings = { inputName: string }
-type Input = { inputName: string, inputKind: string, unversionedInputKind: string };
-
 export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionSettings, 'InputMuteStateChanged'> {
 	constructor() {
 		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });

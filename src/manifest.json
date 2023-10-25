@@ -227,6 +227,17 @@
 			]
 		},
 		{
+			"UUID": "dev.theca11.multiobs.refreshbrowsersource",
+			"Icon": "assets/actions/refreshbrowsersource/icon",
+			"Name": "Refresh Browser Source",
+			"Tooltip": "Refresh cache of a browser source page",
+			"States": [
+				{
+					"Image": "assets/actions/refreshbrowsersource/key_on"
+				}
+			]
+		},
+		{
 			"UUID": "dev.theca11.multiobs.refreshcapturedevice",
 			"Icon": "assets/actions/refreshcapturedevice/icon",
 			"Name": "Refresh Capture Device",

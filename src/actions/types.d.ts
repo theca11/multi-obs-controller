@@ -92,5 +92,6 @@ export type ConstructorParams = {
 }
 
 export type PartiallyRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+export type Input = { inputName: string; inputKind: string; unversionedInputKind: string; };
 
 // ---
