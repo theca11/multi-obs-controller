@@ -31,7 +31,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 					if (!settings[socketIdx]) return;
 					const newState = await this.fetchState(settings[socketIdx]!, socketIdx).catch(() => StateEnum.Unavailable);	// to-do: review consistency for returning Unavailable - should I return this every time config is not vali, or better off?
 					if (newState !== states[socketIdx]) {
-						this._updateSocketState(context, socketIdx, newState);
+						this._setContextSocketState(context, socketIdx, newState);
 						this.updateKeyImage(context);
 					}
 				}

@@ -70,6 +70,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 			this.updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
+			this._updateSDState(context, contextData);
 		});
 
 		this.onWillDisappear((evtData: WillDisappearData<any>) => {
@@ -93,6 +94,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 			this.updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
+			this._updateSDState(context, contextData);
 		});
 		// --
 
@@ -103,7 +105,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				for (const [context, { settings, states }] of this._contexts) {
 					const newState = await this._fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
 					if (newState !== states[socketIdx]) {
-						this._updateSocketState(context, socketIdx, newState);
+						this._setContextSocketState(context, socketIdx, newState);
 						this.updateKeyImage(context);
 					}
 				}
@@ -114,7 +116,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				if (this.onSocketDisconnected) await this.onSocketDisconnected(socketIdx);
 				for (const [context, { states }] of this._contexts) {
 					if (states[socketIdx] !== StateEnum.Unavailable) {
-						this._updateSocketState(context, socketIdx, StateEnum.Unavailable);
+						this._setContextSocketState(context, socketIdx, StateEnum.Unavailable);
 						this.updateKeyImage(context);
 					}
 				}
@@ -220,12 +222,20 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	_setContextStates(context: string, states: StateEnum[]) {
 		const contextData = this._contexts.get(context);
 		if (!contextData) return;
+		contextData.states = states; // Update cache
+		this._updateSDState(context, contextData);	// update internal SD state
+	}
 
-		// Update cache
-		contextData.states = states;
+	_setContextSocketState(context: string, socketIdx: number, state: StateEnum) {
+		const contextData = this._contexts.get(context);
+		if (!contextData) return;
+		contextData.states[socketIdx] = state; // Update cache
+		this._updateSDState(context, contextData);	// update internal SD state
+	}
 
-		// Update SD state - active (0) only if all target states are active
-		const { targetObs } = contextData;
+	// Update SD state - active (0) only if all target states are active
+	_updateSDState(context: string, contextData: ContextData<unknown>) {
+		const { targetObs, states } = contextData;
 		const sdState = states.filter((_, i) => targetObs === 0 || targetObs - 1 === i).every(state => state === StateEnum.Active) ? 0 : 1;
 		$SD.setState(context, sdState);
 	}
@@ -251,19 +261,6 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	private async _fetchSocketState(socketSettings: SocketSettings<T> | null, socketIdx: number): Promise<StateEnum> {
 		if (!socketSettings || !sockets[socketIdx].isConnected) return StateEnum.Unavailable;
 		return this.fetchState ? this.fetchState(socketSettings, socketIdx) : StateEnum.None;
-	}
-
-	/**
-	 * Update a particular socket state to the provided value
-	 * @param context Action context
-	 * @param socketIdx Socket index to update
-	 * @param state New state for the socket
-	 */
-	_updateSocketState(context: string, socketIdx: number, state: StateEnum) {
-		const { states } = this._contexts.get(context) ?? {};
-		if (!states) return;
-		states[socketIdx] = state;
-		this._setContextStates(context, states);
 	}
 	// --
 
@@ -378,8 +375,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
 							const newState = this.getStateFromEvent!(evtData, socketSettings);
 							if (newState !== states[evtSocketIdx]) {
-								states[evtSocketIdx] = newState;
-								this._setContextStates(context, states);
+								this._setContextSocketState(context, evtSocketIdx, newState);
 								this.updateKeyImage(context);
 							}
 						}
