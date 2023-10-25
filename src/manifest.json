@@ -246,7 +246,8 @@
 				{
 					"Image": "assets/actions/stats/key_on"
 				}
-			]
+			],
+			"SupportedInMultiActions": false
 		},
 		{
 			"UUID": "dev.theca11.multiobs.rawrequest",
