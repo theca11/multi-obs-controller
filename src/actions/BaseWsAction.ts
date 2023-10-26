@@ -1,20 +1,21 @@
 import { OBSEventTypes } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
-import { SDUtils, createVPattern } from '../plugin/utils';
+import { SDUtils, SVGUtils } from '../plugin/utils';
 import { StateEnum } from './StateEnum';
 import { globalSettings } from './globalSettings';
 import { ContextData, SocketSettings, ConstructorParams, DidReceiveSettingsData, KeyDownData, KeyUpData, PartiallyRequired, PersistentSettings, SendToPluginData, WillAppearData, WillDisappearData } from './types';
 
+/** Base class for all actions used to communicate with OBS WS */
 export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> extends Action {
-	_pressCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
-	_contexts = new Map<string, ContextData<T>>();
+	private _contexts = new Map<string, ContextData<T>>(); // <context, contextData>
 
-	_titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
-	_statesColors = { on: '#517a96', intermediate: '#de902a', off: '#43667d' };
-	_hideTargetIndicators = false;
-	_showSuccess = true;
+	private _titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
+	private _statesColors = { on: '#517a96', intermediate: '#de902a', off: '#43667d' };
+	private _hideTargetIndicators = false;
+	protected _showSuccess = true;
 
-	_defaultKeyImg: string | undefined;
+	private _pressCache = new Map<string, NodeJS.Timeout>(); // <context, timeoutRef>
+	private _defaultKeyImg: string | undefined;
 	static _dirtyImages = new Map<string, string>(); // <context, b64 image>
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
@@ -24,7 +25,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		this._hideTargetIndicators = !!params?.hideTargetIndicators;
 
 		// Load default image
-		this.getDefaultKeyImage().then(img => this._defaultKeyImg = img).catch(() => console.warn(`Default key image for ${this.UUID} couldn't be loaded`));
+		this._getDefaultKeyImage().then(img => this._defaultKeyImg = img).catch(() => console.warn(`Default key image for ${this.UUID} couldn't be loaded`));
 
 		// -- Main logic when key is pressed --
 		this.onKeyDown((evtData: KeyDownData<{ advanced: { longPressMs?: string } }>) => {
@@ -63,12 +64,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
 				settings: settingsArray,
-				states: await this.fetchStates(settingsArray),
+				states: await this._fetchStates(settingsArray),
 			};
 			this._contexts.set(context, contextData);
 			if (this.onContextAppear) await this.onContextAppear(context, contextData);
 
-			this.updateTitle(context, this._titleParam);
+			this._updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
 			this._updateSDState(context, contextData);
 		});
@@ -87,12 +88,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
 				settings: settingsArray,
-				states: await this.fetchStates(settingsArray),
+				states: await this._fetchStates(settingsArray),
 			};
 			this._contexts.set(context, contextData);
 			if (this.onContextSettingsUpdated) await this.onContextSettingsUpdated(context, contextData);
 
-			this.updateTitle(context, this._titleParam);
+			this._updateTitle(context, this._titleParam);
 			this.updateKeyImage(context);
 			this._updateSDState(context, contextData);
 		});
@@ -105,7 +106,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				for (const [context, { settings, states }] of this._contexts) {
 					const newState = await this._fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
 					if (newState !== states[socketIdx]) {
-						this._setContextSocketState(context, socketIdx, newState);
+						this.setContextSocketState(context, socketIdx, newState);
 						this.updateKeyImage(context);
 					}
 				}
@@ -116,7 +117,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				if (this.onSocketDisconnected) await this.onSocketDisconnected(socketIdx);
 				for (const [context, { states }] of this._contexts) {
 					if (states[socketIdx] !== StateEnum.Unavailable) {
-						this._setContextSocketState(context, socketIdx, StateEnum.Unavailable);
+						this.setContextSocketState(context, socketIdx, StateEnum.Unavailable);
 						this.updateKeyImage(context);
 					}
 				}
@@ -140,22 +141,43 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		// Attach status event listener if defined
 		const statusEvent = params?.statusEvent;
 		if (statusEvent) {
-			this.attachEventListener(statusEvent as keyof OBSEventTypes);
+			this._attachEventListener(statusEvent as keyof OBSEventTypes);
 		}
 
 	}
 
-	onSinglePress = (callback: (evtData: KeyUpData<any>) => void) => this.on(`${this.UUID}.singlePress`, callback);
-	onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this.on(`${this.UUID}.longPress`, callback);
+	// -- Key press methods
+	protected onSinglePress = (callback: (evtData: KeyUpData<any>) => void) => this.on(`${this.UUID}.singlePress`, callback);
+	protected onLongPress = (callback: (evtData: KeyDownData<any>) => void) => this.on(`${this.UUID}.longPress`, callback);
 
-	// -- Optional methods called on socket connected/disconnected, on context appear/disappear
+	// -- Optional methods called on socket connected/disconnected and on context appear/disappear/update
 	async onSocketConnected?(socketIdx: number): Promise<void>
 	async onSocketDisconnected?(socketIdx: number): Promise<void>
 	async onContextAppear?(context: string, contextData: ContextData<T>): Promise<void>
 	async onContextDisappear?(context: string): Promise<void>
 	async onContextSettingsUpdated?(context: string, contextData: ContextData<T>): Promise<void>
 
-	// -- General helpers --
+	protected async getForegroundImage?(context: string): Promise<string | undefined>;
+
+	/**
+	 * Triggers when PI has imported everything and is ready to be shown to the user
+	 */
+	protected async onPropertyInspectorReady?({ context, action }: { context: string, action: string }): Promise<void>
+
+	// -- Getters/setters
+	protected get contexts() {
+		return this._contexts;
+	}
+
+	protected setContextSocketState(context: string, socketIdx: number, state: StateEnum) {
+		const contextData = this._contexts.get(context);
+		if (!contextData) return;
+		contextData.states[socketIdx] = state; // Update cache
+		this._updateSDState(context, contextData);	// update internal SD state
+	}
+	// --
+
+	// -- General helpers
 	getCommonSettings(settings: PersistentSettings<T>) {
 		settings = settings ?? {};
 		return {
@@ -182,11 +204,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		}
 		return settingsArray;
 	}
+	// --
 
 	/**
 	 * Update key title with the corresponding settings param string, depending on configured target
 	 */
-	updateTitle(context: string, settingsParam: string | undefined) {
+	private _updateTitle(context: string, settingsParam: string | undefined) {
 		if (!settingsParam) return;
 		const contextData = this._contexts.get(context);
 		if (!contextData || contextData.isInMultiAction) return;	// to-do: also check if a title associated param is defined for this class object
@@ -200,55 +223,14 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	}
 	// --
 
-	/**
-	 * Triggers when PI has imported everything and is ready to be shown to the user
-	 */
-	async onPropertyInspectorReady?({ context, action }: { context: string, action: string }): Promise<void>
-
-	// --
-	_getContextSettings(context: string) {
-		return this._contexts.get(context)?.settings;
-	}
-
-	_setContextSettings(context: string, settings: (SocketSettings<T> | null)[]) {
-		if (!this._contexts.has(context)) return;
-		this._contexts.get(context)!.settings = settings;
-	}
-
-	_getContextStates(context: string) {
-		return this._contexts.get(context)?.states;
-	}
-
-	_setContextStates(context: string, states: StateEnum[]) {
-		const contextData = this._contexts.get(context);
-		if (!contextData) return;
-		contextData.states = states; // Update cache
-		this._updateSDState(context, contextData);	// update internal SD state
-	}
-
-	_setContextSocketState(context: string, socketIdx: number, state: StateEnum) {
-		const contextData = this._contexts.get(context);
-		if (!contextData) return;
-		contextData.states[socketIdx] = state; // Update cache
-		this._updateSDState(context, contextData);	// update internal SD state
-	}
-
-	// Update SD state - active (0) only if all target states are active
-	_updateSDState(context: string, contextData: ContextData<unknown>) {
-		const { targetObs, states } = contextData;
-		const sdState = states.filter((_, i) => targetObs === 0 || targetObs - 1 === i).every(state => state === StateEnum.Active) ? 0 : 1;
-		$SD.setState(context, sdState);
-	}
-	// --
-
-	// -- States --
+	// -- States
 	/**
 	 * Fetch the current states associated with an action, for all OBS instances.
 	 * Never rejects
 	 * @param settings Action settings
 	 * @returns
 	 */
-	async fetchStates(settings: (SocketSettings<T> | null)[]): Promise<StateEnum[]> {
+	private async _fetchStates(settings: (SocketSettings<T> | null)[]): Promise<StateEnum[]> {
 		const statesResults = await Promise.allSettled(settings.map((socketSettings, idx) => {
 			return this._fetchSocketState(socketSettings, idx);
 		}));
@@ -262,21 +244,54 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		if (!socketSettings || !sockets[socketIdx].isConnected) return StateEnum.Unavailable;
 		return this.fetchState ? this.fetchState(socketSettings, socketIdx) : StateEnum.None;
 	}
+
+	// Update SD state - active (0) only if all target states are active
+	private _updateSDState(context: string, contextData: ContextData<unknown>) {
+		const { targetObs, states } = contextData;
+		const sdState = states.filter((_, i) => targetObs === 0 || targetObs - 1 === i).every(state => state === StateEnum.Active) ? 0 : 1;
+		$SD.setState(context, sdState);
+	}
 	// --
 
-	// -- Images update --
+	// -- Images update
 	/**
 	 * Get default action key image, defined in the manifest.json, as SVG string
 	 */
-	async getDefaultKeyImage(): Promise<string> {
+	private async _getDefaultKeyImage(): Promise<string> {
 		const actionName = this.UUID.split('.').at(-1);
 		const key = (await import(`../assets/actions/${actionName}/key.svg`)).default;
 		return key;
 	}
 
-	async getForegroundImage?(context: string): Promise<string | undefined>;
+	/**
+	 * Update the context key image.
+	 * The update is not immediate, it's queued in a small buffer to improve sync and avoid unneeded messages to SD
+	 * @param context Action context
+	 */
+	protected async updateKeyImage(context: string): Promise<void> {
+		const image = await this._generateKeyImage(context).catch(e => { console.error(`Error updating key image for context ${context}: ${e}`); });
+		if (!image) return;
+		AbstractBaseWsAction._dirtyImages.set(context, image);
+		if (AbstractBaseWsAction._dirtyImages.size === 1) {
+			setTimeout(() => {
+				for (const [ctx, img] of AbstractBaseWsAction._dirtyImages) {
+					$SD.setImage(ctx, img);
+					AbstractBaseWsAction._dirtyImages.delete(ctx);
+				}
+			}, 15);
+		}
+	}
 
-	async generateKeyImage(context: string) {
+	/**
+	 * Update key images for all action contexts in cache.
+	 */
+	protected updateImages(): void {
+		for (const [context] of this._contexts) {
+			this.updateKeyImage(context);
+		}
+	}
+
+	private async _generateKeyImage(context: string) {
 		if (!this._contexts.has(context)) return;
 		const { states, targetObs } = this._contexts.get(context)!;
 
@@ -285,7 +300,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		if (states) {
 			if (targetObs !== 0) {
 				if (states[targetObs - 1] === StateEnum.Unavailable) {
-					fgLayer += createVPattern();
+					fgLayer += SVGUtils.createVPattern();
 				}
 				else {
 					bgLayer += `<rect x="0" y="0" width="144" height="144" fill="${states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : states[targetObs - 1] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on}"/>`;
@@ -297,7 +312,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			else {
 				for (let i = 0; i < states.length; i++) {
 					if (states[i] === StateEnum.Unavailable) {
-						fgLayer += createVPattern(i / 2, (i + 1) / 2);
+						fgLayer += SVGUtils.createVPattern(i / 2, (i + 1) / 2);
 					}
 					else {
 						bgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}" height="144" fill="${states[i] === StateEnum.Inactive ? this._statesColors.off : states[i] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on}"/>`;
@@ -333,38 +348,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		`;
 		return `data:image/svg+xml;base64,${btoa(svgStr)}`;
 	}
-
-	/**
-	 * Update the context key image.
-	 * The update is not immediate, it's queued in a small buffer to improve sync and avoid unneeded messages to SD
-	 * @param context Action context
-	 */
-	async updateKeyImage(context: string): Promise<void> {
-		const image = await this.generateKeyImage(context).catch(e => { console.error(`Error updating key image for context ${context}: ${e}`); });
-		if (!image) return;
-		AbstractBaseWsAction._dirtyImages.set(context, image);
-		if (AbstractBaseWsAction._dirtyImages.size === 1) {
-			setTimeout(() => {
-				for (const [ctx, img] of AbstractBaseWsAction._dirtyImages) {
-					$SD.setImage(ctx, img);
-					AbstractBaseWsAction._dirtyImages.delete(ctx);
-				}
-			}, 15);
-		}
-	}
-
-	/**
-	 * Update key images for all action contexts in cache.
-	 */
-	updateImages(): void {
-		for (const [context] of this._contexts) {
-			this.updateKeyImage(context);
-		}
-	}
 	// --
 
-	// -- Optional functions for stateful actions
-	attachEventListener(statusEvent: keyof OBSEventTypes) {
+	// -- Methods related to stateful actions
+	private _attachEventListener(statusEvent: keyof OBSEventTypes) {
 		if (!this.shouldUpdateState || !this.getStateFromEvent) return;
 		sockets.forEach((socket, evtSocketIdx) => {
 			socket.on(statusEvent, async (...args) => {
@@ -375,7 +362,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
 							const newState = this.getStateFromEvent!(evtData, socketSettings);
 							if (newState !== states[evtSocketIdx]) {
-								this._setContextSocketState(context, evtSocketIdx, newState);
+								this.setContextSocketState(context, evtSocketIdx, newState);
 								this.updateKeyImage(context);
 							}
 						}

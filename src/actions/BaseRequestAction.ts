@@ -32,11 +32,11 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 	 * @param context Action context string
 	 * @param userDesiredState Desired state, if in multiaction and set by the user
 	 */
-	async _execute(context: string, userDesiredState?: number) {
+	private async _execute(context: string, userDesiredState?: number) {
 
 		// 1. Get settings per instance, as expected later for OBS WS call, in an array
-		if (!this._contexts.has(context)) return;
-		const { settings, states } = this._contexts.get(context)!;
+		if (!this.contexts.has(context)) return;
+		const { settings, states } = this.contexts.get(context)!;
 		const payloadsArray = settings.map((socketSettings, socketIdx) => {
 			try {
 				if (!socketSettings) return null;
@@ -49,7 +49,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 		});
 
 		// 2. Send WS requests
-		const results = await this.sendWsRequests(payloadsArray);
+		const results = await this._sendWsRequests(payloadsArray);
 
 		// 3. Log potential errors and send key feedback
 		const hideActionFeedback = globalSettings.feedback === 'hide';
@@ -89,7 +89,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 	 * @param {Array} payloadsArray An array containing a request payload for each OBS socket instance
 	 * @returns Array of results of the WS request, one per OBS instance
 	 */
-	async sendWsRequests(payloadsArray: RequestPayload[]) {
+	private async _sendWsRequests(payloadsArray: RequestPayload[]) {
 		const results = await Promise.allSettled(
 			sockets.map((socket, idx) => {
 				const payload = payloadsArray[idx];

@@ -41,6 +41,53 @@ export class SDUtils {
 	}
 }
 
+export class SVGUtils {
+	/**
+	 * Get the bounding box of a certain SVG text string
+	 * @param text Text string to get bbox
+	 * @param fontFamily Font family
+	 * @param fontWeight Font weight
+	 * @param testSize Font test size. Beware using 1 might lead to inaccurate results
+	 * @param width SVG parent width
+	 * @param height SVG parent height
+	 * @returns Rectangle defining the bounding box
+	 */
+	static getTextBbox(text: string, fontFamily: string, fontWeight: string, testSize = 30, width = 144, height = 144) {
+		const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svgEl.setAttribute('width', width.toString());
+		svgEl.setAttribute('height', height.toString());
+
+		const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+		textEl.textContent = text;
+		textEl.setAttribute('font-size', testSize.toString());
+		textEl.setAttribute('font-family', fontFamily);
+		textEl.setAttribute('font-weight', fontWeight);
+
+		svgEl.appendChild(textEl);
+		const toRemove = document.body.insertAdjacentElement('beforeend', svgEl);
+		const textBBox = textEl.getBBox();
+		toRemove?.remove();
+		return textBBox;
+	}
+
+	/**
+	 * Create a pattern of vertical lines
+	 */
+	static createVPattern(start = 0, end = 1, width = 144, height = 144, lines = 16) {
+		const numLines = lines;
+		const lineW = width / numLines;
+		const linesToDraw = numLines * (end - start);
+		let pattern = '';
+		for (let i = 0; i < linesToDraw; i++) {
+			pattern += `<rect x="${i * lineW + (width * start)}" y="0" width="${lineW}" height="${height}" fill="${i % 2 ? '#333333' : '#666666'}" fill-opacity="0.4"/>`;
+		}
+		return pattern;
+	}
+}
+
+/**
+ * Return a number of seconds as a string with format hh:mm:ss
+ */
 export function secondsToTimecode(seconds: number): string {
 	return [
 		seconds / 60 / 60,	// hours
@@ -49,43 +96,4 @@ export function secondsToTimecode(seconds: number): string {
 	]
 	.map(n => Math.floor(n).toString().padStart(2, '0'))
 	.join(':');
-}
-
-/**
- * Get the bounding box of a certain SVG text string
- * @param text Text string to get bbox
- * @param fontFamily Font family
- * @param fontWeight Font weight
- * @param testSize Font test size. Beware using 1 might lead to inaccurate results
- * @param width SVG parent width
- * @param height SVG parent height
- * @returns Rectangle defining the bounding box
- */
-export function getTextBbox(text: string, fontFamily: string, fontWeight: string, testSize = 30, width = 144, height = 144) {
-	const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svgEl.setAttribute('width', width.toString());
-	svgEl.setAttribute('height', height.toString());
-
-	const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-	textEl.textContent = text;
-	textEl.setAttribute('font-size', testSize.toString());
-	textEl.setAttribute('font-family', fontFamily);
-	textEl.setAttribute('font-weight', fontWeight);
-
-	svgEl.appendChild(textEl);
-	const toRemove = document.body.insertAdjacentElement('beforeend', svgEl);
-	const textBBox = textEl.getBBox();
-	toRemove?.remove();
-	return textBBox;
-}
-
-export function createVPattern(start = 0, end = 1, width = 144, height = 144, lines = 16) {
-	const numLines = lines;
-	const lineW = width / numLines;
-	const linesToDraw = numLines * (end - start);
-	let pattern = '';
-	for (let i = 0; i < linesToDraw; i++) {
-		pattern += `<rect x="${i * lineW + (width * start)}" y="0" width="${lineW}" height="${height}" fill="${i % 2 ? '#333333' : '#666666'}" fill-opacity="0.4"/>`;
-	}
-	return pattern;
 }

@@ -1,6 +1,6 @@
 import { OBSResponseTypes } from 'obs-websocket-js';
 import { sockets } from '../../plugin/sockets';
-import { getTextBbox } from '../../plugin/utils';
+import { SVGUtils } from '../../plugin/utils';
 import { AbstractStatelessAction } from '../BaseWsAction';
 import { ContextData, SocketSettings } from '../types';
 
@@ -27,16 +27,16 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 		super('dev.theca11.multiobs.stats', { hideTargetIndicators: true });
 
 		this.onLongPress(() => {
-			this.resetStats();
+			this._resetStats();
 		});
 	}
 
 	override async onContextAppear(context: string, contextData: ContextData<ActionSettings>): Promise<void> {
-		this._ctxStatsSettings.set(context, this.formatStatSettings(contextData.settings));
+		this._ctxStatsSettings.set(context, this._formatStatSettings(contextData.settings));
 		if (this._ctxStatsSettings.size === 1 && !this._statsUpdateInterval) {
-			await this.fetchObsStats();
+			await this._fetchObsStats();
 			this._statsUpdateInterval = setInterval(async () => {
-				await this.fetchObsStats();
+				await this._fetchObsStats();
 				this.updateImages();
 			}, 2000);
 		}
@@ -51,11 +51,11 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	}
 
 	override async onContextSettingsUpdated(context: string, contextData: ContextData<ActionSettings>): Promise<void> {
-		this._ctxStatsSettings.set(context, this.formatStatSettings(contextData.settings));
+		this._ctxStatsSettings.set(context, this._formatStatSettings(contextData.settings));
 	}
 
 	override async onSocketConnected(): Promise<void> {
-		await this.fetchObsStats();
+		await this._fetchObsStats();
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {
@@ -65,7 +65,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	}
 
 	// Format context settings into a combined array easier to parse later
-	formatStatSettings(settingsArray: (SocketSettings<ActionSettings> | null)[]): StatConfig[] {
+	private _formatStatSettings(settingsArray: (SocketSettings<ActionSettings> | null)[]): StatConfig[] {
 		const formattedStatsArray = settingsArray.flatMap((settings, socketIdx) => {
 			if (!settings) return [];
 			let { stats, colors } = settings as { stats: string | string[], colors: string | string[] };
@@ -82,7 +82,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	}
 
 	// Fetch OBS stats (general, stream, record)
-	async fetchObsStats() {
+	private async _fetchObsStats() {
 		const batchResults = await Promise.allSettled(sockets.map(s =>
 			s.isConnected
 				? s.callBatch([
@@ -114,7 +114,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	}
 
 	// Reset stats of skipped/dropped frames
-	resetStats() {
+	private _resetStats() {
 		this._firstEncoded = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
 		this._firstSkipped = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
 		this._firstRendered = new Array(sockets.length).fill(Number.MAX_SAFE_INTEGER);
@@ -141,13 +141,13 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 			lastTarget = target;
 
 			// Get text string
-			const text = this.getStatString(target - 1, stat) ?? '---';
+			const text = this._getStatString(target - 1, stat) ?? '---';
 
 			// Adjust font size and y-position dynamically
 			const fontFamily = 'Arial';
 			const fontWeight = '800';
 			const testSize = 30;
-			const textBBox = getTextBbox(text, fontFamily, fontWeight, testSize, width, height);
+			const textBBox = SVGUtils.getTextBbox(text, fontFamily, fontWeight, testSize, width, height);
 			const widthScale = width * testSize / textBBox.width;
 			const heightScale = yStep * testSize / (textBBox.height * 0.8);	// slightly tighter box than detected to remove some padding
 			let scale = Math.floor(Math.min(widthScale, heightScale));
@@ -165,20 +165,20 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	}
 
 	// -- String generation
-	getStatString(socketIdx: number, statName: string): string | undefined {
+	private _getStatString(socketIdx: number, statName: string): string | undefined {
 		const [group, name] = statName.split('.');
 		if (group === 'general' && this._generalStats[socketIdx]) {
-			return this.getGeneralStatString(this._generalStats[socketIdx]!, name, socketIdx);
+			return this._getGeneralStatString(this._generalStats[socketIdx]!, name, socketIdx);
 		}
 		else if (group === 'stream' && this._streamStats[socketIdx]) {
-			return this.getStreamStatString(this._streamStats[socketIdx]!, name, socketIdx);
+			return this._getStreamStatString(this._streamStats[socketIdx]!, name, socketIdx);
 		}
 		else if (group === 'record' && this._recordStats[socketIdx]) {
-			return this.getRecordStatString(this._recordStats[socketIdx]!, name);
+			return this._getRecordStatString(this._recordStats[socketIdx]!, name);
 		}
 	}
 
-	getGeneralStatString(stats: OBSResponseTypes['GetStats'], name: string, socketIdx: number): string | undefined {
+	private _getGeneralStatString(stats: OBSResponseTypes['GetStats'], name: string, socketIdx: number): string | undefined {
 		switch (name) {
 			case 'cpuUsage': {
 				return stats[name].toFixed(1) + '%';
@@ -229,7 +229,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 		}
 	}
 
-	getStreamStatString(stats: OBSResponseTypes['GetStreamStatus'], name: string, socketIdx: number): string | undefined {
+	private _getStreamStatString(stats: OBSResponseTypes['GetStreamStatus'], name: string, socketIdx: number): string | undefined {
 		switch (name) {
 			case 'outputActive': {
 				return stats['outputReconnecting'] ? 'Reconnecting' : stats['outputActive'] ? 'Active' : 'Inactive';
@@ -251,7 +251,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 		}
 	}
 
-	getRecordStatString(stats: OBSResponseTypes['GetRecordStatus'], name: string): string | undefined {
+	private _getRecordStatString(stats: OBSResponseTypes['GetRecordStatus'], name: string): string | undefined {
 		if (name === 'outputActive') return stats['outputPaused'] ? 'Paused' : stats['outputActive'] ? 'Active' : 'Inactive';
 	}
 	// --

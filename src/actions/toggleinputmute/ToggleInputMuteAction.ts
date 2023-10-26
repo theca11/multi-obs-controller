@@ -10,7 +10,7 @@ export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionS
 		super('dev.theca11.multiobs.toggleinputmute', { titleParam: 'inputName', statusEvent: 'InputMuteStateChanged' });
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'SetInputMute' | 'ToggleInputMute'> {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'SetInputMute' | 'ToggleInputMute'> {
 		const { inputName } = settings;
 		if (desiredState === 0 || desiredState === 1) {
 			return {
@@ -37,18 +37,18 @@ export class ToggleInputMuteAction extends AbstractStatefulRequestAction<ActionS
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+	override async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
 		const { inputName } = socketSettings;
 		if (!inputName) return StateEnum.Inactive;
 		const { inputMuted } = await sockets[socketIdx].call('GetInputMute', { inputName });
 		return !inputMuted ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(evtData: { inputName: string; inputMuted: boolean; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
+	override async shouldUpdateState(evtData: { inputName: string; inputMuted: boolean; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
 		return socketSettings.inputName === evtData.inputName;
 	}
 
-	getStateFromEvent(evtData: { inputName: string; inputMuted: boolean; }): StateEnum {
+	override getStateFromEvent(evtData: { inputName: string; inputMuted: boolean; }): StateEnum {
 		return !evtData.inputMuted ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

@@ -7,27 +7,27 @@ import { SocketSettings, SingleRequestPayload } from '../types';
 type ActionSettings = { sceneCollectionName: string }
 
 export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSettings, 'CurrentSceneCollectionChanged'> {
-	currentSceneCollectionName = new Array(sockets.length).fill(null);
+	private _currentSceneCollectionName = new Array(sockets.length).fill(null);
 
 	constructor() {
 		super('dev.theca11.multiobs.setcollection', { titleParam: 'sceneCollectionName', statusEvent: 'CurrentSceneCollectionChanged' });
 
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('CurrentSceneCollectionChanged', ({ sceneCollectionName }) => {
-				this.currentSceneCollectionName[socketIdx] = sceneCollectionName;
+				this._currentSceneCollectionName[socketIdx] = sceneCollectionName;
 			});
 
 			socket.on('CurrentSceneCollectionChanging', async () => {
-				for (const [context, { settings }] of this._contexts) {
+				for (const [context, { settings }] of this.contexts) {
 					if (!settings[socketIdx]) return;
-					this._setContextSocketState(context, socketIdx, StateEnum.Intermediate);
+					this.setContextSocketState(context, socketIdx, StateEnum.Intermediate);
 					this.updateKeyImage(context);
 				}
 			});
 		});
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentSceneCollection'> {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SetCurrentSceneCollection'> {
 		const { sceneCollectionName } = settings;
 		return {
 			requestType: 'SetCurrentSceneCollection',
@@ -44,27 +44,27 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 	override async onSocketConnected(socketIdx: number): Promise<void> {
 		try {
 			const { currentSceneCollectionName } = await sockets[socketIdx].call('GetSceneCollectionList');
-			this.currentSceneCollectionName[socketIdx] = currentSceneCollectionName;
+			this._currentSceneCollectionName[socketIdx] = currentSceneCollectionName;
 		}
 		catch {
-			this.currentSceneCollectionName[socketIdx] = null;
+			this._currentSceneCollectionName[socketIdx] = null;
 		}
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {
-		this.currentSceneCollectionName[socketIdx] = null;
+		this._currentSceneCollectionName[socketIdx] = null;
 	}
 
-	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+	override async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
 		if (!socketSettings.sceneCollectionName) return StateEnum.Inactive;
-		return socketSettings.sceneCollectionName === this.currentSceneCollectionName[socketIdx] ? StateEnum.Active : StateEnum.Inactive;
+		return socketSettings.sceneCollectionName === this._currentSceneCollectionName[socketIdx] ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
+	override async shouldUpdateState(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): Promise<boolean> {
 		return !!socketSettings.sceneCollectionName;
 	}
 
-	getStateFromEvent(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): StateEnum {
+	override getStateFromEvent(evtData: { sceneCollectionName: string; }, socketSettings: SocketSettings<ActionSettings>): StateEnum {
 		return evtData.sceneCollectionName === socketSettings.sceneCollectionName ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

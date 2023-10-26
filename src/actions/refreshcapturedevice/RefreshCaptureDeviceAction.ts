@@ -8,7 +8,7 @@ export class RefreshCaptureDeviceAction extends AbstractStatelessRequestAction<A
 		super('dev.theca11.multiobs.refreshcapturedevice', { titleParam: 'deviceName' });
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): BatchRequestPayload {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): BatchRequestPayload {
 		const { deviceName, sleepMs } = settings;
 		return {
 			requests: [

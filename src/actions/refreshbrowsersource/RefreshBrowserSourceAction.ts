@@ -9,7 +9,7 @@ export class RefreshBrowserSourceAction extends AbstractStatelessRequestAction<A
 		super('dev.theca11.multiobs.refreshbrowsersource', { titleParam: 'sourceName' });
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'PressInputPropertiesButton'> {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'PressInputPropertiesButton'> {
 		const { sourceName } = settings;
 		return {
 			requestType: 'PressInputPropertiesButton',

@@ -11,7 +11,7 @@ export class PauseRecordAction extends AbstractStatefulRequestAction<ActionSetti
 		super('dev.theca11.multiobs.pauserecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#de902a' } });
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'PauseRecord' | 'ResumeRecord' | 'ToggleRecordPause'> {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'PauseRecord' | 'ResumeRecord' | 'ToggleRecordPause'> {
 		if (desiredState === 0) {
 			return { requestType: 'PauseRecord' };
 		}
@@ -23,16 +23,16 @@ export class PauseRecordAction extends AbstractStatefulRequestAction<ActionSetti
 		}
 	}
 
-	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+	override async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
 		const { outputPaused } = await sockets[socketIdx].call('GetRecordStatus');
 		return outputPaused ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(): Promise<boolean> {
+	override async shouldUpdateState(): Promise<boolean> {
 		return true;
 	}
 
-	getStateFromEvent(evtData: { outputActive: boolean; outputState: string; outputPath: string; }): StateEnum {
+	override getStateFromEvent(evtData: { outputActive: boolean; outputState: string; outputPath: string; }): StateEnum {
 		const { outputState } = evtData;
 		return outputState === 'OBS_WEBSOCKET_OUTPUT_PAUSED' ? StateEnum.Active : StateEnum.Inactive;
 	}

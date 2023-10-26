@@ -7,16 +7,16 @@ import { ContextData, SocketSettings, SingleRequestPayload } from '../types';
 type ActionSettings = { showTime: string }
 
 export class ToggleStreamAction extends AbstractStatefulRequestAction<ActionSettings, 'StreamStateChanged'> {
-	status: ('on' | 'reconnecting' | 'off')[] = new Array(sockets.length).fill('off');
-	startTimestamp: number[] = new Array(sockets.length).fill(0);
-	timerInterval: NodeJS.Timeout | undefined;
+	private _status: ('on' | 'reconnecting' | 'off')[] = new Array(sockets.length).fill('off');
+	private _startTimestamp: number[] = new Array(sockets.length).fill(0);
+	private _timerInterval: NodeJS.Timeout | undefined;
 
 	constructor() {
 		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { on: '#5a9b4a' } });
-		this.attachListenersForTimer();
+		this._attachListenersForTimer();
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'StartStream' | 'StopStream' | 'ToggleStream'> {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'StartStream' | 'StopStream' | 'ToggleStream'> {
 		if (desiredState === 0) {
 			return { requestType: 'StartStream' };
 		}
@@ -28,16 +28,16 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction<ActionSett
 		}
 	}
 
-	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
-		const status = this.status[socketIdx];
+	override async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+		const status = this._status[socketIdx];
 		return status === 'reconnecting' ? StateEnum.Intermediate : status === 'on' ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(): Promise<boolean> {
+	override async shouldUpdateState(): Promise<boolean> {
 		return true;
 	}
 
-	getStateFromEvent(evtData: { outputActive: boolean; outputState: string; }): StateEnum {
+	override getStateFromEvent(evtData: { outputActive: boolean; outputState: string; }): StateEnum {
 		const { outputState } = evtData;
 		switch (outputState) {
 			case 'OBS_WEBSOCKET_OUTPUT_STARTED':
@@ -58,72 +58,72 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction<ActionSett
 	override async onSocketConnected(socketIdx: number): Promise<void> {
 		try {
 			const { outputActive, outputReconnecting, outputDuration } = await sockets[socketIdx].call('GetStreamStatus');
-			this.status[socketIdx] = outputReconnecting ? 'reconnecting' : outputActive ? 'on' : 'off';
-			this.startTimestamp[socketIdx] = outputReconnecting || outputActive ? Date.now() - outputDuration : 0;
+			this._status[socketIdx] = outputReconnecting ? 'reconnecting' : outputActive ? 'on' : 'off';
+			this._startTimestamp[socketIdx] = outputReconnecting || outputActive ? Date.now() - outputDuration : 0;
 		}
 		catch {
-			this.status[socketIdx] = 'off';
+			this._status[socketIdx] = 'off';
 		}
-		this.updateTimer();
+		this._updateTimer();
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {
-		this.status[socketIdx] = 'off';
-		this.updateTimer();
+		this._status[socketIdx] = 'off';
+		this._updateTimer();
 	}
 
 	override async onContextAppear(context: string, contextData: ContextData<ActionSettings>): Promise<void> {
-		this.setTimerTitle(context, contextData.settings);
+		this._setTimerTitle(context, contextData.settings);
 	}
 
 	override async onContextSettingsUpdated(context: string, contextData: ContextData<ActionSettings>): Promise<void> {
-		this.setTimerTitle(context, contextData.settings);
+		this._setTimerTitle(context, contextData.settings);
 	}
 
-	attachListenersForTimer() {
+	private _attachListenersForTimer() {
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('StreamStateChanged', ({ outputState }) => {
 				if (outputState === 'OBS_WEBSOCKET_OUTPUT_STARTED') {
-					this.status[socketIdx] = 'on';
-					this.startTimestamp[socketIdx] = Date.now();
+					this._status[socketIdx] = 'on';
+					this._startTimestamp[socketIdx] = Date.now();
 				}
 				else if (outputState === 'OBS_WEBSOCKET_OUTPUT_RECONNECTED') {
-					this.status[socketIdx] = 'on';
+					this._status[socketIdx] = 'on';
 				}
 				else if (outputState === 'OBS_WEBSOCKET_OUTPUT_RECONNECTING') {
-					this.status[socketIdx] = 'reconnecting';
+					this._status[socketIdx] = 'reconnecting';
 				}
 				else {
-					this.status[socketIdx] = 'off';
+					this._status[socketIdx] = 'off';
 				}
-				this.updateTimer();
+				this._updateTimer();
 			});
 		});
 	}
 
-	updateTimer() {
-		if (this.status.every(s => s === 'off')) {
-			clearInterval(this.timerInterval);
-			this.timerInterval = undefined;
-			for (const [context, { settings }] of this._contexts) {
-				this.setTimerTitle(context, settings);
+	private _updateTimer() {
+		if (this._status.every(s => s === 'off')) {
+			clearInterval(this._timerInterval);
+			this._timerInterval = undefined;
+			for (const [context, { settings }] of this.contexts) {
+				this._setTimerTitle(context, settings);
 			}
 		}
-		else if (!this.timerInterval) {
-			this.timerInterval = setInterval(() => {
-				for (const [context, { settings }] of this._contexts) {
-					this.setTimerTitle(context, settings);
+		else if (!this._timerInterval) {
+			this._timerInterval = setInterval(() => {
+				for (const [context, { settings }] of this.contexts) {
+					this._setTimerTitle(context, settings);
 				}
 			}, 1000);
 		}
 	}
 
-	setTimerTitle(context: string, settings: (SocketSettings<ActionSettings> | null)[]) {
+	private _setTimerTitle(context: string, settings: (SocketSettings<ActionSettings> | null)[]) {
 		const title = settings
 		.map((socketSettings, socketIdx) => {
 			if (!socketSettings?.showTime) return;
-			if (this.status[socketIdx] === 'on' || this.status[socketIdx] === 'reconnecting') {
-				return secondsToTimecode((Date.now() - this.startTimestamp[socketIdx]) / 1000);
+			if (this._status[socketIdx] === 'on' || this._status[socketIdx] === 'reconnecting') {
+				return secondsToTimecode((Date.now() - this._startTimestamp[socketIdx]) / 1000);
 			}
 			return secondsToTimecode(0);
 		})

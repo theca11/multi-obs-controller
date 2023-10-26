@@ -26,11 +26,11 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		// Refetch states on scene collection changed, since source-specific events are not emitted
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('CurrentSceneCollectionChanged', async () => {
-				for (const [context, { settings, states }] of this._contexts) {
+				for (const [context, { settings, states }] of this.contexts) {
 					if (!settings[socketIdx]) return;
 					const newState = await this.fetchState(settings[socketIdx]!, socketIdx).catch(() => StateEnum.Unavailable);
 					if (newState !== states[socketIdx]) {
-						this._setContextSocketState(context, socketIdx, newState);
+						this.setContextSocketState(context, socketIdx, newState);
 						this.updateKeyImage(context);
 					}
 				}
@@ -38,7 +38,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		});
 	}
 
-	getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): BatchRequestPayload {
+	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): BatchRequestPayload {
 		const { sceneName, sourceName } = settings;
 		return {
 			requests: [
@@ -65,7 +65,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
-	async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
+	override async fetchState(socketSettings: NonNullable<SocketSettings<ActionSettings>>, socketIdx: number): Promise<StateEnum.Active | StateEnum.Intermediate | StateEnum.Inactive> {
 		const { sceneName, sourceName } = socketSettings;
 		if (!sceneName || !sourceName) return StateEnum.Inactive;
 
@@ -87,7 +87,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		return enabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 
-	async shouldUpdateState(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }, socketSettings: SocketSettings<ActionSettings>, socketIdx: number): Promise<boolean> {
+	override async shouldUpdateState(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }, socketSettings: SocketSettings<ActionSettings>, socketIdx: number): Promise<boolean> {
 		const { sceneName, sourceName } = socketSettings;
 		if (sceneName && sourceName && sceneName === evtData.sceneName) {
 			const { sceneItemId } = await sockets[socketIdx].call('GetSceneItemId', { sceneName, sourceName });
@@ -96,7 +96,7 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		return false;
 	}
 
-	getStateFromEvent(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }): StateEnum {
+	override getStateFromEvent(evtData: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean; }): StateEnum {
 		return evtData.sceneItemEnabled ? StateEnum.Active : StateEnum.Inactive;
 	}
 }

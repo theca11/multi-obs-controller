@@ -8,7 +8,7 @@ export class TriggerStudioModeTransitionAction extends AbstractStatelessRequestA
 		super('dev.theca11.multiobs.triggerstudiomodetransition');
 	}
 
-	getPayloadFromSettings(): SingleRequestPayload<'TriggerStudioModeTransition'> {
+	override getPayloadFromSettings(): SingleRequestPayload<'TriggerStudioModeTransition'> {
 		return { requestType: 'TriggerStudioModeTransition' };
 	}
 }
