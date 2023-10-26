@@ -2,6 +2,35 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2023-11-01
+
+### Added
+
+-   New actions:
+    -   **Record Pause**: pause currently active recording
+    -   **Virtual Camera**: toggle OBS virtual camera output
+    -   **Profile**: switch to a specific profile
+    -   **Studio Mode**: toggle Studio Mode
+    -   **Studio Mode Transition**: trigger a transition between scenes while in Studio Mode
+    -   **Screenshot**: take a screenshot of the current OBS output or a specific scene/source
+    -   **Refresh Browser Source**: refresh the cache of a browser source page
+    -   **Stats**: display OBS general/stream/record stats (CPU usage, memory usage, dropped frames, etc.)
+-   Option to show elapsed time in Stream/Record actions
+-   Global option to choose position of target indicators shown in keys (top/middle/bottom)
+
+### Changed
+
+-   Some actions now show a transitional state using a different color (eg. stream/record starting/ending, scene collection changing)
+
+### Fixed
+
+-   Automatic title is now set properly when different for each OBS instance
+-   Prevent flickering/partial updates of key images
+-   Key images updates improved to perform faster and in a more synchronous way
+-   Improved responsiveness of Toggle Source Visibility actions
+-   Source visibility state now correctly updates after switching to a different scene collection
+-   Other handful of improvements and optimizations
+
 ## [0.2.0] - 2023-09-02
 
 ### Added

@@ -67,8 +67,8 @@ Once the Websocket Servers are ready, add the settings to the plugin general con
 
 -   `Default target`: the OBS Instance(s) that will be by default the target of new actions.
 -   `Long press length`: the default length, in milliseconds, of long key presses. You can override this value at the action level.
+-   `Target position`: the position of the `1`/`2` target indicators shown in keys.
 -   `Don't show visual OK/alert feedback after pressing a key`: hide the checkmark/warning triangle overlays that are shown after pressing a key.
--   `Don't show target number indicators in keys`: hide the `1`/`2` target indicators shown in keys.
 
 ## Action configuration
 
@@ -150,7 +150,7 @@ The plugin has 2 advanced actions (`Raw Request` and `Raw Batch Request`) that a
 
 **> I'm using your plugin and I love it! How can I show appreciation?**
 
-You can rate the plugin in the [Stream Deck store](https://apps.elgato.com/plugins/dev.theca11.multiobs) and stop by Discord to share your love. If you want to support the project financially, you can [buy me a coffee](https://ko-fi.com/the_ca11).
+You can stop by Discord to share your love, and if you want to support the project financially you can [buy me a coffee](https://ko-fi.com/the_ca11).
 
 ---
 
