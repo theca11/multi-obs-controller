@@ -197,12 +197,8 @@
 			"States": [
 				{
 					"Image": "assets/actions/triggerstudiomodetransition/key_on"
-				},
-				{
-					"Image": "assets/actions/triggerstudiomodetransition/key_off"
 				}
-			],
-			"DisableAutomaticStates": true
+			]
 		},
 		{
 			"UUID": "dev.theca11.multiobs.screenshot",
