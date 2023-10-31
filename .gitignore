@@ -8,3 +8,8 @@ node_modules/
 build/
 previews.psd
 dev.theca11.multiobs.streamDeckPlugin
+previews/new-previews.psd
+previews/old_1-preview.png
+previews/old_2-preview.png
+previews/previews_old.psd
+src/assets/banner.psd
