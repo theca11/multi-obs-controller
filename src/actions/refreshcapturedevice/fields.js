@@ -1,6 +1,6 @@
 export const fields = `
 <div class="sdpi-item" title="Video Capture Device Name">
-	<div class="sdpi-item-label">Device Name</div>
+	<div class="sdpi-item-label">Device</div>
 	<input class="sdpi-item-value" type="text" name="deviceName" required>
 </div>
 <div class="sdpi-item" title="Milliseconds to wait before re-enabling the capture device">

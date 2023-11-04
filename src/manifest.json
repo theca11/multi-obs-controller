@@ -79,7 +79,7 @@
 		{
 			"UUID": "dev.theca11.multiobs.togglevirtualcam",
 			"Icon": "assets/actions/togglevirtualcam/icon",
-			"Name": "Virtual camera",
+			"Name": "Virtual Camera",
 			"Tooltip": "Start/stop virtual camera",
 			"States": [
 				{
