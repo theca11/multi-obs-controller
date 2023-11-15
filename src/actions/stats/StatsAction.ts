@@ -55,7 +55,7 @@ export class StatsAction extends AbstractStatelessAction<ActionSettings> {
 	}
 
 	override async onSocketConnected(): Promise<void> {
-		await this._fetchObsStats();
+		return this._fetchObsStats();
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {

@@ -56,14 +56,9 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction<ActionSett
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { outputActive, outputReconnecting, outputDuration } = await sockets[socketIdx].call('GetStreamStatus');
-			this._status[socketIdx] = outputReconnecting ? 'reconnecting' : outputActive ? 'on' : 'off';
-			this._startTimestamp[socketIdx] = outputReconnecting || outputActive ? Date.now() - outputDuration : 0;
-		}
-		catch {
-			this._status[socketIdx] = 'off';
-		}
+		const { outputActive, outputReconnecting, outputDuration } = await sockets[socketIdx].call('GetStreamStatus');
+		this._status[socketIdx] = outputReconnecting ? 'reconnecting' : outputActive ? 'on' : 'off';
+		this._startTimestamp[socketIdx] = outputReconnecting || outputActive ? Date.now() - outputDuration : 0;
 		this._updateTimer();
 	}
 

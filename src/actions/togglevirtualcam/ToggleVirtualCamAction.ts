@@ -31,13 +31,8 @@ export class ToggleVirtualCamAction extends AbstractStatefulRequestAction<Action
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { outputActive } = await sockets[socketIdx].call('GetVirtualCamStatus');
-			this._status[socketIdx] = outputActive;
-		}
-		catch {
-			this._status[socketIdx] = false;
-		}
+		const { outputActive } = await sockets[socketIdx].call('GetVirtualCamStatus');
+		this._status[socketIdx] = outputActive;
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {

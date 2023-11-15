@@ -5,7 +5,7 @@ import { SingleRequestPayload } from '../types';
 type ActionSettings = { screenshotTarget: string, quality: string }
 
 export class ScreenshotAction extends AbstractStatelessRequestAction<ActionSettings> {
-	private _outputFolder = new Array(sockets.length).fill('');
+	private _outputFolder = new Array(sockets.length).fill(null);
 	private _currentSceneName = new Array(sockets.length).fill('');
 
 	constructor() {

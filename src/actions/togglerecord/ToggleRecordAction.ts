@@ -57,15 +57,10 @@ export class ToggleRecordAction extends AbstractStatefulRequestAction<ActionSett
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { outputActive, outputPaused, outputDuration } = await sockets[socketIdx].call('GetRecordStatus');
-			this._status[socketIdx] = outputPaused ? 'paused' : outputActive ? 'on' : 'off';
-			this._startTimestamp[socketIdx] = outputPaused || outputActive ? Date.now() - outputDuration : 0;
-			this._pauseTimestamp[socketIdx] = outputPaused ? Date.now() : 0;
-		}
-		catch {
-			this._status[socketIdx] = 'off';
-		}
+		const { outputActive, outputPaused, outputDuration } = await sockets[socketIdx].call('GetRecordStatus');
+		this._status[socketIdx] = outputPaused ? 'paused' : outputActive ? 'on' : 'off';
+		this._startTimestamp[socketIdx] = outputPaused || outputActive ? Date.now() - outputDuration : 0;
+		this._pauseTimestamp[socketIdx] = outputPaused ? Date.now() : 0;
 		this._updateTimer();
 	}
 

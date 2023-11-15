@@ -34,13 +34,8 @@ export class SetSceneAction extends AbstractStatefulRequestAction<ActionSettings
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { currentProgramSceneName } = await sockets[socketIdx].call('GetCurrentProgramScene');
-			this._currentSceneName[socketIdx] = currentProgramSceneName;
-		}
-		catch {
-			this._currentSceneName[socketIdx] = null;
-		}
+		const { currentProgramSceneName } = await sockets[socketIdx].call('GetCurrentProgramScene');
+		this._currentSceneName[socketIdx] = currentProgramSceneName;
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {

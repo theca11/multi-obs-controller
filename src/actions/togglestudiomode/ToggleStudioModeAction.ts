@@ -31,13 +31,8 @@ export class ToggleStudioModeAction extends AbstractStatefulRequestAction<Action
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { studioModeEnabled } = await sockets[socketIdx].call('GetStudioModeEnabled');
-			this._status[socketIdx] = studioModeEnabled;
-		}
-		catch {
-			this._status[socketIdx] = false;
-		}
+		const { studioModeEnabled } = await sockets[socketIdx].call('GetStudioModeEnabled');
+		this._status[socketIdx] = studioModeEnabled;
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {

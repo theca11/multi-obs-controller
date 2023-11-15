@@ -42,13 +42,8 @@ export class SetCollectionAction extends AbstractStatefulRequestAction<ActionSet
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { currentSceneCollectionName } = await sockets[socketIdx].call('GetSceneCollectionList');
-			this._currentSceneCollectionName[socketIdx] = currentSceneCollectionName;
-		}
-		catch {
-			this._currentSceneCollectionName[socketIdx] = null;
-		}
+		const { currentSceneCollectionName } = await sockets[socketIdx].call('GetSceneCollectionList');
+		this._currentSceneCollectionName[socketIdx] = currentSceneCollectionName;
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {

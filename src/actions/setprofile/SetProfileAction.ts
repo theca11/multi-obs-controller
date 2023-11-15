@@ -34,13 +34,8 @@ export class SetProfileAction extends AbstractStatefulRequestAction<ActionSettin
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		try {
-			const { currentProfileName } = await sockets[socketIdx].call('GetProfileList');
-			this._currentProfileName[socketIdx] = currentProfileName;
-		}
-		catch {
-			this._currentProfileName[socketIdx] = null;
-		}
+		const { currentProfileName } = await sockets[socketIdx].call('GetProfileList');
+		this._currentProfileName[socketIdx] = currentProfileName;
 	}
 
 	override async onSocketDisconnected(socketIdx: number): Promise<void> {

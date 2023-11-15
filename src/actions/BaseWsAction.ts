@@ -1,4 +1,5 @@
 import { OBSEventTypes } from 'obs-websocket-js';
+import pRetry from 'p-retry';
 import { sockets } from '../plugin/sockets';
 import { SDUtils, SVGUtils } from '../plugin/utils';
 import { StateEnum } from './StateEnum';
@@ -104,7 +105,14 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		// -- Sockets connected/disconnected
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('Identified', async () => {
-				if (this.onSocketConnected) await this.onSocketConnected(socketIdx);
+				if (this.onSocketConnected) {
+					await pRetry(() => this.onSocketConnected!(socketIdx), {
+						retries: 5,
+						minTimeout: 100,
+						onFailedAttempt: error => { SDUtils.logActionError(socketIdx, this._actionId, `Error while initializing on socket connected (${error.message}). Attempt #${error.attemptNumber}, retries left ${error.retriesLeft}`); },
+					})
+					.catch(() => { SDUtils.logActionError(socketIdx, this._actionId, 'All initialization retries failed. Action may not work or may behave unexpectedly'); });
+				}
 				for (const [context, { settings, states }] of this._contexts) {
 					const newState = await this._fetchSocketState(settings[socketIdx], socketIdx).catch(() => StateEnum.Unavailable);
 					if (newState !== states[socketIdx]) {
