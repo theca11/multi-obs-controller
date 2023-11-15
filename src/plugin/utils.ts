@@ -39,6 +39,16 @@ export class SDUtils {
 	static logError(message: string) {
 		SDUtils.log(message, 'error');
 	}
+
+	/**
+	 * Log error message associated with an OBS instance and plugin action to both console and SD log file
+	 * @param socketIdx OBS instance socket index associated with the error
+	 * @param actionId Plugin action ID associated with the error (e.g. setscene)
+	 * @param message Error message to log
+	 */
+	static logActionError(socketIdx: number, actionId: string | undefined, message: string) {
+		SDUtils.log(`[OBS_${socketIdx + 1}][${actionId ?? 'unknown action'}] ${message}`, 'error');
+	}
 }
 
 export class SVGUtils {

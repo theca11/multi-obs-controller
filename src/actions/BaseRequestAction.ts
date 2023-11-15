@@ -43,7 +43,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 				return this.getPayloadFromSettings(socketIdx, socketSettings, states[socketIdx], userDesiredState);
 			}
 			catch {
-				SDUtils.logError('Error parsing action settings - request will be invalid');
+				SDUtils.logActionError(socketIdx, this._actionId, 'Error parsing action settings - request will be invalid');
 				return { requestType: 'InvalidRequest' };
 			}
 		});
@@ -53,10 +53,9 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 
 		// 3. Log potential errors and send key feedback
 		const hideActionFeedback = globalSettings.feedback === 'hide';
-		const actionId = this.UUID.replace('dev.theca11.multiobs.', '');
 		const rejectedResult = results.find(result => result.status === 'rejected');	// target socket not connected or regular request failed
 		if (rejectedResult) {
-			SDUtils.logError(`[OBS_${results.indexOf(rejectedResult) + 1}][${actionId}] ${(rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected'}`);
+			SDUtils.logActionError(results.indexOf(rejectedResult), this._actionId, (rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected');
 			if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
 		}
 		else {	// if a batch request, response is an array and everything must have requestStatus.result === true
@@ -65,7 +64,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 			if (firstRejectedResponse) {
 				const reqStatus = (firstRejectedResponse as ResponseMessage[]).find((resp) => !resp.requestStatus.result)?.requestStatus;
 				const reason = reqStatus ? (reqStatus as { comment: string }).comment : 'Unknown reason';
-				SDUtils.logError(`[OBS_${socketsReponses.indexOf(firstRejectedResponse) + 1}][${actionId}] ${reason}`);
+				SDUtils.logActionError(socketsReponses.indexOf(firstRejectedResponse), this._actionId, reason);
 				if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
 				return;
 			}

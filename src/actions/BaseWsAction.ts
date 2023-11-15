@@ -7,6 +7,7 @@ import { ContextData, SocketSettings, ConstructorParams, DidReceiveSettingsData,
 
 /** Base class for all actions used to communicate with OBS WS */
 export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> extends Action {
+	readonly _actionId;
 	private _contexts = new Map<string, ContextData<T>>(); // <context, contextData>
 
 	private _titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
@@ -20,6 +21,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 	constructor(UUID: string, params?: Partial<ConstructorParams>) {
 		super(UUID);
+		this._actionId = UUID.split('.').at(-1);
 		this._titleParam = params?.titleParam;
 		this._statesColors = { ...this._statesColors, ...params?.statesColors };
 		this._hideTargetIndicators = !!params?.hideTargetIndicators;
@@ -134,7 +136,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		this.onSendToPlugin(async ({ context, action, payload }: SendToPluginData<{ event: string }>) => {
 			if (payload.event === 'ready' && this.onPropertyInspectorReady) {
 				await this.onPropertyInspectorReady({ context, action })
-				.catch(() => SDUtils.logError('Error executing custom onPropertyInspectorReady()'));
+				.catch(() => SDUtils.logError(`[${this._actionId}] Error executing custom onPropertyInspectorReady()`));
 			}
 		});
 
@@ -258,8 +260,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	 * Get default action key image, defined in the manifest.json, as SVG string
 	 */
 	private async _getDefaultKeyImage(): Promise<string> {
-		const actionName = this.UUID.split('.').at(-1);
-		const key = (await import(`../assets/actions/${actionName}/key.svg`)).default;
+		const key = (await import(`../assets/actions/${this._actionId}/key.svg`)).default;
 		return key;
 	}
 
