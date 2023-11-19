@@ -1,8 +1,8 @@
 {
 	"root": true,
 	"ignorePatterns": ["build", "dist", "webpack.config.js", "src/libs"],
-	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-	"plugins": ["@typescript-eslint", "import"],
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:promise/recommended"],
+	"plugins": ["@typescript-eslint", "import", "promise"],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": 2022,
