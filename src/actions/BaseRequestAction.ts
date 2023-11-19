@@ -1,4 +1,4 @@
-import { OBSEventTypes, ResponseMessage } from 'obs-websocket-js';
+import { OBSEventTypes, OBSRequestTypes, RequestBatchOptions, RequestBatchRequest } from 'obs-websocket-js';
 import { sockets } from '../plugin/sockets';
 import { SDUtils } from '../plugin/utils';
 import { AbstractBaseWsAction } from './BaseWsAction';
@@ -53,23 +53,18 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 
 		// 3. Log potential errors and send key feedback
 		const hideActionFeedback = globalSettings.feedback === 'hide';
-		const rejectedResult = results.find(result => result.status === 'rejected');	// target socket not connected or regular request failed
-		if (rejectedResult) {
-			SDUtils.logActionError(results.indexOf(rejectedResult), this._actionId, (rejectedResult as PromiseRejectedResult).reason?.message ?? 'Not connected');
-			if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
-		}
-		else {	// if a batch request, response is an array and everything must have requestStatus.result === true
-			const socketsReponses = results.map(result => (result as PromiseFulfilledResult<unknown>).value);
-			const firstRejectedResponse = socketsReponses.find(socketResponse => Array.isArray(socketResponse) && (socketResponse as ResponseMessage[]).some(resp => !resp.requestStatus.result));
-			if (firstRejectedResponse) {
-				const reqStatus = (firstRejectedResponse as ResponseMessage[]).find((resp) => !resp.requestStatus.result)?.requestStatus;
-				const reason = reqStatus ? (reqStatus as { comment: string }).comment : 'Unknown reason';
-				SDUtils.logActionError(socketsReponses.indexOf(firstRejectedResponse), this._actionId, reason);
-				if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
-				return;
-			}
 
+		if (results.every(result => result.status === 'fulfilled')) {	// all sockets succeeded
 			if (!hideActionFeedback && this._showSuccess) setTimeout(() => $SD.showOk(context), 150);
+		}
+		else {	// one or more sockets errored
+			if (!hideActionFeedback) setTimeout(() => $SD.showAlert(context), 150);
+			results.forEach((result, socketIdx) => {
+				if (result.status === 'fulfilled') return;
+				const { reason } = result;
+				const errorMsg = reason instanceof Error && reason.message ? reason.message : 'Unknown error';
+				SDUtils.logActionError(socketIdx, this._actionId, errorMsg);
+			});
 		}
 	}
 
@@ -95,8 +90,8 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 				if (payload) {
 					if (!socket.isConnected) return Promise.reject(new Error('Not connected to OBS WS server'));
 					return 'requestType' in payload
-						? socket.call(payload.requestType, payload.requestData)
-						: socket.callBatch(payload.requests, payload.options);
+						? this._sendWsCall(idx, payload.requestType, payload.requestData)
+						: this._sendWsBatchCall(idx, payload.requests, payload.options);
 				}
 				else {
 					return Promise.resolve();
@@ -104,6 +99,34 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 			}),
 		);
 		return results;
+	}
+
+	async _sendWsCall(socketIdx: number, requestType: keyof OBSRequestTypes, requestData?: any) {
+		try {
+			await sockets[socketIdx].call(requestType, requestData);
+			return Promise.resolve();
+		}
+		catch (e) {
+			return Promise.reject(e instanceof Error && e.message ? e : new Error('Unknown error executing call'));
+		}
+	}
+
+	async _sendWsBatchCall(socketIdx: number, requests: RequestBatchRequest[], options?: RequestBatchOptions) {
+		try {
+			const results = await sockets[socketIdx].callBatch(requests, options);
+			const errors = results.filter(result => !result.requestStatus.result);
+			if (errors.length === 0) { // all the requests in the batch succeeded
+				return Promise.resolve();
+			}
+			else { // reject with the first error in the batch
+				const [firstError] = errors;
+				const errorMsg = `[${firstError.requestType}] ${(firstError.requestStatus as { result: false, code: number, comment: string }).comment}`;
+				return Promise.reject(new Error(errorMsg));
+			}
+		}
+		catch (e) {
+			return Promise.reject(e instanceof Error && e.message ? e : new Error('Unknown error executing batch call'));
+		}
 	}
 }
 
