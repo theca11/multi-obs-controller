@@ -1,4 +1,5 @@
 import { sockets } from '../../plugin/sockets';
+import { SDUtils } from '../../plugin/utils';
 import { AbstractStatelessRequestAction } from '../BaseRequestAction';
 import { SingleRequestPayload } from '../types';
 
@@ -14,6 +15,11 @@ export class ScreenshotAction extends AbstractStatelessRequestAction<ActionSetti
 		sockets.forEach((socket, socketIdx) => {
 			socket.on('CurrentProgramSceneChanged', ({ sceneName }) => {
 				this._currentSceneName[socketIdx] = sceneName;
+			});
+
+			socket.on('CurrentProfileChanged', () => {
+				this._updateOutputFolder(socketIdx)
+				.catch(e => { SDUtils.logActionError(socketIdx, this._actionId, `Error updating output folder info after profile change (${e}). Screenshot might be saved in an incorrect location`); });
 			});
 		});
 	}
@@ -32,9 +38,13 @@ export class ScreenshotAction extends AbstractStatelessRequestAction<ActionSetti
 	}
 
 	override async onSocketConnected(socketIdx: number): Promise<void> {
-		const { recordDirectory } = await sockets[socketIdx].call('GetRecordDirectory');
-		this._outputFolder[socketIdx] = recordDirectory;
+		await this._updateOutputFolder(socketIdx);
 		const { currentProgramSceneName } = await sockets[socketIdx].call('GetCurrentProgramScene');
 		this._currentSceneName[socketIdx] = currentProgramSceneName;
+	}
+
+	private async _updateOutputFolder(socketIdx: number): Promise<void> {
+		const { recordDirectory } = await sockets[socketIdx].call('GetRecordDirectory');
+		this._outputFolder[socketIdx] = recordDirectory;
 	}
 }
