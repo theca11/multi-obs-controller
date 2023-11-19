@@ -141,6 +141,10 @@ window.sendGlobalSettingsToInspector = (settings) => {
 	document.querySelector('#longPressMs').placeholder = globalSettings.longPressMs;
 };
 
+window.reconnect = () => {
+	$PI.sendToPlugin({ event: 'reconnect' });
+};
+
 // --- Tabs logic ---
 function activateTabs(activeTab) {
 	const allTabs = Array.from(document.querySelectorAll('.tab'));

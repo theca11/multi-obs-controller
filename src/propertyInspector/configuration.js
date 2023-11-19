@@ -16,3 +16,8 @@ window.onload = () => {
 		}),
 	);
 };
+
+document.querySelector('#reconnect').addEventListener('click', (e) => {
+	e.preventDefault();
+	window.opener.reconnect();
+});

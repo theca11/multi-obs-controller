@@ -146,6 +146,9 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				await this.onPropertyInspectorReady({ context, action })
 				.catch(() => SDUtils.logError(`[${this._actionId}] Error executing custom onPropertyInspectorReady()`));
 			}
+			else if (payload.event === 'reconnect') {
+				sockets.forEach(socket => socket.tryReconnect());
+			}
 		});
 
 		// Attach status event listener if defined

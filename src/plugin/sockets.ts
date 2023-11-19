@@ -44,6 +44,14 @@ class Socket extends OBSWebSocket {
 	}
 
 	/**
+	 * Force Reconnect WS
+	 */
+	async tryReconnect() {
+		await this.disconnect().catch(() => { /* Error while disconnecting */ });
+		this.tryConnect();
+	}
+
+	/**
 	 * Update ip/port/pwd settings, and reconnect if needed
 	 * @param {string} ip
 	 * @param {string} port
