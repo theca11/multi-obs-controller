@@ -83,8 +83,8 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 	 * @param {Array} payloadsArray An array containing a request payload for each OBS socket instance
 	 * @returns Array of results of the WS request, one per OBS instance
 	 */
-	private async _sendWsRequests(payloadsArray: RequestPayload[]) {
-		const results = await Promise.allSettled(
+	private _sendWsRequests(payloadsArray: RequestPayload[]) {
+		return Promise.allSettled(
 			sockets.map((socket, idx) => {
 				const payload = payloadsArray[idx];
 				if (payload) {
@@ -98,13 +98,12 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 				}
 			}),
 		);
-		return results;
 	}
 
 	async _sendWsCall(socketIdx: number, requestType: keyof OBSRequestTypes, requestData?: any) {
 		try {
 			await sockets[socketIdx].call(requestType, requestData);
-			return Promise.resolve();
+			return;
 		}
 		catch (e) {
 			return Promise.reject(e instanceof Error && e.message ? e : new Error('Unknown error executing call'));
@@ -116,7 +115,7 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 			const results = await sockets[socketIdx].callBatch(requests, options);
 			const errors = results.filter(result => !result.requestStatus.result);
 			if (errors.length === 0) { // all the requests in the batch succeeded
-				return Promise.resolve();
+				return;
 			}
 			else { // reject with the first error in the batch
 				const [firstError] = errors;
