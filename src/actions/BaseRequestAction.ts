@@ -1,4 +1,5 @@
 import { OBSEventTypes, OBSRequestTypes, RequestBatchOptions, RequestBatchRequest } from 'obs-websocket-js';
+import pRetry from 'p-retry';
 import { sockets } from '../plugin/sockets';
 import { SDUtils } from '../plugin/utils';
 import { AbstractBaseWsAction } from './BaseWsAction';
@@ -87,15 +88,16 @@ export abstract class AbstractBaseRequestAction<T extends Record<string, unknown
 		return Promise.allSettled(
 			sockets.map((socket, idx) => {
 				const payload = payloadsArray[idx];
-				if (payload) {
-					if (!socket.isConnected) return Promise.reject(new Error('Not connected to OBS WS server'));
-					return 'requestType' in payload
+				if (!payload) return Promise.resolve();
+				if (!socket.isConnected) return Promise.reject(new Error('Not connected to OBS WS server'));
+				return pRetry(() =>
+					'requestType' in payload
 						? this._sendWsCall(idx, payload.requestType, payload.requestData)
-						: this._sendWsBatchCall(idx, payload.requests, payload.options);
-				}
-				else {
-					return Promise.resolve();
-				}
+						: this._sendWsBatchCall(idx, payload.requests, payload.options),
+				{
+					retries: 2,
+					minTimeout: 20,
+				});
 			}),
 		);
 	}
