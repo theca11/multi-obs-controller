@@ -55,7 +55,6 @@ module.exports = {
 				},
 				'CHANGELOG.md',
 				'LICENSE',
-				'README.md',
 			],
 		}),
 		new LicenseWebpackPlugin({
