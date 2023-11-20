@@ -173,6 +173,23 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.togglefilter",
+			"Icon": "assets/actions/togglefilter/icon",
+			"Name": "Filter",
+			"Tooltip": "Enable/disable scene/source filter",
+			"States": [
+				{
+					"Image": "assets/actions/togglefilter/key_on",
+					"Name": "Enable"
+				},
+				{
+					"Image": "assets/actions/togglefilter/key_off",
+					"Name": "Disable"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.togglestudiomode",
 			"Icon": "assets/actions/togglestudiomode/icon",
 			"Name": "Studio Mode",

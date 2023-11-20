@@ -60,3 +60,19 @@ export async function getInputsLists() {
 	);
 	return results.map(result => result.status === 'fulfilled' ? result.value.inputs : []);
 }
+
+/**
+ * Get a list of all filter items in a particular source
+ * @param socketIdx Index identifying the OBS instance
+ * @param sourceName Source to list all filter items
+ * @returns One array of filter items. Each scene item JsonObject contains filterName (among others)
+ */
+export async function getSourceFilterList(socketIdx: number, sourceName: string) {
+	try {
+		const data = await sockets[socketIdx].call('GetSourceFilterList', { sourceName });
+		return data.filters;
+	}
+	catch {
+		return [];
+	}
+}

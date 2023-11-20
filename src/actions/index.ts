@@ -8,6 +8,7 @@ export { SetCollectionAction } from './setcollection/SetCollectionAction';
 export { SetProfileAction } from './setprofile/SetProfileAction';
 export { SetSceneAction } from './setscene/SetSceneAction';
 export { StatsAction } from './stats/StatsAction';
+export { ToggleFilterAction } from './togglefilter/ToggleFilterAction';
 export { ToggleInputMuteAction } from './toggleinputmute/ToggleInputMuteAction';
 export { ToggleRecordAction } from './togglerecord/ToggleRecordAction';
 export { ToggleSourceAction } from './togglesource/ToggleSourceAction';
