@@ -2,6 +2,23 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2023-11-22
+
+### Added
+
+-   New **Filter** action: enable/disable a scene/source filter
+-   Added a button to global configuration to force a reinitialization/reconnection between the plugin and the OBS instances, to be used in case of unexpected issues (might solve them without the need to restart OBS/Stream Deck)
+
+### Changed
+
+-   Actions are now retried internally if they fail for unexpected reasons. This adds robustness transparently to the user
+
+### Fixed
+
+-   Potential issue preventing a screenshot to be saved
+-   Screenshot output folder now correctly updates on profile change
+-   Errors not logged to file when multiple OBS instances failed
+
 ## [0.3.0] - 2023-11-01
 
 ### Added

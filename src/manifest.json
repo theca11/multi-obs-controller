@@ -3,7 +3,7 @@
 	"Name": "Multi OBS Controller",
 	"Description": "Control one or multiple OBS Studio instances at the same time. Easily keep them synchronized or manage them individually. Stream, record, set current scene, toggle source visibility, mute audio, trigger hotkeys and much more. Advanced actions support any OBS Websockets protocol request.",
 	"Author": "the_ca11",
-	"Version": "0.3.0",
+	"Version": "0.4.0",
 	"URL": "https://theca11.github.io/multi-obs-controller",
 	"Icon": "assets/pluginIcon",
 	"CodePath": "plugin/app.html",
