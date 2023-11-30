@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/package-json/v/theca11/multi-obs-controller/master?label=%20&color=darkblue" />
-  <a href="https://marketplace.elgato.com/product/multi-obs-controller-6926228a-2efa-4fb9-849a-3f7d9ad86a9b"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmp-gateway.elgato.com%2Fproducts%3Fextension%3Dplugins%26ordering%3D-download_count%26tag%3De86ef065-068c-4fb2-bb5d-c895bab52b8e%252C9ceb7201-aace-422f-8644-f19bbbffe9b7%26limit%3D24&query=%24.results%5B%3F(%40.name%20%3D%3D%3D%20'Multi%20OBS%20Controller')%5D.download_count&prefix=Elgato%20Marketplace%20%7C%20&suffix=%20downloads&logo=elgato&logoColor=white&label=%20&labelColor=1231ac&color=gray" alt="Elgato Marketplace" /></a>
+  <a href="https://marketplace.elgato.com/product/multi-obs-controller-6926228a-2efa-4fb9-849a-3f7d9ad86a9b"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmp-gateway.elgato.com%2Fproducts%3Fname%3DMulti%2520OBS%2520Controller&query=%24.results%5B0%5D.download_count&prefix=Elgato%20Marketplace%20%7C%20&suffix=%20downloads&logo=elgato&logoColor=white&label=%20&labelColor=1231ac&color=gray" alt="Elgato Marketplace" /></a>
   <a href="https://discord.gg/sMSDVRQSUd"><img src="https://img.shields.io/badge/Discord-gray?logo=discord&logoColor=white&labelColor=6A7EC2&color=gray" alt="Discord Support" /></a>
   <a href="https://ko-fi.com/the_ca11"><img src="https://img.shields.io/badge/Ko--fi-gray?logo=kofi&logoColor=white&labelColor=red&color=gray" alt="Ko-fi donate" /></a>
 </p>
