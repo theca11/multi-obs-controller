@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800"
+   height="250"
+   viewBox="0 0 800 250"
+   version="1.1"
+   id="svg25"
+   sodipodi:docname="banner.svg"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   inkscape:export-filename="C:\Users\Lorena\Downloads\m13apps\multi-obs-controller-sdPlugin\.github\images\banner.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <metadata
+     id="metadata29">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="715"
+     id="namedview27"
+     showgrid="false"
+     inkscape:zoom="0.42812501"
+     inkscape:cx="394.21329"
+     inkscape:cy="-70.628042"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2"
+     inkscape:document-rotation="0" />
+  <defs
+     id="defs7">
+    <rect
+       x="312.15924"
+       y="178.37671"
+       width="379.87634"
+       height="72.671997"
+       id="rect870" />
+    <rect
+       x="315.46252"
+       y="90.839989"
+       width="407.58948"
+       height="50.986294"
+       id="rect864" />
+    <rect
+       x="317.11417"
+       y="64.413811"
+       width="219.66762"
+       height="89.188354"
+       id="rect857" />
+    <mask
+       id="mask">
+      <rect
+         width="100%"
+         height="100%"
+         fill="#ffffff"
+         id="rect2"
+         x="0"
+         y="0" />
+      <circle
+         r="42"
+         cx="33"
+         cy="40"
+         fill="#000000"
+         id="circle4" />
+    </mask>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Drop Shadow"
+       id="filter1600"
+       x="-0.032210678"
+       width="1.0644214"
+       y="-0.04187388"
+       height="1.0837477">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood1590" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite1592" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1.395796"
+         result="blur"
+         id="feGaussianBlur1594" />
+      <feOffset
+         dx="1.5"
+         dy="0"
+         result="offset"
+         id="feOffset1596" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="fbSourceGraphic"
+         id="feComposite1598" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix1798" />
+      <feFlood
+         id="feFlood1800"
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         in="fbSourceGraphic" />
+      <feComposite
+         in2="fbSourceGraphic"
+         id="feComposite1802"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur1804"
+         in="composite1"
+         stdDeviation="2"
+         result="blur" />
+      <feOffset
+         id="feOffset1806"
+         dx="0"
+         dy="0"
+         result="offset" />
+      <feComposite
+         in2="offset"
+         id="feComposite1808"
+         in="fbSourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Drop Shadow"
+       id="filter1394"
+       x="-0.0049171718"
+       width="1.0098343"
+       y="-0.021247372"
+       height="1.0424947">
+      <feFlood
+         flood-opacity="0.70050761421319796"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood1384" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite1386" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1.0034572"
+         result="blur"
+         id="feGaussianBlur1388" />
+      <feOffset
+         dx="4"
+         dy="0"
+         result="offset"
+         id="feOffset1390" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite1392" />
+    </filter>
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="bg">
+    <rect
+       style="fill:#517a96;fill-opacity:1;stroke-width:14.6723"
+       id="rect868"
+       width="800"
+       height="250"
+       x="0"
+       y="0" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="text">
+    <g
+       id="g878"
+       style="mix-blend-mode:normal;stroke:none;stroke-opacity:1;filter:url(#filter1394)"
+       transform="matrix(1.0047226,0,0,1.0047226,-3.3471668,-25.233918)">
+      <text
+         xml:space="preserve"
+         id="text862"
+         style="font-size:40px;line-height:1.25;font-family:Lato;-inkscape-font-specification:Lato;white-space:pre;shape-inside:url(#rect864);fill:#ffffff;stroke:none;stroke-opacity:1;"
+         transform="matrix(1.2833387,0,0,1.2833387,-120.26014,-32.886389)"><tspan
+           x="315.46289"
+           y="128.03984"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-family:Lato;-inkscape-font-specification:'Lato Heavy';fill:#ffffff;stroke:none;stroke-opacity:1">Multi OBS Controller</tspan></tspan></text>
+      <text
+         xml:space="preserve"
+         id="text868"
+         style="font-size:40px;line-height:1.25;font-family:Lato;-inkscape-font-specification:Lato;white-space:pre;shape-inside:url(#rect870);fill:#ffffff;stroke:none;stroke-opacity:1;"
+         transform="translate(-24.774543,-16.516363)"><tspan
+           x="312.16016"
+           y="215.57695"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-family:Lato;-inkscape-font-specification:'Lato Heavy';fill:#ffffff;stroke:none;stroke-opacity:1">Stream Deck Plugin</tspan></tspan></text>
+    </g>
+  </g>
+  <g
+     id="g862"
+     transform="matrix(2.1494553,0,0,2.1494553,31.150411,39.021789)"
+     style="mix-blend-mode:normal;filter:url(#filter1600)">
+    <circle
+       r="38"
+       cx="40"
+       cy="40"
+       fill="#black"
+       id="circle9"
+       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:1.00001;stroke-miterlimit:4;stroke-dasharray:none" />
+    <g
+       fill="#dfdfdf"
+       fill-rule="evenodd"
+       id="g15"
+       style="display:inline;opacity:1;fill:#dfdfdf;fill-opacity:1;stroke:none;stroke-width:0.845672;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers">
+      <path
+         d="M 40,80 C 17.90861,80 0,62.09139 0,40 0,17.90861 17.90861,0 40,0 62.09139,0 80,17.90861 80,40 80,62.09139 62.09139,80 40,80 Z m 0,-4 C 59.882251,76 76,59.882251 76,40 76,20.117749 59.882251,4 40,4 20.117749,4 4,20.117749 4,40 4,59.882251 20.117749,76 40,76 Z"
+         id="path11"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.845672;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+      <path
+         d="M 24.433549,36.006585 C 22.162933,33.091783 20.8,29.493539 20.8,25.6 20.8,15.879788 29.294485,8 39.2,8 39.319374,8 39.435871,8.00232 39.549543,8.00691 31.805075,8.2448804 25.6,14.597804 25.6,22.4 c 0,7.9529 6.4471,14.4 14.4,14.4 5.287214,0 9.908894,-2.84949 12.413112,-7.096541 3.288804,-0.237083 6.639608,0.442364 9.650876,2.180921 7.375386,4.258181 10.266922,13.457061 7.538966,21.439873 C 69.862445,52.258708 70,51.145418 70,50 70,42.268014 63.731986,36 56,36 c -7.731986,0 -14,6.268014 -14,14 0,2.289942 0.54979,4.451474 1.524572,6.359797 -1.431239,3.080045 -3.739762,5.744246 -6.84113,7.534822 -6.449108,3.723394 -14.455572,2.58897 -20.075024,-2.0027 C 18.753584,63.228102 21.286649,64 24,64 31.731987,64 38,57.731986 38,50 38,42.413055 31.96494,36.235675 24.433549,36.006585 Z"
+         id="path13"
+         style="fill:#dfdfdf;fill-opacity:1;stroke:none;stroke-width:0.845672;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+    </g>
+    <g
+       fill="#dfdfdf"
+       fill-rule="evenodd"
+       mask="url(#mask)"
+       transform="translate(12)"
+       id="g19"
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.845672;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers">
+      <path
+         d="M 40,80 C 17.90861,80 0,62.09139 0,40 0,17.90861 17.90861,0 40,0 62.09139,0 80,17.90861 80,40 80,62.09139 62.09139,80 40,80 Z m 0,-4 C 59.882251,76 76,59.882251 76,40 76,20.117749 59.882251,4 40,4 20.117749,4 4,20.117749 4,40 4,59.882251 20.117749,76 40,76 Z"
+         id="path17"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.845672;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+    </g>
+    <g
+       fill="#dfdfdf"
+       fill-rule="evenodd"
+       mask="url(#mask)"
+       transform="translate(24)"
+       id="g23"
+       style="display:inline;fill:#ffffff;fill-opacity:1">
+      <path
+         d="M 40,80 C 17.90861,80 0,62.09139 0,40 0,17.90861 17.90861,0 40,0 62.09139,0 80,17.90861 80,40 80,62.09139 62.09139,80 40,80 Z m 0,-4 C 59.882251,76 76,59.882251 76,40 76,20.117749 59.882251,4 40,4 20.117749,4 4,20.117749 4,40 4,59.882251 20.117749,76 40,76 Z"
+         id="path21"
+         style="fill:#ffffff;fill-opacity:1" />
+    </g>
+  </g>
+</svg>
