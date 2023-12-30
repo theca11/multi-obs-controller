@@ -22,6 +22,7 @@ $SD.onConnected(({ appInfo }: any) => {
 // Global settings received
 $SD.onDidReceiveGlobalSettings(({ payload }: DidReceiveGlobalSettingsData<GlobalSettings>) => {
 	const { settings } = payload;
+	SDUtils.debugEnabled = settings.debug === 'enabled';
 	sockets.forEach((socket, idx) => {
 		const i = idx + 1;
 		socket.updateSettings(settings[`ip${i}`] ?? '', settings[`port${i}`] ?? '', settings[`pwd${i}`]);

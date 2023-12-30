@@ -13,13 +13,24 @@ class Socket extends OBSWebSocket {
 		this._port = port;
 		this._password = password;
 
+		this.on('ConnectionOpened', () => SDUtils.logDebug(`WS initial connection opened to server at ${this._ip}:${this._port}`));
+		this.on('Hello', (data) => SDUtils.logDebug(`WS server at ${this._ip}:${this._port} sent Hello message - OBS WS Version: ${data.obsWebSocketVersion} | RPC Version: ${data.rpcVersion}`));
+
 		this.on('Identified', () => {
 			this._isConnected = true;
 			const logStr = `[CONNECTED] OBS Websocket server at ${this._ip}:${this._port}`;
+			SDUtils.logDebug(`Identified to WS server at ${this._ip}:${this._port}`);
 			SDUtils.log(logStr);
 		});
 
-		this.on('ConnectionClosed', () => {
+		this.on('ConnectionClosed', (e) => {
+			if (!e.message) {
+				SDUtils.logDebug(`WS server at ${this._ip}:${this._port} unreachable/closed connection (${e.code})`);
+			}
+			else {
+				SDUtils.logDebug(`WS server at ${this._ip}:${this._port} closed connection: ${e.message} (${e.code})`);
+			}
+
 			if (this._isConnected) {
 				const logStr = `[DISCONNECTED] OBS Websocket server at ${this._ip}:${this._port}`;
 				SDUtils.log(logStr);

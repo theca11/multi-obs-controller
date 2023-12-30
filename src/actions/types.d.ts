@@ -59,7 +59,8 @@ export type GlobalSettings = Partial<{
 	defaultTarget: string,
 	longPressMs: string,
 	feedback: 'hide',
-	targetNumbers: 'bottom' | 'middle' | 'top' | 'hide'
+	targetNumbers: 'bottom' | 'middle' | 'top' | 'hide',
+	debug: 'enabled'
 }>
 
 export type SocketSettings<T> = Partial<T> | Record<string, never>;

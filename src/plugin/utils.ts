@@ -20,13 +20,14 @@ export class SDUtils {
 		'warn': (msg: string) => console.warn(msg),
 		'info': (msg: string) => console.info(msg),
 		'log': (msg: string) => console.log(msg),
+		'debug': (msg: string) => console.log(msg),
 	};
 
 	/**
 	 * Log message to both console and SD log file
 	 * @param message Message to log
 	 */
-	static log(message: string, logLevel: 'error' | 'warn' | 'info' | 'log' = 'info') {
+	static log(message: string, logLevel: 'error' | 'warn' | 'info' | 'log' | 'debug' = 'info') {
 		message = `[${logLevel.toUpperCase()}]${message.startsWith('[') ? '' : ' '}` + message;
 		SDUtils.consoleLog[logLevel](message);
 		$SD.logMessage(message);
@@ -38,6 +39,16 @@ export class SDUtils {
 	 */
 	static logError(message: string) {
 		SDUtils.log(message, 'error');
+	}
+
+	static debugEnabled = false;
+
+	/**
+	 * Log debug message to both console and SD log file
+	 * @param message Debug message to log
+	 */
+	static logDebug(message: string) {
+		if (this.debugEnabled) SDUtils.log(message, 'debug');
 	}
 
 	/**
