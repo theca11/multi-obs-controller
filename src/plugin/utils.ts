@@ -100,7 +100,7 @@ export class SVGUtils {
 		const linesToDraw = numLines * (end - start);
 		let pattern = '';
 		for (let i = 0; i < linesToDraw; i++) {
-			pattern += `<rect x="${i * lineW + (width * start)}" y="0" width="${lineW}" height="${height}" fill="${i % 2 ? '#333333' : '#666666'}" fill-opacity="0.4"/>`;
+			pattern += `<rect x="${i * lineW + (width * start)}" y="0" width="${lineW}" height="${height}" fill="${i % 2 ? '#333333' : '#666666'}" fill-opacity="0.6"/>`;
 		}
 		return pattern;
 	}

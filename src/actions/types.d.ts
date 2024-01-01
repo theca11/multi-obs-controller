@@ -48,7 +48,9 @@ export type PersistentSettings<T> = Partial<{
 	},
 	advanced: {
 		longPress?: 'true',
-		longPressMs?: string
+		longPressMs?: string,
+		customImg?: string,
+		customImgPos?: string
 	}
 	[key: `params${number}`]: Partial<T>
 }>
@@ -69,6 +71,10 @@ export interface ContextData<T> {
 	isInMultiAction: boolean;
 	settings: (SocketSettings<T> | null)[];
 	states: StateEnum[];
+	advancedSettings?: {
+		customImg?: string,
+		customImgPos?: string
+	}
 }
 
 export type RequestPayload = SingleRequestPayload<T> | BatchRequestPayload | null;

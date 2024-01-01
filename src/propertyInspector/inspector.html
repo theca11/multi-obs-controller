@@ -96,16 +96,25 @@
 				<details style="margin-left: 16px; margin-right: 16px; padding: 0px;">
 					<summary class="lines"><span style="margin: 0 4px;">Advanced Options</span></summary>
 					<form id="advanced-fields" style="padding: 6px 0;">
-						<div type="checkbox" class="sdpi-item" id="longPress" title="Requires a long key press" style="margin-top: 0px">
-							<div class="sdpi-item-label" style="width: 80px;">Long press</div>
+						<div type="checkbox" class="sdpi-item" id="longPress" style="margin-top: 0px">
+							<div class="sdpi-item-label" title="Require a long key press" style="width: 80px;">Long Press</div>
 							<div class="sdpi-item-value">
 								<input id="longPressCheck" type="checkbox" name="longPress" value="true">
 								<label for="longPressCheck" class="sdpi-item-label"><span></span></label>
 							</div>
-							<label for="longPressMs" class="sdpi-item-label" style="width: auto;">Length (ms)</label>
+							<label for="longPressMs" class="sdpi-item-label" title="Minimum length of a long key press" style="width: auto;">Length (ms)</label>
 							<input class="sdpi-item-value" style="min-width: auto; width: 92px; margin-right: 30px; padding-top: 0px;" type="number" id="longPressMs" name="longPressMs">
 						</div>
+						<div class="sdpi-item" id="customImgDiv">
+							<div class="sdpi-item-label" style="width: 80px;" title="Custom key icon">Custom Icon</div>
+							<div class="sdpi-item-value">
+								<input name="customImg" readonly placeholder="No custom icon image set" style="text-overflow: ellipsis; min-height: 26px; min-width: auto; width: 195px; margin: 0; padding-top: 0; padding-bottom: 0;">
+								<input hidden name="customImgPos">
+								<button id="customImgRemoveButton" class="icon" title="Remove custom icon image and use default one">✖</button>
+							</div>
+						</div>
 					</form>
+					<input hidden id="customImgFilePicker" type="file" accept=".jpg, .jpeg, .png">
 				</details>
 				<div class="lines" style="margin-left: 16px; margin-right: 16px;">
 					<div style="display: flex; align-items: flex-end;">

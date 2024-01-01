@@ -67,6 +67,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
 				settings: settingsArray,
+				advancedSettings: settings.advanced,
 				states: await this._fetchStates(settingsArray),
 			};
 			this._contexts.set(context, contextData);
@@ -91,6 +92,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				targetObs: this.getTarget(settings),
 				isInMultiAction: !!isInMultiAction,
 				settings: settingsArray,
+				advancedSettings: settings.advanced,
 				states: await this._fetchStates(settingsArray),
 			};
 			this._contexts.set(context, contextData);
@@ -305,7 +307,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 	private async _generateKeyImage(context: string) {
 		if (!this._contexts.has(context)) return;
-		const { states, targetObs } = this._contexts.get(context)!;
+		const { states, targetObs, advancedSettings } = this._contexts.get(context)!;
 
 		// State rectangles
 		let bgLayer = '', fgLayer = '';
@@ -350,10 +352,24 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			}
 		}
 
+		// Foreground/main image
+		let fgImg = '';
+		if (this.getForegroundImage) {
+			fgImg = await this.getForegroundImage(context) ?? '';
+		}
+		else if (advancedSettings?.customImg && advancedSettings.customImgPos) {
+			const { customImg, customImgPos } = advancedSettings;
+			const [x, y, width, height] = customImgPos.split(',').map(v => parseInt(v.trim()));
+			fgImg = `<image xlink:href="${customImg}" x="${x}" y="${y}" width="${width}" height="${height}"/>`;
+		}
+		else {
+			fgImg = this._defaultKeyImg?.replace(/<\/?svg.*?>/g, '') ?? '';
+		}
+
 		const svgStr = `
 		<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
 			${bgLayer}
-			${this.getForegroundImage ? await this.getForegroundImage(context) : this._defaultKeyImg?.replace(/<\/?svg.*?>/g, '')}
+			${fgImg}
 			${targetsText}
 			${fgLayer}
 		</svg>

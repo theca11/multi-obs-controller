@@ -66,6 +66,7 @@ $PI.onConnected(async (jsn) => {
 	$PI.onDidReceiveSettings(action, ({ payload: receiveSettingsPayload }) => {
 		if (receiveSettingsPayload.isInMultiAction) {
 			document.querySelector('#longPress').style.display = 'none';
+			document.querySelector('#customImgDiv').style.display = 'none';
 		}
 	});
 	$PI.getSettings();
@@ -90,6 +91,61 @@ $PI.onDidReceiveGlobalSettings(({ payload }) => {
 document.querySelector('#open-config').addEventListener('click', () => {
 	window.open('./configuration.html');
 });
+
+// Custom image picker functions/listeners
+document.querySelector('input[name="customImg"]').addEventListener('click', (e) => {
+	e.preventDefault();
+	document.querySelector('#customImgFilePicker').click();
+});
+
+document.querySelector('#customImgFilePicker').addEventListener('input', (e) => {
+	const imgPath = decodeURIComponent(e.target.value.replace(/^C:\\fakepath\\/, ''));
+
+	if (imgPath) {
+		const img = new Image();
+		img.onload = function() {
+			let x, y, width, height;
+			if (this.width < 72 && this.height < 72) {
+				width = this.width * 2;
+				height = this.height * 2;
+				x = Math.floor(72 - width / 2);
+				y = Math.floor(72 - height / 2);
+			}
+			else if (this.width > this.height) {
+				width = 144;
+				height = Math.floor(this.height * 144 / this.width);
+				x = 0;
+				y = Math.floor(72 - height / 2);
+			}
+			else {
+				height = 144;
+				width = Math.floor(this.width * 144 / this.height);
+				y = 0;
+				x = Math.floor(72 - width / 2);
+			}
+			document.querySelector('input[name="customImg"]').value = imgPath;
+			document.querySelector('input[name="customImgPos"]').value = [x, y, width, height].join(',');
+			document.querySelector('#advanced-fields').dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+		};
+		img.onerror = function() {
+			document.querySelector('input[name="customImg"]').placeholder = '⚠ ⚠ Error loading image ⚠ ⚠';
+			setTimeout(() => {
+				document.querySelector('input[name="customImg"]').placeholder = 'No custom icon image set';
+			}, 3000);
+		};
+		img.src = imgPath;
+	}
+});
+
+document.querySelector('#customImgRemoveButton').addEventListener('click', (e) => {
+	e.preventDefault();
+	document.querySelector('#customImgFilePicker').value = '';
+	document.querySelector('input[name="customImg"]').value = '';
+	document.querySelector('input[name="customImgPos"]').value = '';
+	document.querySelector('#advanced-fields').dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+});
+// --
+
 
 /**
  * Load all forms, and set listener to update settings on forms change
