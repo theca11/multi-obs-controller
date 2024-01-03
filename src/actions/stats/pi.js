@@ -67,3 +67,7 @@ document.querySelectorAll('.stat-items').forEach((el) =>
 		formEl.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
 	}),
 );
+
+// Hide long press and custom image advanced options
+document.querySelector('#longPress').style.display = 'none';
+document.querySelector('#customImgDiv').style.display = 'none';
