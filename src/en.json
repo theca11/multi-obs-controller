@@ -1,0 +1,187 @@
+{
+	"Author": "the_ca11",
+	"Name": "Multi OBS Controller",
+	"Description": "Control one or multiple OBS Studio instances at the same time. Easily keep them synchronized or manage them individually. Stream, record, set current scene, toggle source visibility, mute audio, trigger hotkeys and much more. Advanced actions support any OBS Websockets protocol request.",
+	"Category": "Multi OBS Controller",
+	"dev.theca11.multiobs.togglestream": {
+		"Name": "Stream",
+		"Tooltip": "Start/stop streaming",
+		"States": [
+			{
+				"Name": "Start"
+			},
+			{
+				"Name": "Stop"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglerecord": {
+		"Name": "Record",
+		"Tooltip": "Start/stop recording",
+		"States": [
+			{
+				"Name": "Start"
+			},
+			{
+				"Name": "Stop"
+			}
+		]
+	},
+	"dev.theca11.multiobs.pauserecord": {
+		"Name": "Record Pause",
+		"Tooltip": "Pause/resume recording",
+		"States": [
+			{
+				"Name": "Pause"
+			},
+			{
+				"Name": "Resume"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglevirtualcam": {
+		"Name": "Virtual Camera",
+		"Tooltip": "Start/stop virtual camera",
+		"States": [
+			{
+				"Name": "Start"
+			},
+			{
+				"Name": "Stop"
+			}
+		]
+	},
+	"dev.theca11.multiobs.setscene": {
+		"Name": "Scene",
+		"Tooltip": "Set current scene"
+	},
+	"dev.theca11.multiobs.togglesource": {
+		"Name": "Source Visibility",
+		"Tooltip": "Show/hide source",
+		"States": [
+			{
+				"Name": "Show"
+			},
+			{
+				"Name": "Hide"
+			}
+		]
+	},
+	"dev.theca11.multiobs.setcollection": {
+		"Name": "Scene Collection",
+		"Tooltip": "Set current scene collection"
+	},
+	"dev.theca11.multiobs.setprofile": {
+		"Name": "Profile",
+		"Tooltip": "Set current profile"
+	},
+	"dev.theca11.multiobs.toggleinputmute": {
+		"Name": "Audio Mute",
+		"Tooltip": "Mute/unmute audio source",
+		"States": [
+			{
+				"Name": "Mute"
+			},
+			{
+				"Name": "Unmute"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglefilter": {
+		"Name": "Filter",
+		"Tooltip": "Enable/disable scene/source filter",
+		"States": [
+			{
+				"Name": "Enable"
+			},
+			{
+				"Name": "Disable"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglestudiomode": {
+		"Name": "Studio Mode",
+		"Tooltip": "Enable/disable studio mode",
+		"States": [
+			{
+				"Name": "Enable"
+			},
+			{
+				"Name": "Disable"
+			}
+		]
+	},
+	"dev.theca11.multiobs.triggerstudiomodetransition": {
+		"Name": "Studio Mode Transition",
+		"Tooltip": "Trigger studio mode transition"
+	},
+	"dev.theca11.multiobs.screenshot": {
+		"Name": "Screenshot",
+		"Tooltip": "Take screenshot of output or specific scene/source"
+	},
+	"dev.theca11.multiobs.triggerhotkey": {
+		"Name": "Hotkey Sequence",
+		"Tooltip": "Trigger action associated with a hotkey sequence"
+	},
+	"dev.theca11.multiobs.refreshbrowsersource": {
+		"Name": "Refresh Browser Source",
+		"Tooltip": "Refresh cache of a browser source page"
+	},
+	"dev.theca11.multiobs.refreshcapturedevice": {
+		"Name": "Refresh Capture Device",
+		"Tooltip": "Disable & re-enable a video capture device"
+	},
+	"dev.theca11.multiobs.stats": {
+		"Name": "Stats",
+		"Tooltip": "Get general/stream/record stats"
+	},
+	"dev.theca11.multiobs.rawrequest": {
+		"Name": "Raw WS Request",
+		"Tooltip": "[Advanced] Send a raw WS request"
+	},
+	"dev.theca11.multiobs.rawbatchrequest": {
+		"Name": "Raw WS Batch Request",
+		"Tooltip": "[Advanced] Send raw WS batch request"
+	},
+	"Localization": {
+		"OBS to target": "OBS to target",
+		"Target": "Target",
+		"All": "All",
+		"Use individual settings per OBS instance": "Use individual settings per OBS instance",
+		"Advanced Options": "Advanced Options",
+		"Long Press": "Long Press",
+		"Length (ms)": "Length (ms)",
+		"Require a long key press": "Require a long key press",
+		"Minimum length of a long key press": "Minimum length of a long key press",
+		"Custom Icon": "Custom Icon",
+		"Use custom key icon": "Use custom key icon",
+		"No custom icon image set": "No custom icon image set",
+		"Error loading image": "⚠ ⚠ Error loading image ⚠ ⚠",
+		"General Configuration": "General Configuration",
+		"Show Time": "Show Time",
+		"Show stream elapsed time": "Show stream elapsed time",
+		"Show record elapsed time": "Show record elapsed time",
+		"Scene": "Scene",
+		"Source": "Source",
+		"Collection": "Collection",
+		"Profile": "Profile",
+		"Input": "Input",
+		"Filter": "Filter",
+		"Scene/Source": "Scene/Source",
+		"Quality/Size": "Quality/Size",
+		"Set to Output for current program output": "Set to Output for current program output",
+		"Key Sequence": "Key Sequence",
+		"Click here to add hotkey sequence": "Click here to add hotkey sequence",
+		"Waiting for key sequence press...": "Waiting for key sequence press...",
+		"Browser Source Name": "Browser Source Name",
+		"Device": "Device",
+		"Delay (ms)": "Delay (ms)",
+		"Video Capture Device Name": "Video Capture Device Name",
+		"Milliseconds to wait before re-enabling the capture device": "Milliseconds to wait before re-enabling the capture device",
+		"Request Type": "Request Type",
+		"Request Data": "Request Data",
+		"Execution Type": "Execution Type",
+		"Halt on Failure": "Halt on Failure",
+		"Requests Array": "Requests Array"
+	}
+}

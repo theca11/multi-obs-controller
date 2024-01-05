@@ -1,6 +1,6 @@
 export const fields = `
 <div class="sdpi-item" id="select_single">
-    <div class="sdpi-item-label">Execution Type</div>
+    <div class="sdpi-item-label" data-localize>Execution Type</div>
     <select class="sdpi-item-value select" name="executionType">
        <option value="0" selected>SerialRealtime</option>
        <option value="1">SerialFrame</option>
@@ -8,12 +8,12 @@ export const fields = `
     </select>
 </div>
 <div type="checkbox" class="sdpi-item">
-    <div class="sdpi-item-label">Halt on Failure</div>
+    <div class="sdpi-item-label" data-localize>Halt on Failure</div>
     <input class="sdpi-item-value" id="chk0" type="checkbox" name="haltOnFailure" value="true">
     <label for="chk0"><span></span></label>
 </div>
 <div type="textarea" class="sdpi-item">
-	<div class="sdpi-item-label">Requests Array</div>
+	<div class="sdpi-item-label" data-localize>Requests Array</div>
 	<span class="sdpi-item-value textarea">
 		<textarea type="textarea" class="four-lines" name="requestsArray" required></textarea>
 	</span>

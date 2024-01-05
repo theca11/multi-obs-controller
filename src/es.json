@@ -1,0 +1,187 @@
+{
+	"Author": "the_ca11",
+	"Name": "Multi OBS Controller",
+	"Description": "Controla una o varias instancias de OBS Studio a la vez. Mantenlas sincronizadas de manera sencilla o gestiónalas individualmente. Transmite, graba, cambia la escena actual, modifica la visibilidad de una fuente, silencia audio, desencadena un atajo y mucho más. Acciones avanzadas permiten cualquier petición compatible con el protocolo de OBS Websockets.",
+	"Category": "Multi OBS Controller",
+	"dev.theca11.multiobs.togglestream": {
+		"Name": "Transmitir",
+		"Tooltip": "Iniciar/detener transmisión",
+		"States": [
+			{
+				"Name": "Iniciar"
+			},
+			{
+				"Name": "Detener"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglerecord": {
+		"Name": "Grabar",
+		"Tooltip": "Iniciar/detener grabación",
+		"States": [
+			{
+				"Name": "Iniciar"
+			},
+			{
+				"Name": "Detener"
+			}
+		]
+	},
+	"dev.theca11.multiobs.pauserecord": {
+		"Name": "Pausar grabación",
+		"Tooltip": "Pausar/reanudar grabación",
+		"States": [
+			{
+				"Name": "Pausar"
+			},
+			{
+				"Name": "Reanudar"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglevirtualcam": {
+		"Name": "Cámara virtual",
+		"Tooltip": "Iniciar/detener cámara virtual",
+		"States": [
+			{
+				"Name": "Iniciar"
+			},
+			{
+				"Name": "Detener"
+			}
+		]
+	},
+	"dev.theca11.multiobs.setscene": {
+		"Name": "Escena",
+		"Tooltip": "Cambiar escena actual"
+	},
+	"dev.theca11.multiobs.togglesource": {
+		"Name": "Visibilidad de fuente",
+		"Tooltip": "Mostrar/ocultar fuente",
+		"States": [
+			{
+				"Name": "Mostrar"
+			},
+			{
+				"Name": "Ocultar"
+			}
+		]
+	},
+	"dev.theca11.multiobs.setcollection": {
+		"Name": "Colección de escenas",
+		"Tooltip": "Cambiar colección de escenas actual"
+	},
+	"dev.theca11.multiobs.setprofile": {
+		"Name": "Perfil",
+		"Tooltip": "Cambiar el perfil actual"
+	},
+	"dev.theca11.multiobs.toggleinputmute": {
+		"Name": "Silenciar audio",
+		"Tooltip": "Silenciar/no silenciar fuente de audio",
+		"States": [
+			{
+				"Name": "Silenciar"
+			},
+			{
+				"Name": "No silenciar"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglefilter": {
+		"Name": "Filtro",
+		"Tooltip": "Habilitar/deshabilitar filtro de escena o fuente",
+		"States": [
+			{
+				"Name": "Habilitar"
+			},
+			{
+				"Name": "Deshabilitar"
+			}
+		]
+	},
+	"dev.theca11.multiobs.togglestudiomode": {
+		"Name": "Modo estudio",
+		"Tooltip": "Habilitar/deshabilitar modo estudio",
+		"States": [
+			{
+				"Name": "Habilitar"
+			},
+			{
+				"Name": "Deshabilitar"
+			}
+		]
+	},
+	"dev.theca11.multiobs.triggerstudiomodetransition": {
+		"Name": "Transición de modo estudio",
+		"Tooltip": "Realizar una transición en el modo estudio de vista previa a programa"
+	},
+	"dev.theca11.multiobs.screenshot": {
+		"Name": "Captura",
+		"Tooltip": "Tomar una captura de la salida actual o de una escena/fuente específica"
+	},
+	"dev.theca11.multiobs.triggerhotkey": {
+		"Name": "Atajo",
+		"Tooltip": "Desencadenar una acción asociada con un atajo/secuencia de teclas"
+	},
+	"dev.theca11.multiobs.refreshbrowsersource": {
+		"Name": "Actualizar fuente de navegador",
+		"Tooltip": "Actualizar el caché de una página de navegador"
+	},
+	"dev.theca11.multiobs.refreshcapturedevice": {
+		"Name": "Actualizar dispositivo de captura",
+		"Tooltip": "Deshabilitar y rehabilitar un dispositivo de captura de vídeo"
+	},
+	"dev.theca11.multiobs.stats": {
+		"Name": "Estadísticas",
+		"Tooltip": "Mostrar estadísticas (generales/transmisión/grabación)"
+	},
+	"dev.theca11.multiobs.rawrequest": {
+		"Name": "Petición WS",
+		"Tooltip": "[Avanzado] Enviar una petición WS de bajo nivel"
+	},
+	"dev.theca11.multiobs.rawbatchrequest": {
+		"Name": "Petición WS de grupo",
+		"Tooltip": "[Avanzado] Enviar una petición WS de grupo de bajo nivel"
+	},
+	"Localization": {
+		"OBS to target": "OBS al que enviar la acción",
+		"Target": "Objetivo",
+		"All": "Todos",
+		"Use individual settings per OBS instance": "Usar ajustes individuales para cada OBS",
+		"Advanced Options": "Opciones Avanzadas",
+		"Long Press": "Pulsación Larga",
+		"Length (ms)": "Duración (ms)",
+		"Require a long key press": "Requerir una pulsación larga",
+		"Minimum length of a long key press": "Duración mínima de una pulsación larga",
+		"Custom Icon": "Icono custom",
+		"Use custom key icon": "Usar un icono de tecla personalizado",
+		"No custom icon image set": "Sin icono personalizado",
+		"Error loading image": "⚠ ⚠ Error cargando imagen ⚠ ⚠",
+		"General Configuration": "Configuración General",
+		"Show Time": "Mostrar Tiempo",
+		"Show stream elapsed time": "Mostrar el tiempo transcurrido de transmisión",
+		"Show record elapsed time": "Mostrar el tiempo transcurrido de grabación",
+		"Scene": "Escena",
+		"Source": "Fuente",
+		"Collection": "Colección",
+		"Profile": "Perfil",
+		"Input": "Input",
+		"Filter": "Filtro",
+		"Scene/Source": "Escena/Fuente",
+		"Quality/Size": "Calidad/Tamaño",
+		"Set to Output for current program output": "Poner Output para capturar la salida actual",
+		"Key Sequence": "Secuencia Teclas",
+		"Click here to add hotkey sequence": "Click aquí para insertar secuencia de teclas",
+		"Waiting for key sequence press...": "Esperando introducción de secuencia...",
+		"Browser Source Name": "Nombre de la fuente de navegador",
+		"Device": "Dispositivo",
+		"Delay (ms)": "Retardo (ms)",
+		"Video Capture Device Name": "Nombre del dispositivo de captura de vídeo",
+		"Milliseconds to wait before re-enabling the capture device": "Milisegundos a esperar antes de rehabilitar el dispositivo de captura",
+		"Request Type": "Tipo de petición",
+		"Request Data": "Datos de la petición",
+		"Execution Type": "Tipo ejecución",
+		"Halt on Failure": "Parar al fallar",
+		"Requests Array": "Array de peticiones"
+	}
+}

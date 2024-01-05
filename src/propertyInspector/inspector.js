@@ -1,6 +1,6 @@
 // / <reference path="../libs/js/property-inspector.js" />
 // / <reference path="../libs/js/utils.js" />
-import { FormUtils } from './utils.js';
+import { FormUtils, localizeUI } from './utils.js';
 
 const NUM_INSTANCES = 2;
 const forms = new Map(); // common form and per OBS instance forms
@@ -77,6 +77,9 @@ $PI.onConnected(async (jsn) => {
 	// Signal plugin that PI is ready after importing everything
 	$PI.sendToPlugin({ event: 'ready' });
 
+	// Localize UI
+	localizeUI();
+
 	// Show PI contents
 	document.querySelector('.sdpi-wrapper').style.visibility = 'visible';
 });
@@ -128,9 +131,9 @@ document.querySelector('#customImgFilePicker').addEventListener('input', (e) => 
 			document.querySelector('#advanced-fields').dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
 		};
 		img.onerror = function() {
-			document.querySelector('input[name="customImg"]').placeholder = '⚠ ⚠ Error loading image ⚠ ⚠';
+			document.querySelector('input[name="customImg"]').placeholder = $PI.localize('Error loading image');
 			setTimeout(() => {
-				document.querySelector('input[name="customImg"]').placeholder = 'No custom icon image set';
+				document.querySelector('input[name="customImg"]').placeholder = $PI.localize('No custom icon image set');
 			}, 3000);
 		};
 		img.src = imgPath;

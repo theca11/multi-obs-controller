@@ -1,7 +1,7 @@
 export const fields = `
 <div class="sdpi-item sequence-item">
-	<div class="sdpi-item-label">Key Sequence</div>
-	<input class="sdpi-item-value" type="text" placeholder="Click here to add hotkey sequence" readonly>
+	<div class="sdpi-item-label" data-localize>Key Sequence</div>
+	<input class="sdpi-item-value" type="text" placeholder="Click here to add hotkey sequence" readonly data-localize>
 	<input type="hidden" name="seq">
 </div>
 <details>

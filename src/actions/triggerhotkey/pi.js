@@ -32,7 +32,7 @@ document.querySelectorAll('.sequence-item .sdpi-item-value').forEach((input) => 
 
 function onClickHandler(event) {
 	event.target.value = '';
-	event.target.placeholder = 'Waiting for key sequence press...';
+	event.target.placeholder = $PI.localize('Waiting for key sequence press...');
 	resetKeys();
 }
 

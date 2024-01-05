@@ -1,10 +1,10 @@
 export const fields = `
 <div class="sdpi-item">
-	<div class="sdpi-item-label">Request Type</div>
+	<div class="sdpi-item-label" data-localize>Request Type</div>
 	<input class="sdpi-item-value" type="text" name="requestType" required>
 </div>
 <div type="textarea" class="sdpi-item">
-	<div class="sdpi-item-label">Request Data</div>
+	<div class="sdpi-item-label" data-localize>Request Data</div>
 	<span class="sdpi-item-value textarea">
 		<textarea type="textarea" class="two-lines" name="requestData"></textarea>
 	</span>
