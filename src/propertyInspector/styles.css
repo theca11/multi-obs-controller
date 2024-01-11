@@ -1,0 +1,270 @@
+/** ------------------------------------------ */
+/** --------- SDK STYLES OVERRIDES ----------- */
+/** ------------------------------------------ */
+
+::-webkit-scrollbar {
+	width: 6px;
+}
+
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-track {
+	border-radius: 6px;
+}
+
+textarea,
+input,
+button,
+select,
+option,
+details * {
+	font-family: inherit;
+	font-size: 9pt;
+	font-weight: normal;
+}
+
+hr {
+	margin-right: 13px;
+}
+
+select {
+	height: 26px;
+	width: 0px;
+	flex-grow: 1;
+}
+
+select,
+button {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.sdpi-item {
+	min-height: auto;
+	max-width: none;
+	display: flex;
+	align-items: center;
+	margin-bottom: 4px;
+}
+
+.sdpi-item-label {
+	display: grid;
+	grid-template-columns: auto auto;
+	justify-content: end;
+	align-content: center;
+	align-items: last baseline;
+	font-weight: normal;
+	margin-left: 0px;
+}
+
+.sdpi-item-value {
+	font-size: inherit;
+	display: inline-flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.sdpi-item-value > :last-of-type,
+.sdpi-item-value:last-child {
+	margin-bottom: 0px;
+}
+
+.sdpi-item-value.select,
+.sdpi-item-value > select {
+	font-weight: normal;
+	padding: 0;
+}
+
+input[type='radio'] + label,
+input[type='checkbox'] + label {
+	display: inline-flex;
+	align-items: center;
+	margin-right: 16px;
+}
+
+input[type='checkbox'] + label span {
+	border-radius: 4px;
+}
+
+input[type='radio'] + label span,
+input[type='checkbox'] + label span,
+input[type='radio']:checked + label span,
+input[type='checkbox']:checked + label span {
+	border: none;
+}
+
+.sdpi-item[type='checkbox'] > .sdpi-item-value {
+	padding: 0px;
+}
+
+.sdpi-item[type='checkbox'] > .sdpi-item-value > * {
+	margin: 0px;
+}
+
+.sdpi-item-value > textarea {
+	min-width: auto;
+	width: -webkit-fill-available;
+	margin: 0;
+}
+
+input.sdpi-item-value {
+	margin-left: 4px;
+}
+
+details summary > span:before {
+	content: '⯈ ';
+}
+
+details[open] summary > span:before {
+	content: '⯆ ';
+}
+
+.tab-separator {
+	max-width: none;
+	margin-top: -2px;
+	margin-right: 13px;
+}
+
+/*
+* ICON BUTTONS and ICONS
+*/
+.icon-button {
+	border: none;
+	margin-left: 2px !important;
+	margin-right: 0px !important;
+	padding: 0;
+	flex-grow: 0;
+	min-width: 20px;
+	min-height: 26px !important;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 90%;
+}
+
+.icon-button:hover {
+	filter: brightness(1.2);
+}
+
+.icon-remove {
+	background-image: url(../assets/tablerIcons/x.svg);
+}
+
+.icon-up {
+	background-image: url(../assets/tablerIcons/arrow-up.svg);
+}
+
+.icon-down {
+	background-image: url(../assets/tablerIcons/arrow-down.svg);
+}
+
+/*
+* COLOR PICKER
+*/
+input[type='color'] {
+	min-width: 20px;
+	min-height: 26px;
+	height: 26px;
+	width: 20px;
+}
+
+input[type='color']::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+
+input[type='color']::-webkit-color-swatch {
+	border: none;
+	min-width: 20px;
+	height: 26px;
+	margin: auto;
+	/* border: 2px solid #3d3d3d;
+    box-sizing: border-box; */
+}
+
+/*
+* BUTTONS
+*/
+button {
+	background-color: var(--sdpi-background);
+	border: 1px solid #828282;
+}
+
+/*
+* RANGE
+*/
+input[type='range'] {
+	width: auto;
+	max-width: none !important;
+	flex-grow: 1;
+	margin-top: 2px;
+}
+
+.sdpi-item[type='range'] .sdpi-item-value span {
+	margin-top: 0px;
+	font-weight: normal;
+	font-size: 9pt;
+}
+
+/** ------------------------------------------ */
+/** -------- CUSTOM EXTRA STYLES ---------- */
+/** ------------------------------------------ */
+.end-colon::after {
+	content: ': ';
+}
+
+#first-separator {
+	display: none;
+	margin-bottom: 20px;
+	margin-top: 2px;
+}
+
+.lines {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 13px;
+	margin-left: 16px;
+}
+
+.lines > * {
+	background: #2d2d2d;
+	margin: 0 6px;
+}
+
+.lines:before,
+.lines:after {
+	background: #454545;
+	height: 1px;
+	flex: 1;
+	content: '';
+}
+
+/*
+* DETAILS for RAW REQUESTS ACTIONS
+*/
+details.info-details {
+	margin-left: 15px;
+	margin-right: 13px;
+	margin-bottom: 4px;
+	padding: 4px 8px;
+	background-color: #262626;
+}
+
+details.info-details > summary {
+	list-style: none;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	column-gap: 4px;
+}
+
+details.info-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+details.info-details > summary::after {
+	content: ' ⯈';
+}
+
+details[open].info-details summary:after {
+	content: ' ▼';
+}

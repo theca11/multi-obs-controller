@@ -39,7 +39,7 @@ $PI.onConnected(async (jsn) => {
 		document.querySelector('.tabs').innerHTML = tabs.join('');
 		document.querySelector('.tabs-contents').innerHTML = tabsContents.join('');
 		activateTabs();
-		document.querySelector('.first-separator').style.display = 'block';
+		document.querySelector('#first-separator').style.display = 'block';
 	}
 	else {
 		document.querySelector('#indivParams').style.display = 'none'; // hide indiv params box if not fields

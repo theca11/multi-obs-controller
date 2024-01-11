@@ -1,20 +1,25 @@
 document.querySelectorAll('textarea').forEach((el, idx) => {
-	el.addEventListener('input', () => {
-		const buttonEl = document.querySelectorAll('.validate')[idx];
-		buttonEl.textContent = 'Validate JSON    ❔';
-	});
+	validate(el, idx); // initial validation
+
+	el.addEventListener('input', Utils.debounce(500, () => { // validation on input change
+		validate(el, idx);
+	}));
 });
 
-document.querySelectorAll('.validate').forEach((el, idx) => {
-	el.addEventListener('click', (ev) => {
-		ev.preventDefault();
-		const textareaEl = document.querySelectorAll('textarea')[idx];
-		try {
-			JSON.parse(textareaEl.value);
-			el.textContent = 'Validate JSON    ✔';
+function validate(el, idx) {
+	const infoEl = document.querySelectorAll('.validation-info')[idx];
+	try {
+		if (el.value) {
+			const validJson = JSON.parse(el.value);
+			el.value = JSON.stringify(validJson, undefined, 2);
 		}
-		catch {
-			el.textContent = 'Validate JSON    ❌';
-		}
-	});
-});
+		el.style.color = '#d8d8d8';
+		infoEl.style.color = '#9a9a9a';
+		infoEl.textContent = 'Valid Json';
+	}
+	catch (e) {
+		el.style.color = '#d39090';
+		infoEl.style.color = '#d39090';
+		infoEl.textContent = 'Invalid Json';
+	}
+}
