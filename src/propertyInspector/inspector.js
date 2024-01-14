@@ -23,7 +23,7 @@ $PI.onConnected(async (jsn) => {
 		const tabsContents = [];
 		for (let i = 1; i <= NUM_INSTANCES; i++) {
 			tabs.push(`
-				<div class="tab${i == 0 ? ' selected' : ''}" data-target="#tab${i}" title="OBS instance ${i}">
+				<div class="tab${i == 0 ? ' selected' : ''}" data-target="#tab${i}">
 					OBS${i}
 				</div>
 			`);

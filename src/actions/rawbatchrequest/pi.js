@@ -15,11 +15,11 @@ function validate(el, idx) {
 		}
 		el.style.color = '#d8d8d8';
 		infoEl.style.color = '#9a9a9a';
-		infoEl.textContent = 'Valid Json';
+		infoEl.textContent = $PI.localize('Valid JSON data');
 	}
 	catch (e) {
 		el.style.color = '#d39090';
 		infoEl.style.color = '#d39090';
-		infoEl.textContent = 'Invalid Json';
+		infoEl.textContent = $PI.localize('Invalid JSON data');
 	}
 }
