@@ -231,6 +231,9 @@
 			"States": [
 				{
 					"Image": "assets/actions/triggerstudiomodetransition/key_on"
+				},
+				{
+					"Image": "assets/actions/triggerstudiomodetransition/key_off"
 				}
 			]
 		},
