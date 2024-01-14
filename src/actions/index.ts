@@ -3,6 +3,7 @@ export { RawBatchRequestAction } from './rawbatchrequest/RawBatchRequestAction';
 export { RawRequestAction } from './rawrequest/RawRequestAction';
 export { RefreshBrowserSourceAction } from './refreshbrowsersource/RefreshBrowserSourceAction';
 export { RefreshCaptureDeviceAction } from './refreshcapturedevice/RefreshCaptureDeviceAction';
+export { SaveReplayBufferAction } from './savereplaybuffer/SaveReplayBufferAction';
 export { ScreenshotAction } from './screenshot/ScreenshotAction';
 export { SetCollectionAction } from './setcollection/SetCollectionAction';
 export { SetProfileAction } from './setprofile/SetProfileAction';

@@ -111,6 +111,21 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.savereplaybuffer",
+			"Icon": "assets/actions/savereplaybuffer/icon",
+			"Name": "Save Replay Buffer",
+			"Tooltip": "Save currently active replay buffer",
+			"States": [
+				{
+					"Image": "assets/actions/savereplaybuffer/key_on"
+				},
+				{
+					"Image": "assets/actions/savereplaybuffer/key_off"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.setscene",
 			"Icon": "assets/actions/setscene/icon",
 			"Name": "Scene",

@@ -63,6 +63,10 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.savereplaybuffer": {
+		"Name": "Save Replay Buffer",
+		"Tooltip": "Save currently active replay buffer"
+	},
 	"dev.theca11.multiobs.setscene": {
 		"Name": "Scene",
 		"Tooltip": "Set current scene"

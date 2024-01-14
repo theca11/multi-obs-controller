@@ -63,6 +63,10 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.savereplaybuffer": {
+		"Name": "Guardar búfer de repetición",
+		"Tooltip": "Guardar el búfer de repetición activo"
+	},
 	"dev.theca11.multiobs.setscene": {
 		"Name": "Escena",
 		"Tooltip": "Cambiar escena actual"
