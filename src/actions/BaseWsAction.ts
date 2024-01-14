@@ -154,9 +154,12 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		});
 
 		// Attach status event listener if defined
-		const statusEvent = params?.statusEvent;
+		let statusEvent = params?.statusEvent;
 		if (statusEvent) {
-			this._attachEventListener(statusEvent as keyof OBSEventTypes);
+			if (!Array.isArray(statusEvent)) {
+				statusEvent = [statusEvent];
+			}
+			statusEvent.forEach(event => this._attachEventListener(event as keyof OBSEventTypes));
 		}
 
 	}
@@ -388,7 +391,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						const [evtData] = args;
 						const socketSettings = settings[evtSocketIdx];
 						if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
-							const newState = this.getStateFromEvent!(evtData, socketSettings);
+							const newState = this.getStateFromEvent!(evtData, socketSettings, statusEvent);
 							if (newState !== states[evtSocketIdx]) {
 								this.setContextSocketState(context, evtSocketIdx, newState);
 								this.updateKeyImage(context);
@@ -424,9 +427,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	 * Get state associated with the action from the event that notifies a state update
 	 * @param evtData Event data
 	 * @param socketSettings Action settings for the corresponding socket
+	 * @param evtName Event name, as defined by OBS
 	 * @returns New state
 	 */
-	getStateFromEvent?(evtData: unknown, socketSettings: SocketSettings<T>): StateEnum;
+	getStateFromEvent?(evtData: unknown, socketSettings: SocketSettings<T>, evtName: keyof OBSEventTypes): StateEnum;
 	// --
 }
 

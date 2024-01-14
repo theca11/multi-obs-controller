@@ -90,7 +90,7 @@ export type BatchRequestPayload = {
 
 export type ConstructorParams = {
 	titleParam?: string,
-	statusEvent?: keyof OBSEventTypes,
+	statusEvent?: keyof OBSEventTypes | (keyof OBSEventTypes)[],
 	statesColors?: {
 		on?: string,
 		off?: string

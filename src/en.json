@@ -103,6 +103,24 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.mediainputcontrol": {
+		"Name": "Media Source Control",
+		"Tooltip": "Control media source playback",
+		"States": [
+			{
+				"Name": "Play"
+			},
+			{
+				"Name": "Stop"
+			},
+			{
+				"Name": "Pause"
+			},
+			{
+				"Name": "Restart"
+			}
+		]
+	},
 	"dev.theca11.multiobs.togglefilter": {
 		"Name": "Filter",
 		"Tooltip": "Enable/disable scene/source filter",
@@ -183,6 +201,11 @@
 		"Collection": "Collection",
 		"Profile": "Profile",
 		"Input": "Input",
+		"Action": "Action",
+		"Play/Stop": "Play/Stop",
+		"Play/Pause": "Play/Pause",
+		"Restart": "Restart",
+		"Stop": "Stop",
 		"Filter": "Filter",
 		"Scene/Source": "Scene/Source",
 		"Quality/Size": "Quality/Size",

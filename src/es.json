@@ -103,6 +103,24 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.mediainputcontrol": {
+		"Name": "Control de fuente multimedia",
+		"Tooltip": "Controlar reproducción de fuente multimedia",
+		"States": [
+			{
+				"Name": "Reproducir"
+			},
+			{
+				"Name": "Detener"
+			},
+			{
+				"Name": "Pausar"
+			},
+			{
+				"Name": "Reiniciar"
+			}
+		]
+	},
 	"dev.theca11.multiobs.togglefilter": {
 		"Name": "Filtro",
 		"Tooltip": "Habilitar/deshabilitar filtro de escena o fuente",
@@ -183,6 +201,11 @@
 		"Collection": "Colección",
 		"Profile": "Perfil",
 		"Input": "Input",
+		"Action": "Acción",
+		"Play/Stop": "Reproducir/Detener",
+		"Play/Pause": "Reproducir/Pausar",
+		"Restart": "Reiniciar",
+		"Stop": "Detener",
 		"Filter": "Filtro",
 		"Scene/Source": "Escena/Fuente",
 		"Quality/Size": "Calidad/Tamaño",

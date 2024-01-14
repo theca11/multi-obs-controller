@@ -1,3 +1,4 @@
+export { MediaInputControlAction } from './mediainputcontrol/MediaInputControlAction';
 export { PauseRecordAction } from './pauserecord/PauseRecordAction';
 export { RawBatchRequestAction } from './rawbatchrequest/RawBatchRequestAction';
 export { RawRequestAction } from './rawrequest/RawRequestAction';

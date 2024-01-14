@@ -205,6 +205,31 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.mediainputcontrol",
+			"Icon": "assets/actions/mediainputcontrol/icon",
+			"Name": "Media Source Control",
+			"Tooltip": "Control media source playback",
+			"States": [
+				{
+					"Image": "assets/actions/mediainputcontrol/key_on",
+					"Name": "Play"
+				},
+				{
+					"Image": "assets/actions/mediainputcontrol/key_off",
+					"Name": "Stop"
+				},
+				{
+					"Image": "assets/actions/mediainputcontrol/key_off",
+					"Name": "Pause"
+				},
+				{
+					"Image": "assets/actions/mediainputcontrol/key_on",
+					"Name": "Restart"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.togglefilter",
 			"Icon": "assets/actions/togglefilter/icon",
 			"Name": "Filter",
