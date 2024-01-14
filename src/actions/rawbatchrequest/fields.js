@@ -37,7 +37,7 @@ Example:
 	</p>
 </details>
 <div class="sdpi-item">
-    <div class="sdpi-item-label" data-localize>Execution Type</div>
+    <div class="sdpi-item-label" data-i18n>Execution Type</div>
     <select class="sdpi-item-value select" name="executionType">
        <option value="0" selected>SerialRealtime</option>
        <option value="1">SerialFrame</option>
@@ -45,14 +45,14 @@ Example:
     </select>
 </div>
 <div type="checkbox" class="sdpi-item">
-    <div class="sdpi-item-label" data-localize>Halt on Failure</div>
+    <div class="sdpi-item-label" data-i18n>Halt on Failure</div>
 	<div class="sdpi-item-value">
 		<input id="chk0" type="checkbox" name="haltOnFailure" value="true">
     	<label for="chk0"><span></span></label>
 	</div>
 </div>
 <div type="textarea" class="sdpi-item">
-	<div class="sdpi-item-label" data-localize>Requests Array</div>
+	<div class="sdpi-item-label" data-i18n>Requests Array</div>
 	<div class="sdpi-item-value textarea">
 		<textarea type="textarea" name="requestsArray" style="min-height: 10.5em;" required></textarea>
 	</div>

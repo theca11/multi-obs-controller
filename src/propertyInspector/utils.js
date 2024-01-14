@@ -85,7 +85,7 @@ export class FormUtils {
 }
 
 /**
-    * Searches the document tree to find elements with data-localize attributes
+    * Searches the document tree to find elements with data-i18n attributes
     * and replaces their values with the localized string
     * @returns {<void>}
     */
@@ -95,9 +95,7 @@ export class FormUtils {
 export function localizeUI() {
 	const el = document.querySelector('.sdpi-wrapper');
 	if(!el) return console.warn('No element found to localize');
-	const selectorsList = '[data-localize]';
-	// see if we have any data-localize attributes
-	// that means we can skip the rest of the DOM
+	const selectorsList = '[data-i18n]';
 	el.querySelectorAll(selectorsList).forEach(e => {
 		const s = e.textContent.trim();
 		e.innerHTML = e.innerHTML.replace(s, $PI.localize(s));

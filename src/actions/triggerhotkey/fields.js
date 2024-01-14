@@ -22,8 +22,8 @@ export const fields = `
 	<p>Other keys are not supported or are only partially supported and may not work.</p>
 </details>
 <div class="sdpi-item sequence-item">
-	<div class="sdpi-item-label" data-localize>Key Sequence</div>
-	<input class="sdpi-item-value" type="text" placeholder="Click here to add hotkey sequence" readonly data-localize>
+	<div class="sdpi-item-label" data-i18n>Key Sequence</div>
+	<input class="sdpi-item-value" type="text" placeholder="Click here to add hotkey sequence" readonly data-i18n>
 	<input type="hidden" name="seq">
 </div>
 `;

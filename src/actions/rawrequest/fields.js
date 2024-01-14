@@ -22,11 +22,11 @@ export const fields = `
 	</p>
 </details>
 <div class="sdpi-item">
-	<div class="sdpi-item-label" data-localize>Request Type</div>
+	<div class="sdpi-item-label" data-i18n>Request Type</div>
 	<input class="sdpi-item-value" type="text" name="requestType" required>
 </div>
 <div type="textarea" class="sdpi-item">
-	<div class="sdpi-item-label" data-localize>Request Data</div>
+	<div class="sdpi-item-label" data-i18n>Request Data</div>
 	<div class="sdpi-item-value textarea">
 		<textarea type="textarea" name="requestData" style="min-height: 6em;"></textarea>
 	</div>
