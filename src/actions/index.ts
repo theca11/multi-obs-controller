@@ -11,6 +11,7 @@ export { StatsAction } from './stats/StatsAction';
 export { ToggleFilterAction } from './togglefilter/ToggleFilterAction';
 export { ToggleInputMuteAction } from './toggleinputmute/ToggleInputMuteAction';
 export { ToggleRecordAction } from './togglerecord/ToggleRecordAction';
+export { ToggleReplayBufferAction } from './togglereplaybuffer/ToggleReplayBufferAction';
 export { ToggleSourceAction } from './togglesource/ToggleSourceAction';
 export { ToggleStreamAction } from './togglestream/ToggleStreamAction';
 export { ToggleStudioModeAction } from './togglestudiomode/ToggleStudioModeAction';

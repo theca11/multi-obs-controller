@@ -51,6 +51,18 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.togglereplaybuffer": {
+		"Name": "Replay Buffer",
+		"Tooltip": "Start/stop replay buffer",
+		"States": [
+			{
+				"Name": "Start"
+			},
+			{
+				"Name": "Stop"
+			}
+		]
+	},
 	"dev.theca11.multiobs.setscene": {
 		"Name": "Scene",
 		"Tooltip": "Set current scene"

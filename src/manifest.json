@@ -94,6 +94,23 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.togglereplaybuffer",
+			"Icon": "assets/actions/togglereplaybuffer/icon",
+			"Name": "Replay Buffer",
+			"Tooltip": "Start/stop replay buffer",
+			"States": [
+				{
+					"Image": "assets/actions/togglereplaybuffer/key_on",
+					"Name": "Start"
+				},
+				{
+					"Image": "assets/actions/togglereplaybuffer/key_off",
+					"Name": "Stop"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.setscene",
 			"Icon": "assets/actions/setscene/icon",
 			"Name": "Scene",

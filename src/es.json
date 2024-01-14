@@ -51,6 +51,18 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.togglereplaybuffer": {
+		"Name": "Búfer de repetición",
+		"Tooltip": "Iniciar/detener búfer de repetición",
+		"States": [
+			{
+				"Name": "Iniciar"
+			},
+			{
+				"Name": "Detener"
+			}
+		]
+	},
 	"dev.theca11.multiobs.setscene": {
 		"Name": "Escena",
 		"Tooltip": "Cambiar escena actual"
