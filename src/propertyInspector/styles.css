@@ -38,6 +38,10 @@ button {
 	user-select: none;
 }
 
+a {
+	color: #699fc5;
+}
+
 .sdpi-item {
 	min-height: auto;
 	max-width: none;
@@ -90,6 +94,10 @@ input[type='checkbox'] + label span,
 input[type='radio']:checked + label span,
 input[type='checkbox']:checked + label span {
 	border: none;
+}
+
+input[type="radio"]:checked + label span, input[type="checkbox"]:checked + label span {
+    background-color: #4d89b3 !important;
 }
 
 .sdpi-item[type='checkbox'] > .sdpi-item-value {
