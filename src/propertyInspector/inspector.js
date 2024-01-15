@@ -204,6 +204,10 @@ window.reconnect = () => {
 	$PI.sendToPlugin({ event: 'reconnect' });
 };
 
+window.openUrl = (url) => {
+	$PI.openUrl(url);
+};
+
 // --- Tabs logic ---
 function activateTabs(activeTab) {
 	const allTabs = Array.from(document.querySelectorAll('.tab'));

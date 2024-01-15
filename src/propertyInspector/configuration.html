@@ -4,9 +4,10 @@
 		<title>Multi OBS Controller General Configuration</title>
 		<meta charset="utf-8" />
 		<link rel="stylesheet" href="../libs/css/sdpi.css" />
+		<link rel="stylesheet" href="./styles.css" />
 		<style>
 			body {
-				background-color: transparent;
+				background-color: #202020;
 			}
 
 			.sdpi-item {
@@ -16,10 +17,6 @@
 
 			.sdpi-item-label {
 				width: 85px;
-			}
-
-			.sdpi-heading {
-				margin: 16px 0;
 			}
 
 			ul {
@@ -42,109 +39,353 @@
 			}
 
 			.wrap {
-				margin: 8px 16px;
+				margin: 8px;
+			}
+
+			.sdpi-heading {
+				margin: 0 0 8px 0;
+				font-weight: 700;
+				font-size: 10pt;
+			}
+
+			.sdpi-heading::before,
+			.sdpi-heading::after {
+				height: 2px;
+				background-color: #9a9a9a;
+				margin: 0;
+			}
+
+			.sdpi-heading::before {
+				margin-right: 10px;
+			}
+
+			.sdpi-heading::after {
+				margin-left: 10px;
+			}
+
+			.item {
+				display: grid;
+				grid-template-columns: min-content auto;
+				align-items: center;
+				grid-column-gap: 4px;
+			}
+
+			.item .label {
+				width: 55px;
+				text-align: right;
+			}
+
+			.item .label::after {
+				content: ': ';
+			}
+
+			.item .input {
+				min-height: 26px;
+				padding: 0 4px;
+				min-width: 0px;
+			}
+
+			.input {
+				margin-left: 4px;
+			}
+
+			.obs-settings {
+				display: grid;
+				grid-template-columns: 175px 175px;
+				grid-column-gap: 50px;
+				justify-content: center;
+				align-items: center;
+				margin-bottom: 12px;
+			}
+
+			.additional-settings {
+				padding-left: 4px;
+			}
+
+			.group-label {
+				text-align: center;
+				margin: 0 0 8px 0;
+				column-gap: 4px;
+			}
+
+			.section {
+				background-color: #2d2d2d;
+				padding: 8px;
+				border-radius: 8px;
+				margin: 8px 0;
+			}
+
+			.links {
+				display: flex;
+				justify-content: center;
+			}
+
+			.links img {
+				height: 20px;
+				filter: invert(0.96) drop-shadow(0px 0px 3px #00000080);
+				pointer-events: none;
+			}
+
+			.links button {
+				border: none;
+				background-color: transparent;
+				padding: 2px;
+				margin: 0 2px 0 0;
+			}
+
+			.links button:hover {
+				opacity: 0.75;
+			}
+
+			.header {
+				background-color: #517a96;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 6px 15px;
+			}
+
+			.text {
+				color: #efefef;
+				font-size: 11pt;
+				font-weight: 700;
+				text-shadow: 0px 0px 4px #00000080;
+			}
+
+			#reconnect {
+				border: none;
+				border-radius: 4px;
+				width: 100%;
+				margin: auto;
+				margin-top: 4px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				column-gap: 8px;
+			}
+
+			#reconnect svg {
+				width: 14pt;
 			}
 		</style>
 	</head>
 
 	<body>
-		<div class="sdpi-wrapper">
-			<div class="sdpi-heading"><b>MULTI OBS CONTROLLER GENERAL CONFIGURATION</b></div>
-			<div class="wrap">
-				<div class="sdpi-heading">OBS Websocket Servers settings</div>
-				<p>
-					Multi OBS Controller plugin communicates with OBS Studio via OBS Websockets.
-					<br/>
-					Follow these steps to configure the Websockets Server for each instance of OBS Studio:
-				</p>
-				<p style="margin-left: 10px">
-					1. Open OBS Studio and go to Tools > Websocket Server Settings<br/>
-					2. Check "Enable Websocket Server"<br/>
-					3. Configure the Server Port and Server Password<br/>
-					4. Apply and close the settings window
-				</p>
-				<p>
-					Once the Websocket Servers are configured, add here their settings:
-				</p>
-				<form>
-					<div type="group" class="sdpi-item">
-						<div class="sdpi-item-label empty">OBS #1 Settings</div>
-						<div class="sdpi-item-group">
-							<div class="sdpi-item" title="IP address of OBS WebSocket server. Please, provide a valid IP address">
-								<div class="sdpi-item-label">IP</div>
-								<input class="sdpi-item-value" type="text" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" name="ip1">
-							</div>
-							<div class="sdpi-item" title="Port of OBS WebSocket server">
-								<div class="sdpi-item-label">Port</div>
-								<input class="sdpi-item-value" type="number" name="port1">
-							</div>
-							<div class="sdpi-item" title="Password of OBS WebSocket server, if auth enabled">
-								<div class="sdpi-item-label">Password</div>
-								<input class="sdpi-item-value" type="password" name="pwd1">
-							</div>
-						</div>
-					</div>
-					<div type="group" class="sdpi-item">
-						<div class="sdpi-item-label empty">OBS #2 Settings</div>
-						<div class="sdpi-item-group">
-							<div class="sdpi-item" title="IP address of OBS WebSocket server. Please, provide a valid IP address">
-								<div class="sdpi-item-label">IP</div>
-								<input class="sdpi-item-value" type="text" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" name="ip2">
-							</div>
-							<div class="sdpi-item" title="Port of OBS WebSocket server">
-								<div class="sdpi-item-label">Port</div>
-								<input class="sdpi-item-value" type="number" name="port2">
-							</div>
-							<div class="sdpi-item" title="Password of OBS WebSocket server, if auth enabled">
-								<div class="sdpi-item-label">Password</div>
-								<input class="sdpi-item-value" type="password" name="pwd2">
-							</div>
-						</div>
-					</div>
-					<button id="reconnect">If you're having issues, click here to force a plugin ↔ OBS reconnection and reinitialization</button>
-					<div class="sdpi-heading">Additional plugin settings</div>
-					<div type="radio" class="sdpi-item" id="defaultTarget" title="OBS to target" style="margin-top: 2px">
-						<div class="sdpi-item-label">Default Target</div>
-						<div class="sdpi-item-value" style="margin-bottom: 0px;">
-							<input id="obs0" type="radio" name="defaultTarget" value="0" checked>
-							<label for="obs0" class="sdpi-item-label"><span></span>All</label>
-							<input id="obs1" type="radio" name="defaultTarget" value="1">
-							<label for="obs1" class="sdpi-item-label"><span></span>OBS #1</label>
-							<input id="obs2" type="radio" name="defaultTarget" value="2">
-							<label for="obs2" class="sdpi-item-label"><span></span>OBS #2</label>
-						</div>
-					</div>
-					<div class="sdpi-item" style="align-items: center;" title="Long press length in milliseconds">
-						<div class="sdpi-item-label">Long press length (ms)</div>
-						<input class="sdpi-item-value" type="number" name="longPressMs" value="500" required>
-					</div>
-					<div type="radio" class="sdpi-item" title="Target indicators position in key" style="margin-top: 2px">
-						<div class="sdpi-item-label">Target position</div>
-						<div class="sdpi-item-value" style="margin-bottom: 0px;">
-							<input id="top" type="radio" name="targetNumbers" value="top" checked>
-							<label for="top" class="sdpi-item-label"><span></span>Top</label>
-							<input id="middle" type="radio" name="targetNumbers" value="middle">
-							<label for="middle" class="sdpi-item-label"><span></span>Middle</label>
-							<input id="bottom" type="radio" name="targetNumbers" value="bottom">
-							<label for="bottom" class="sdpi-item-label"><span></span>Bottom</label>
-							<input id="hide" type="radio" name="targetNumbers" value="hide">
-							<label for="hide" class="sdpi-item-label"><span></span>Hidden</label>
-						</div>
-					</div>
-					<div type="checkbox" class="sdpi-item" style="margin-left: 4px;">
-						<div class="sdpi-item-label empty"></div>
-						<input class="sdpi-item-value" id="chk0" type="checkbox" name="feedback" value="hide">
-						<label for="chk0"><span></span>Don't show visual OK/alert feedback after pressing a key</label>
-					</div>
-					<div type="checkbox" class="sdpi-item" style="margin-left: 4px;">
-						<div class="sdpi-item-label empty"></div>
-						<input class="sdpi-item-value" id="chk1" type="checkbox" name="debug" value="enabled">
-						<label for="chk1"><span></span>Enable debug logs</label>
-					</div>
-				</form>
+		<div class="header">
+			<div class="text">Multi OBS Controller - General Configuration</div>
+			<div class="links">
+				<button data-url="https://theca11.github.io/multi-obs-controller" title="Website">
+					<img src="../assets/tablerIcons/world-www.svg" alt="Website" />
+				</button>
+				<button data-url="https://discord.gg/sMSDVRQSUd" title="Discord">
+					<img src="../assets/tablerIcons/brand-discord-filled.svg" alt="Discord" />
+				</button>
+				<button data-url="https://ko-fi.com/the_ca11" title="Support on Ko-Fi">
+					<img src="../assets/tablerIcons/kofi-logo.svg" alt="Ko-Fi" />
+				</button>
 			</div>
 		</div>
-
+		<div class="wrap">
+			<form>
+				<div class="section">
+					<div class="sdpi-heading">OBS Websocket Servers settings</div>
+					<p>
+						Multi OBS Controller plugin communicates with OBS Studio via OBS Websockets.
+						<br />
+						Follow these steps to configure the Websockets Server for each instance of
+						OBS Studio:
+					</p>
+					<p style="margin-left: 10px">
+						1. Open OBS Studio and go to Tools > Websocket Server Settings<br />
+						2. Check "Enable Websocket Server"<br />
+						3. Configure the Server Port and Server Password<br />
+						4. Apply and close the settings window
+					</p>
+					<p>Once the Websocket Servers are configured, add here their settings:</p>
+					<div class="obs-settings">
+						<div class="group">
+							<div class="group-label lines">OBS #1 Settings</div>
+							<div>
+								<div
+									class="item"
+									title="IP address of OBS WebSocket server. Please, provide a valid IP address"
+								>
+									<div class="label">IP</div>
+									<input
+										class="input"
+										type="text"
+										pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+										name="ip1"
+									/>
+								</div>
+								<div class="item" title="Port of OBS WebSocket server">
+									<div class="label">Port</div>
+									<input class="input" type="number" name="port1" />
+								</div>
+								<div
+									class="item"
+									title="Password of OBS WebSocket server, if auth enabled"
+								>
+									<div class="label">Password</div>
+									<input class="input" type="password" name="pwd1" />
+								</div>
+							</div>
+						</div>
+						<div>
+							<div class="group-label lines">OBS #2 Settings</div>
+							<div>
+								<div
+									class="item"
+									title="IP address of OBS WebSocket server. Please, provide a valid IP address"
+								>
+									<div class="label">IP</div>
+									<input
+										class="input"
+										type="text"
+										pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+										name="ip2"
+									/>
+								</div>
+								<div class="item" title="Port of OBS WebSocket server">
+									<div class="label">Port</div>
+									<input class="input" type="number" name="port2" />
+								</div>
+								<div
+									class="item"
+									title="Password of OBS WebSocket server, if auth enabled"
+								>
+									<div class="label">Password</div>
+									<input class="input" type="password" name="pwd2" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<button id="reconnect">
+						If you're having issues, click here to force a plugin ↔ OBS reinitialization
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="icon icon-tabler icon-tabler-refresh-alert"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							stroke-width="2"
+							stroke="currentColor"
+							fill="none"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+							<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+							<path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+							<path d="M12 9l0 3" />
+							<path d="M12 15l.01 0" />
+						</svg>
+					</button>
+				</div>
+				<div class="section">
+					<div class="sdpi-heading">Additional plugin settings</div>
+					<div class="additional-settings">
+						<div
+							type="radio"
+							class="sdpi-item"
+							id="defaultTarget"
+							title="OBS to target"
+							style="margin-top: 2px"
+						>
+							<div class="sdpi-item-label">Default Target</div>
+							<div class="sdpi-item-value" style="margin-bottom: 0px">
+								<input
+									id="obs0"
+									type="radio"
+									name="defaultTarget"
+									value="0"
+									checked
+								/>
+								<label for="obs0"><span></span>All</label>
+								<input id="obs1" type="radio" name="defaultTarget" value="1" />
+								<label for="obs1"><span></span>OBS #1</label>
+								<input id="obs2" type="radio" name="defaultTarget" value="2" />
+								<label for="obs2"><span></span>OBS #2</label>
+							</div>
+						</div>
+						<div
+							class="sdpi-item"
+							style="align-items: center"
+							title="Long press length in milliseconds"
+						>
+							<div class="sdpi-item-label">Long press length (ms)</div>
+							<input
+								class="input"
+								type="number"
+								name="longPressMs"
+								value="500"
+								required
+								style="min-width: 0px; width: 105px"
+							/>
+						</div>
+						<div
+							type="radio"
+							class="sdpi-item"
+							title="Target indicators position in key"
+							style="margin-top: 2px"
+						>
+							<div class="sdpi-item-label">Target position</div>
+							<div class="sdpi-item-value" style="margin-bottom: 0px">
+								<input
+									id="top"
+									type="radio"
+									name="targetNumbers"
+									value="top"
+									checked
+								/>
+								<label for="top"><span></span>Top</label>
+								<input
+									id="middle"
+									type="radio"
+									name="targetNumbers"
+									value="middle"
+								/>
+								<label for="middle"><span></span>Middle</label>
+								<input
+									id="bottom"
+									type="radio"
+									name="targetNumbers"
+									value="bottom"
+								/>
+								<label for="bottom"><span></span>Bottom</label>
+								<input id="hide" type="radio" name="targetNumbers" value="hide" />
+								<label for="hide"><span></span>Hidden</label>
+							</div>
+						</div>
+						<div type="checkbox" class="sdpi-item" style="margin-left: 4px">
+							<div class="sdpi-item-label empty"></div>
+							<input
+								class="sdpi-item-value"
+								id="chk0"
+								type="checkbox"
+								name="feedback"
+								value="hide"
+							/>
+							<label for="chk0"
+								><span></span>Don't show visual OK/alert feedback after pressing a
+								key</label
+							>
+						</div>
+						<div type="checkbox" class="sdpi-item" style="margin-left: 4px">
+							<div class="sdpi-item-label empty"></div>
+							<input
+								class="sdpi-item-value"
+								id="chk1"
+								type="checkbox"
+								name="debug"
+								value="enabled"
+							/>
+							<label for="chk1"><span></span>Enable debug logs</label>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
 		<script src="../libs/js/utils.js"></script>
 		<script src="./configuration.js" type="module"></script>
 	</body>

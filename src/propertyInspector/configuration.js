@@ -21,3 +21,10 @@ document.querySelector('#reconnect').addEventListener('click', (e) => {
 	e.preventDefault();
 	window.opener.reconnect();
 });
+
+document.querySelectorAll('.links button').forEach((el) => {
+	el.addEventListener('click', (e) => {
+		e.preventDefault();
+		window.opener.openUrl(e.target.dataset.url);
+	});
+});
