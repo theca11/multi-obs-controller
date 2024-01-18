@@ -42,7 +42,7 @@ jobs:
         id: changelog
         uses: coditory/changelog-parser@v1
         with:
-          version: version: ${{ steps.lasttag.outputs.version }}
+          version: ${{ steps.lasttag.outputs.version }}
       - name: Create Github draft release
         uses: ncipollo/release-action@v1
         with:
