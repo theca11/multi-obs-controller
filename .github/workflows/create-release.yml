@@ -34,11 +34,20 @@ jobs:
         run: Rename-Item -Path "dist\${{ env.plugin_uuid }}.streamDeckPlugin" -NewName "${{ env.release_id }}.streamDeckPlugin"
       - name: Zip build folder
         run: Compress-Archive -Path "build\${{ env.plugin_uuid }}.sdPlugin" -DestinationPath "dist\${{ env.release_id }}.zip"
-      - name: Create Github draft release
-        uses: softprops/action-gh-release@v0.1.15
+      - name: Get version from tag
+        id: lasttag
+        run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+        shell: bash
+      - name: Parse Changelog Entry
+        id: changelog
+        uses: coditory/changelog-parser@v1
         with:
-          files: |
-            dist/${{ env.release_id }}.zip
-            dist/${{ env.release_id }}.streamDeckPlugin
-          fail_on_unmatched_files: true
+          version: version: ${{ steps.lasttag.outputs.version }}
+      - name: Create Github draft release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/${{ env.release_id }}.zip,dist/${{ env.release_id }}.streamDeckPlugin"
+          artifactErrorsFailBuild: true
           draft: true
+          name: "[${{ steps.changelog.outputs.version}}] - ${{ steps.changelog.outputs.date }}"
+          body: ${{ steps.changelog.outputs.description }}
