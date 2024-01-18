@@ -10,6 +10,7 @@ export class MediaInputControlAction extends AbstractStatefulRequestAction<Actio
 
 	constructor() {
 		super('dev.theca11.multiobs.mediainputcontrol', {
+			titleParam: 'inputName',
 			statusEvent: ['MediaInputPlaybackStarted', 'MediaInputPlaybackEnded', 'MediaInputActionTriggered'],
 		});
 	}
