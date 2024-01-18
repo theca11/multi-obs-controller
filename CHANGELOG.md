@@ -2,6 +2,27 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2024-01-18
+
+### Added
+
+-   New **Replay Buffer** action: start/stop the replay buffer
+-   New **Save Replay Buffer** action: save currently active replay buffer
+-   New **Media Source Control** action: control media source playback
+-   Support of custom key images with full state information via advanced option
+-   Global option to enable debug logs, to better track down potential issues
+-   Spanish localization (reach out if you want to contribute translations of other languages)
+
+### Changed
+
+-   Studio Mode Transition action has now on/off states (off if Studio Mode is not enabled)
+-   Style of configuration sections/windows improved
+
+### Fixed
+
+-   Issue when trying to reorder a newly added stat inside a Stats action
+-   Long press advanced option for Stats action now disabled (not applicable)
+
 ## [0.4.0] - 2023-11-22
 
 ### Added
