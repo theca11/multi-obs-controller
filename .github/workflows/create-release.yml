@@ -35,14 +35,15 @@ jobs:
       - name: Zip build folder
         run: Compress-Archive -Path "build\${{ env.plugin_uuid }}.sdPlugin" -DestinationPath "dist\${{ env.release_id }}.zip"
       - name: Get version from tag
-        id: lasttag
-        run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+        id: tag_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         shell: bash
       - name: Parse Changelog Entry
         id: changelog
-        uses: coditory/changelog-parser@v1
+        uses: mindsers/changelog-reader-action@v2
         with:
-          version: ${{ steps.lasttag.outputs.version }}
+          path: ./CHANGELOG.md
+          version: ${{ steps.tag_version.outputs.version }}
       - name: Create Github draft release
         uses: ncipollo/release-action@v1
         with:
@@ -50,4 +51,4 @@ jobs:
           artifactErrorsFailBuild: true
           draft: true
           name: "[${{ steps.changelog.outputs.version}}] - ${{ steps.changelog.outputs.date }}"
-          body: ${{ steps.changelog.outputs.description }}
+          body: ${{ steps.changelog.outputs.changes }}
