@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2024-02-01
+
+### Added
+
+-   New option in Scene action to choose whether to set the scene to the preview or to the program output when Studio Mode is active. Defaults to preview scene
+
 ## [0.5.0] - 2024-01-18
 
 ### Added
