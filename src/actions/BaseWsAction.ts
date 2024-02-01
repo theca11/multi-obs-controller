@@ -391,7 +391,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						const [evtData] = args;
 						const socketSettings = settings[evtSocketIdx];
 						if (socketSettings && await this.shouldUpdateState!(evtData, socketSettings, evtSocketIdx)) {
-							const newState = this.getStateFromEvent!(evtData, socketSettings, statusEvent);
+							const newState = this.getStateFromEvent!(evtData, socketSettings, statusEvent, evtSocketIdx);
 							if (newState !== states[evtSocketIdx]) {
 								this.setContextSocketState(context, evtSocketIdx, newState);
 								this.updateKeyImage(context);
@@ -428,9 +428,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	 * @param evtData Event data
 	 * @param socketSettings Action settings for the corresponding socket
 	 * @param evtName Event name, as defined by OBS
+	 * @param socketIdx Socket index
 	 * @returns New state
 	 */
-	getStateFromEvent?(evtData: unknown, socketSettings: SocketSettings<T>, evtName: keyof OBSEventTypes): StateEnum;
+	getStateFromEvent?(evtData: unknown, socketSettings: SocketSettings<T>, evtName: keyof OBSEventTypes, socketIdx: number): StateEnum;
 	// --
 }
 
@@ -446,5 +447,5 @@ export abstract class AbstractStatefulAction<T extends Record<string, unknown>, 
 
 	abstract override fetchState(socketSettings: SocketSettings<T>, socketIdx: number): Promise<Exclude<StateEnum, StateEnum.Unavailable | StateEnum.None>>;
 	abstract override shouldUpdateState(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>, socketIdx: number): Promise<boolean>;
-	abstract override getStateFromEvent(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>): StateEnum;
+	abstract override getStateFromEvent(evtData: OBSEventTypes[U], socketSettings: SocketSettings<T>, evtName: U, socketIdx: number): StateEnum;
 }
