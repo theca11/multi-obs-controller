@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2024-05-05
+
+### Added
+
+-   Global and per-action options to customize default key colors, both icon/target color (foreground color) and active/inactive/intermediate states colors (background colors). Per-action colors override global colors
+
 ## [0.6.0] - 2024-02-01
 
 ### Added
