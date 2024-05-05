@@ -50,7 +50,11 @@ export type PersistentSettings<T> = Partial<{
 		longPress?: 'true',
 		longPressMs?: string,
 		customImg?: string,
-		customImgPos?: string
+		customImgPos?: string,
+		fgColor?: string,
+		bgColorActive?: string,
+		bgColorInactive?: string,
+		bgColorIntermediate?: string
 	}
 	[key: `params${number}`]: Partial<T>
 }>
@@ -60,6 +64,10 @@ export type GlobalSettings = Partial<{
 	[key: `pwd${number}`]: string
 	defaultTarget: string,
 	longPressMs: string,
+	fgColor: string,
+	bgColorActive: string,
+	bgColorInactive: string,
+	bgColorIntermediate: string
 	feedback: 'hide',
 	targetNumbers: 'bottom' | 'middle' | 'top' | 'hide',
 	debug: 'enabled'
@@ -73,7 +81,11 @@ export interface ContextData<T> {
 	states: StateEnum[];
 	advancedSettings?: {
 		customImg?: string,
-		customImgPos?: string
+		customImgPos?: string,
+		fgColor?: string,
+		bgColorActive?: string,
+		bgColorInactive?: string,
+		bgColorIntermediate?: string
 	}
 }
 
@@ -92,8 +104,8 @@ export type ConstructorParams = {
 	titleParam?: string,
 	statusEvent?: keyof OBSEventTypes | (keyof OBSEventTypes)[],
 	statesColors?: {
-		on?: string,
-		off?: string
+		active?: string,
+		inactive?: string
 	},
 	hideTargetIndicators?: boolean
 }

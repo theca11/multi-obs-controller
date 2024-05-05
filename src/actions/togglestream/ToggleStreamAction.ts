@@ -12,7 +12,7 @@ export class ToggleStreamAction extends AbstractStatefulRequestAction<ActionSett
 	private _timerInterval: NodeJS.Timeout | undefined;
 
 	constructor() {
-		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { on: '#5a9b4a' } });
+		super('dev.theca11.multiobs.togglestream', { statusEvent: 'StreamStateChanged', statesColors: { active: '#5a9b4a' } });
 		this._attachListenersForTimer();
 	}
 

@@ -149,6 +149,12 @@ document.querySelector('#customImgRemoveButton').addEventListener('click', (e) =
 });
 // --
 
+// Custom bg colors
+document.querySelectorAll('.colors button.icon-remove').forEach(el => el.addEventListener('click', (ev) => {
+	ev.preventDefault();
+	el.previousElementSibling.value = '#fefefe';
+	document.querySelector('#advanced-fields').dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+}));
 
 /**
  * Load all forms, and set listener to update settings on forms change

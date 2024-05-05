@@ -28,3 +28,9 @@ document.querySelectorAll('.links button').forEach((el) => {
 		window.opener.openUrl(e.target.dataset.url);
 	});
 });
+
+document.querySelectorAll('.colors button.icon-remove').forEach(el => el.addEventListener('click', (ev) => {
+	ev.preventDefault();
+	el.previousElementSibling.value = '#fefefe';
+	document.querySelector('form').dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+}));

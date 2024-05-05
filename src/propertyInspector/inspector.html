@@ -19,63 +19,205 @@
 				<div type="radio" class="sdpi-item" id="target" style="margin-top: 2px">
 					<div class="sdpi-item-label" title="OBS to target" data-i18n>Target</div>
 					<div class="sdpi-item-value">
-						<input id="obs0" type="radio" name="target" value="0">
+						<input id="obs0" type="radio" name="target" value="0" />
 						<label for="obs0" data-i18n><span></span>All</label>
-						<input id="obs1" type="radio" name="target" value="1">
+						<input id="obs1" type="radio" name="target" value="1" />
 						<label for="obs1"><span></span>OBS #1</label>
-						<input id="obs2" type="radio" name="target" value="2">
+						<input id="obs2" type="radio" name="target" value="2" />
 						<label for="obs2"><span></span>OBS #2</label>
 					</div>
 				</div>
 				<div type="checkbox" class="sdpi-item" id="indivParams" style="margin-top: 0px">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
-						<input id="indivParamsCheck" type="checkbox" name="indivParams" value="true">
-						<label for="indivParamsCheck" data-i18n><span></span>Use individual settings per OBS instance</label>	
+						<input
+							id="indivParamsCheck"
+							type="checkbox"
+							name="indivParams"
+							value="true"
+						/>
+						<label for="indivParamsCheck" data-i18n
+							><span></span>Use individual settings per OBS instance</label
+						>
 					</div>
 				</div>
 			</form>
-			<hr id="first-separator"/>
+			<hr id="first-separator" />
 			<div id="tabs-header" style="margin-top: -12px">
 				<div type="tabs" class="sdpi-item" style="margin-bottom: 0px">
 					<div class="sdpi-item-label empty"></div>
 					<div class="tabs"></div>
 				</div>
-				<hr class="tab-separator"/>
+				<hr class="tab-separator" />
 			</div>
 			<div class="tabs-contents"></div>
-			<div id="footer" style="margin-top: 4px;">
-				<details style="padding: 0px;">
-					<summary class="lines"><span style="margin: 0 4px;" data-i18n>Advanced Options</span></summary>
-					<form id="advanced-fields" style="padding: 6px 0;">
-						<div type="checkbox" class="sdpi-item" id="longPress" style="margin-top: 0px">
-							<div class="sdpi-item-label" title="Require a long key press" data-i18n>Long Press</div>
+			<div id="footer" style="margin-top: 4px">
+				<details style="padding: 0px">
+					<summary class="lines">
+						<span style="margin: 0 4px" data-i18n>Advanced Options</span>
+					</summary>
+					<form id="advanced-fields" style="padding: 6px 0">
+						<div
+							type="checkbox"
+							class="sdpi-item"
+							id="longPress"
+							style="margin-top: 0px"
+						>
+							<div class="sdpi-item-label" title="Require a long key press" data-i18n>
+								Long Press
+							</div>
 							<div class="sdpi-item-value">
 								<div>
-									<input id="longPressCheck" type="checkbox" name="longPress" value="true">
+									<input
+										id="longPressCheck"
+										type="checkbox"
+										name="longPress"
+										value="true"
+									/>
 									<label for="longPressCheck"><span></span></label>
 								</div>
-								<div style="display: inline-flex; align-items: center;" title="Minimum length of a long key press" data-i18n>
-									<label class="end-colon" style="font-size: 9pt; margin-right: 8px;" style="width: auto;" data-i18n>Length (ms)</label>
-									<input style="min-width: 0; padding: 0px 4px; flex: 1 0 0; min-height: 26px; margin: 0px" type="number" id="longPressMs" name="longPressMs">		
+								<div
+									style="display: inline-flex; align-items: center"
+									title="Minimum length of a long key press"
+									data-i18n
+								>
+									<label
+										class="end-colon"
+										style="font-size: 9pt; margin-right: 8px"
+										style="width: auto"
+										data-i18n
+										>Length (ms)</label
+									>
+									<input
+										style="
+											min-width: 0;
+											padding: 0px 4px;
+											flex: 1 0 0;
+											min-height: 26px;
+											margin: 0px;
+										"
+										type="number"
+										id="longPressMs"
+										name="longPressMs"
+									/>
 								</div>
 							</div>
 						</div>
 						<div class="sdpi-item" id="customImgDiv">
-							<div class="sdpi-item-label" title="Use custom key icon" data-i18n>Custom Icon</div>
+							<div class="sdpi-item-label" title="Use custom key icon" data-i18n>
+								Custom Icon
+							</div>
 							<div class="sdpi-item-value">
-								<input name="customImg" readonly placeholder="No custom icon image set" style="text-overflow: ellipsis; min-height: 26px; flex: 1 0 0; margin: 0; padding: 0px 4px;" data-i18n>
-								<input hidden name="customImgPos">
-								<button id="customImgRemoveButton" class="icon-button icon-remove" title="Remove custom icon image and use default one" data-i18n></button>
+								<input
+									name="customImg"
+									readonly
+									placeholder="No custom icon image set"
+									style="
+										text-overflow: ellipsis;
+										min-height: 26px;
+										flex: 1 0 0;
+										margin: 0;
+										padding: 0px 4px;
+									"
+									data-i18n
+								/>
+								<input hidden name="customImgPos" />
+								<button
+									id="customImgRemoveButton"
+									class="icon-button icon-remove"
+									title="Remove custom icon image and use default one"
+									data-i18n
+								></button>
+							</div>
+						</div>
+						<div class="sdpi-item colors">
+							<div class="sdpi-item-label" title="Foreground Color" data-i18n>
+								Foreground Color
+							</div>
+							<div class="sdpi-item-value" style="display: flex; gap: 1.5rem">
+								<div>
+									<input
+										type="color"
+										name="fgColor"
+										value="#fefefe"
+										title="Foreground Color"
+										data-i18n
+									/>
+									<button
+										class="icon-button icon-remove"
+										title="Remove custom foreground color"
+										data-i18n
+									></button>
+								</div>
+							</div>
+						</div>
+						<div class="sdpi-item colors" style="margin-top: 0px">
+							<div class="sdpi-item-label" title="Background Colors" data-i18n>
+								Background Colors
+							</div>
+							<div class="sdpi-item-value" style="display: flex; gap: 1.5rem">
+								<div>
+									<input
+										type="color"
+										name="bgColorActive"
+										value="#fefefe"
+										title="Active State Bg Color"
+										data-i18n
+									/>
+									<button
+										class="icon-button icon-remove"
+										title="Remove custom active state background color"
+										data-i18n
+									></button>
+								</div>
+								<div>
+									<input
+										type="color"
+										name="bgColorInactive"
+										value="#fefefe"
+										title="Inactive State Bg Color"
+										data-i18n
+									/>
+									<button
+										class="icon-button icon-remove"
+										title="Remove custom inactive state background color"
+										data-i18n
+									></button>
+								</div>
+								<div>
+									<input
+										type="color"
+										name="bgColorIntermediate"
+										value="#fefefe"
+										title="Intermediate State Bg Color"
+										data-i18n
+									/>
+									<button
+										class="icon-button icon-remove"
+										title="Remove custom intermediate state background color"
+										data-i18n
+									></button>
+								</div>
 							</div>
 						</div>
 					</form>
-					<input hidden id="customImgFilePicker" type="file" accept=".jpg, .jpeg, .png">
+					<input hidden id="customImgFilePicker" type="file" accept=".jpg, .jpeg, .png" />
 				</details>
-				<div class="lines" style="margin-left: 16px; margin-right: 13px;">
-					<div style="display: flex; align-items: flex-end;">
-						<img src="../assets/tablerIcons/settings-filled.svg" alt="Cog" style="width: 14px; height: 14px; margin-right: 4px; filter: invert(0.6);"/>
-						<a id="open-config" href="#" style="text-decoration: none;" data-i18n>General Configuration</a>
+				<div class="lines" style="margin-left: 16px; margin-right: 13px">
+					<div style="display: flex; align-items: flex-end">
+						<img
+							src="../assets/tablerIcons/settings-filled.svg"
+							alt="Cog"
+							style="
+								width: 14px;
+								height: 14px;
+								margin-right: 4px;
+								filter: invert(0.6);
+							"
+						/>
+						<a id="open-config" href="#" style="text-decoration: none" data-i18n
+							>General Configuration</a
+						>
 					</div>
 				</div>
 			</div>

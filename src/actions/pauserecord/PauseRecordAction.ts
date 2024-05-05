@@ -8,7 +8,7 @@ type ActionSettings = Record<string, never>
 
 export class PauseRecordAction extends AbstractStatefulRequestAction<ActionSettings, 'RecordStateChanged'> {
 	constructor() {
-		super('dev.theca11.multiobs.pauserecord', { statusEvent: 'RecordStateChanged', statesColors: { on: '#de902a' } });
+		super('dev.theca11.multiobs.pauserecord', { statusEvent: 'RecordStateChanged', statesColors: { active: '#de902a' } });
 	}
 
 	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>, state: StateEnum, desiredState?: number | undefined): SingleRequestPayload<'PauseRecord' | 'ResumeRecord' | 'ToggleRecordPause'> {

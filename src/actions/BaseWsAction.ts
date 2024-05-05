@@ -12,7 +12,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	private _contexts = new Map<string, ContextData<T>>(); // <context, contextData>
 
 	private _titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
-	private _statesColors = { on: '#517a96', intermediate: '#de902a', off: '#43667d' };
+	private _statesColors = { active: '#517a96', intermediate: '#de902a', inactive: '#43667d' };
 	private _hideTargetIndicators = false;
 	protected _showSuccess = true;
 
@@ -308,19 +308,42 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 		}
 	}
 
+	private _getFgColor(context: string) {
+		if (!this._contexts.has(context)) return;
+		const { advancedSettings } = this._contexts.get(context)!;
+		const noColor = '#fefefe';
+		return (advancedSettings?.fgColor !== noColor && advancedSettings?.fgColor) ||
+			(globalSettings.fgColor !== noColor && globalSettings.fgColor) ||
+			'#efefef';
+	}
+
+	private _getBgColor(context: string, stateStr: 'Active' | 'Inactive' | 'Intermediate') {
+		if (!this._contexts.has(context)) return;
+		const { advancedSettings } = this._contexts.get(context)!;
+		const noColor = '#fefefe';
+		const lowercaseState = stateStr.toLowerCase() as 'active' | 'inactive' | 'intermediate';
+		return (advancedSettings?.[`bgColor${stateStr}`] !== noColor && advancedSettings?.[`bgColor${stateStr}`]) ||
+			(globalSettings[`bgColor${stateStr}`] !== noColor && globalSettings[`bgColor${stateStr}`]) ||
+			this._statesColors[lowercaseState];
+	}
+
 	private async _generateKeyImage(context: string) {
 		if (!this._contexts.has(context)) return;
 		const { states, targetObs, advancedSettings } = this._contexts.get(context)!;
 
 		// State rectangles
 		let bgLayer = '', fgLayer = '';
+		const activeColor = this._getBgColor(context, 'Active');
+		const inactiveColor = this._getBgColor(context, 'Inactive');
+		const intermediateColor = this._getBgColor(context, 'Intermediate');
+
 		if (states) {
 			if (targetObs !== 0) {
 				if (states[targetObs - 1] === StateEnum.Unavailable) {
 					fgLayer += SVGUtils.createVPattern();
 				}
 				else {
-					bgLayer += `<rect x="0" y="0" width="144" height="144" fill="${states[targetObs - 1] === StateEnum.Inactive ? this._statesColors.off : states[targetObs - 1] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on}"/>`;
+					bgLayer += `<rect x="0" y="0" width="144" height="144" fill="${states[targetObs - 1] === StateEnum.Inactive ? inactiveColor : states[targetObs - 1] === StateEnum.Intermediate ? intermediateColor : activeColor}"/>`;
 					if (states[targetObs - 1] === StateEnum.Inactive) {
 						fgLayer += '<rect x="0" y="0" width="144" height="144" fill="black" fill-opacity="0.33"/>';
 					}
@@ -332,7 +355,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 						fgLayer += SVGUtils.createVPattern(i / 2, (i + 1) / 2);
 					}
 					else {
-						bgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}" height="144" fill="${states[i] === StateEnum.Inactive ? this._statesColors.off : states[i] === StateEnum.Intermediate ? this._statesColors.intermediate : this._statesColors.on}"/>`;
+						bgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}" height="144" fill="${states[i] === StateEnum.Inactive ? inactiveColor : states[i] === StateEnum.Intermediate ? intermediateColor : activeColor}"/>`;
 						if (states[i] === StateEnum.Inactive) {
 							fgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}"  height="144" fill="black" fill-opacity="0.33"/>`;
 						}
@@ -343,15 +366,16 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 
 		// Target numbers
 		let targetsText = '';
+		const fgColor = this._getFgColor(context);
 		if (!this._hideTargetIndicators && globalSettings.targetNumbers !== 'hide') {
 			const pos = globalSettings.targetNumbers ?? 'top';
 
 			const yPos = pos === 'top' ? 28 : pos === 'middle' ? 144 / 2 + 10 : 144 - 10;
 			if (targetObs === 0 || targetObs === 1) {
-				targetsText += `<text x="${0 + 10}" y="${yPos}" text-anchor="start" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="#efefef">1</text>`;
+				targetsText += `<text x="${0 + 10}" y="${yPos}" text-anchor="start" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="${fgColor}">1</text>`;
 			}
 			if (targetObs === 0 || targetObs === 2) {
-				targetsText += `<text x="${144 - 10}" y="${yPos}" text-anchor="end" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="#efefef">2</text>`;
+				targetsText += `<text x="${144 - 10}" y="${yPos}" text-anchor="end" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="${fgColor}">2</text>`;
 			}
 		}
 
@@ -366,7 +390,10 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 			fgImg = `<image xlink:href="${customImg}" x="${x}" y="${y}" width="${width}" height="${height}"/>`;
 		}
 		else {
-			fgImg = this._defaultKeyImg?.replace(/<\/?svg.*?>/g, '') ?? '';
+			fgImg = this._defaultKeyImg?.replace(/<\/?svg.*?>/g, '')
+			.replace(/fill=".*?"/, `fill="${fgColor}"`)
+			.replace(/stroke=".*?"/, `stroke="${fgColor}"`)
+				?? '';
 		}
 
 		const svgStr = `
