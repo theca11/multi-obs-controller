@@ -2,6 +2,16 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2024-05-06
+
+### Changed
+
+-   Off state icons/colors are dimmed a bit more than before to match native Stream Deck behaviour
+
+### Fixed
+
+-   Certain saved settings not being loaded back into configuration view
+
 ## [0.7.0] - 2024-05-05
 
 ### Added
