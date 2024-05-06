@@ -12,7 +12,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 	private _contexts = new Map<string, ContextData<T>>(); // <context, contextData>
 
 	private _titleParam: string | undefined;	// to-do: this type could be restricted more, something like keyof T?
-	private _statesColors = { active: '#517a96', intermediate: '#de902a', inactive: '#43667d' };
+	private _statesColors = { active: '#517a96', intermediate: '#de902a', inactive: '#3d5b70' };
 	private _hideTargetIndicators = false;
 	protected _showSuccess = true;
 
@@ -345,7 +345,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 				else {
 					bgLayer += `<rect x="0" y="0" width="144" height="144" fill="${states[targetObs - 1] === StateEnum.Inactive ? inactiveColor : states[targetObs - 1] === StateEnum.Intermediate ? intermediateColor : activeColor}"/>`;
 					if (states[targetObs - 1] === StateEnum.Inactive) {
-						fgLayer += '<rect x="0" y="0" width="144" height="144" fill="black" fill-opacity="0.33"/>';
+						fgLayer += '<rect x="0" y="0" width="144" height="144" fill="black" fill-opacity="0.5"/>';
 					}
 				}
 			}
