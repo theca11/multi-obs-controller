@@ -357,7 +357,7 @@ export abstract class AbstractBaseWsAction<T extends Record<string, unknown>> ex
 					else {
 						bgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}" height="144" fill="${states[i] === StateEnum.Inactive ? inactiveColor : states[i] === StateEnum.Intermediate ? intermediateColor : activeColor}"/>`;
 						if (states[i] === StateEnum.Inactive) {
-							fgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}"  height="144" fill="black" fill-opacity="0.33"/>`;
+							fgLayer += `<rect x="${144 * i / 2}" y="0" width="${144 * (i + 1) / 2}"  height="144" fill="black" fill-opacity="0.5"/>`;
 						}
 					}
 				}
