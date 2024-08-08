@@ -32,7 +32,7 @@ export class ScreenshotAction extends AbstractStatelessRequestAction<ActionSetti
 				sourceName: screenshotTarget?.toLocaleLowerCase() === 'output' ? this._currentSceneName[socketIdx] : screenshotTarget,
 				imageFormat: 'png',
 				imageCompressionQuality: parseInt(quality ?? '75'),
-				imageFilePath: `${this._outputFolder[socketIdx]}\\Screenshot_OBS${socketIdx + 1} ${new Date().toLocaleString('sv-SE').replace(/:/g, '-')}.png`,
+				imageFilePath: `${this._outputFolder[socketIdx]}/Screenshot_OBS${socketIdx + 1} ${new Date().toLocaleString('sv-SE').replace(/:/g, '-')}.png`,
 			},
 		};
 	}
