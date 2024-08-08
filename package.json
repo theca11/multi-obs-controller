@@ -1,6 +1,6 @@
 {
 	"name": "multi-obs-controller-sdplugin",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "Multi OBS Controller plugin allows you to remotely control multiple OBS Studio instances in an easily synchronous way.",
 	"scripts": {
 		"prepare-dev": "symlink-dir ./build/dev.theca11.multiobs.sdPlugin %APPDATA%/Elgato/StreamDeck/Plugins/dev.theca11.multiobs.sdPlugin",

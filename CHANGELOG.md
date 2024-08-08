@@ -2,6 +2,13 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2024-08-08
+
+### Fixed
+
+-   Off state wrong opacity in some cases
+-   Screenshots being saved to wrong path in Linux machines
+
 ## [0.7.1] - 2024-05-06
 
 ### Changed
