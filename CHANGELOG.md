@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2024-12-13
+
+### Fixed
+
+-   Screenshots from different sources being saved with same name (if captured simultaneously)
+
 ## [0.7.2] - 2024-08-08
 
 ### Fixed
