@@ -26,13 +26,14 @@ export class ScreenshotAction extends AbstractStatelessRequestAction<ActionSetti
 
 	override getPayloadFromSettings(socketIdx: number, settings: Record<string, never> | Partial<ActionSettings>): SingleRequestPayload<'SaveSourceScreenshot'> {
 		const { screenshotTarget, quality } = settings;
+		const sourceName = screenshotTarget?.toLocaleLowerCase() === 'output' ? this._currentSceneName[socketIdx] : screenshotTarget;
 		return {
 			requestType: 'SaveSourceScreenshot',
 			requestData: {
-				sourceName: screenshotTarget?.toLocaleLowerCase() === 'output' ? this._currentSceneName[socketIdx] : screenshotTarget,
+				sourceName: sourceName,
 				imageFormat: 'png',
 				imageCompressionQuality: parseInt(quality ?? '75'),
-				imageFilePath: `${this._outputFolder[socketIdx]}/Screenshot_OBS${socketIdx + 1} ${new Date().toLocaleString('sv-SE').replace(/:/g, '-')}.png`,
+				imageFilePath: `${this._outputFolder[socketIdx]}/Screenshot_OBS${socketIdx + 1} ${sourceName} ${new Date().toLocaleString('sv-SE').replace(/:/g, '-')}.png`,
 			},
 		};
 	}
