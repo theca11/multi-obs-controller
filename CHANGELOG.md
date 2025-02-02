@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-02-02
+
+### Added
+
+-   New **Chapter Marker** action: add a chapter marker to an active recording
+
 ## [0.7.3] - 2024-12-13
 
 ### Fixed
