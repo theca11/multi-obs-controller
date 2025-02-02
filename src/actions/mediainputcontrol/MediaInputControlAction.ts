@@ -74,7 +74,7 @@ export class MediaInputControlAction extends AbstractStatefulRequestAction<Actio
 		return socketSettings.inputName === evtData.inputName;
 	}
 
-	override getStateFromEvent(evtData: { inputName: string; mediaAction: string; }, socketSettings: SocketSettings<ActionSettings>, eventName: 'MediaInputPlaybackStarted' | 'MediaInputPlaybackEnded' | 'MediaInputActionTriggered'): StateEnum {
+	override getStateFromEvent(evtData: { inputName: string; mediaAction?: string; }, socketSettings: SocketSettings<ActionSettings>, eventName: 'MediaInputPlaybackStarted' | 'MediaInputPlaybackEnded' | 'MediaInputActionTriggered'): StateEnum {
 		if (eventName === 'MediaInputPlaybackStarted') {
 			return StateEnum.Active;
 		}
