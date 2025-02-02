@@ -1,3 +1,4 @@
+export { CreateRecordChapterAction } from './createrecordchapter/CreateRecordChapterAction';
 export { MediaInputControlAction } from './mediainputcontrol/MediaInputControlAction';
 export { PauseRecordAction } from './pauserecord/PauseRecordAction';
 export { RawBatchRequestAction } from './rawbatchrequest/RawBatchRequestAction';

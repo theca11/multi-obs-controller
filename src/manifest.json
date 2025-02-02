@@ -77,6 +77,21 @@
 			"DisableAutomaticStates": true
 		},
 		{
+			"UUID": "dev.theca11.multiobs.createrecordchapter",
+			"Icon": "assets/actions/createrecordchapter/icon",
+			"Name": "Chapter Marker",
+			"Tooltip": "Add a chapter marker to an active recording",
+			"States": [
+				{
+					"Image": "assets/actions/createrecordchapter/key_on"
+				},
+				{
+					"Image": "assets/actions/createrecordchapter/key_off"
+				}
+			],
+			"DisableAutomaticStates": true
+		},
+		{
 			"UUID": "dev.theca11.multiobs.togglevirtualcam",
 			"Icon": "assets/actions/togglevirtualcam/icon",
 			"Name": "Virtual Camera",
@@ -275,7 +290,8 @@
 				{
 					"Image": "assets/actions/triggerstudiomodetransition/key_off"
 				}
-			]
+			],
+			"DisableAutomaticStates": true
 		},
 		{
 			"UUID": "dev.theca11.multiobs.screenshot",

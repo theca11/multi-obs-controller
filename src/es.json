@@ -39,6 +39,10 @@
 			}
 		]
 	},
+	"dev.theca11.multiobs.createrecordchapter": {
+		"Name": "Marcador de capítulo",
+		"Tooltip": "Añadir un marcador de capítulo a una grabación en activo"
+	},
 	"dev.theca11.multiobs.togglevirtualcam": {
 		"Name": "Cámara virtual",
 		"Tooltip": "Iniciar/detener cámara virtual",
@@ -255,6 +259,7 @@
 		"Halt on Failure": "Parar al fallar",
 		"Requests Array": "Array de peticiones",
 		"Valid JSON data": "JSON válido",
-		"Invalid JSON data": "JSON inválido"
+		"Invalid JSON data": "JSON inválido",
+		"Name": "Nombre"
 	}
 }

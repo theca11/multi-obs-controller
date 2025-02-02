@@ -23,7 +23,7 @@
 	},
 	"homepage": "https://github.com/theca11/multi-obs-controller#readme",
 	"dependencies": {
-		"obs-websocket-js": "^5.0.3",
+		"obs-websocket-js": "^5.0.6",
 		"p-retry": "^6.1.0"
 	},
 	"devDependencies": {
