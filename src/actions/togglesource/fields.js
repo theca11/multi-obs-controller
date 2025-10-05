@@ -1,6 +1,6 @@
 export const fields = `
 <div class="sdpi-item scenes">
-	<div class="sdpi-item-label" data-i18n>Scene</div>
+	<div class="sdpi-item-label" data-i18n>Scene or Group</div>
 	<input class="sdpi-item-value" type="text" name="sceneName" list="sceneList" required>
 	<datalist id="sceneList"></datalist>
 </div>

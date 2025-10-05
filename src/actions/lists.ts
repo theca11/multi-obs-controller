@@ -50,6 +50,33 @@ export async function getSceneItemsList(socketIdx: number, sceneName: string) {
 }
 
 /**
+ * Get a list of all groups in all OBS instances
+ * @returns One array of group names per OBS instance.
+ */
+export async function getGroupsLists() {
+	const results = await Promise.allSettled(
+		sockets.map(socket => socket.isConnected ? socket.call('GetGroupList') : Promise.reject()),
+	);
+	return results.map(result => result.status === 'fulfilled' ? result.value.groups.map(name => ({ sceneName: name })) : []);
+}
+
+/**
+ * Get a list of all scene items in a particular group
+ * @param socketIdx Index identifying the OBS instance
+ * @param groupName Group to list all scene items
+ * @returns One array of scene items. Each scene item JsonObject contains sceneItemId and sourceName (among others)
+ */
+export async function getGroupSceneItemsList(socketIdx: number, groupName: string) {
+	try {
+		const data = await sockets[socketIdx].call('GetGroupSceneItemList', { sceneName: groupName });
+		return data.sceneItems;
+	}
+	catch {
+		return [];
+	}
+}
+
+/**
  * Get a list of all inputs in all OBS instances
  * @returns One array of inputs per OBS instance.
  * Each input JsonObject contains inputName, inputKind and unversionedInputKind

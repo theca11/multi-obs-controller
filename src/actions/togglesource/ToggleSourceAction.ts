@@ -2,7 +2,7 @@ import { OBSResponseTypes } from 'obs-websocket-js';
 import { sockets } from '../../plugin/sockets';
 import { AbstractStatefulRequestAction } from '../BaseRequestAction';
 import { StateEnum } from '../StateEnum';
-import { getScenesLists, getSceneItemsList } from '../lists';
+import { getScenesLists, getSceneItemsList, getGroupsLists, getGroupSceneItemsList } from '../lists';
 import { SocketSettings, BatchRequestPayload, SendToPluginData } from '../types';
 
 type ActionSettings = { sceneName: string, sourceName: string }
@@ -14,10 +14,11 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 		this.onSendToPlugin(async ({ payload, context, action }: SendToPluginData<{ event: string, socketIdx: number, sceneName: string }>) => {
 			if (payload.event === 'GetSceneItemsList') {
 				const sceneItems = await getSceneItemsList(payload.socketIdx, payload.sceneName);
+				const groupSceneItems = await getGroupSceneItemsList(payload.socketIdx, payload.sceneName);
 				const piPayload = {
 					event: 'SourceListLoaded',
 					idx: payload.socketIdx,
-					sourceList: sceneItems.map(o => o.sourceName),
+					sourceList: [...sceneItems, ...groupSceneItems].map(o => o.sourceName),
 				};
 				$SD.sendToPropertyInspector(context, piPayload, action);
 			}
@@ -61,7 +62,12 @@ export class ToggleSourceAction extends AbstractStatefulRequestAction<ActionSett
 
 	override async onPropertyInspectorReady({ context, action }: { context: string; action: string; }): Promise<void> {
 		const scenesLists = await getScenesLists();
-		const payload = { event: 'SceneListLoaded', scenesLists: scenesLists };
+		const groupsLists = await getGroupsLists();
+		const lists = new Array(scenesLists.length).fill([]);
+		for (let i = 0; i < lists.length; i++) {
+			lists[i] = [...groupsLists[i], ...scenesLists[i]];
+		}
+		const payload = { event: 'SceneListLoaded', scenesLists: lists };
 		$SD.sendToPropertyInspector(context, payload, action);
 	}
 
