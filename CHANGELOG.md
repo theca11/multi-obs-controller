@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2025-10-05
+
+### Fixed
+
+-   Groups and sources within groups not appearing in UI of Source Visibility action
+
 ## [0.8.0] - 2025-02-02
 
 ### Added
