@@ -9,7 +9,7 @@ const modifiers = {
 	Alt: false,
 	Meta: false,
 };
-const keyboardLayoutMap = await navigator.keyboard.getLayoutMap().catch(() => null);
+const keyboardLayoutMap = await navigator.keyboard?.getLayoutMap().catch(() => null);
 
 // Init shown sequence input field and add event listeners to it
 document.querySelectorAll('.sequence-item .sdpi-item-value').forEach((input) => {
